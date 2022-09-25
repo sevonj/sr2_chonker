@@ -1,0 +1,463 @@
+[gd_scene load_steps=17 format=2]
+
+[ext_resource path="res://ui/icon_help.png" type="Texture" id=1]
+[ext_resource path="res://scenes/common/scripts/camera.gd" type="Script" id=2]
+[ext_resource path="res://scenes/editor/scripts/help_toggle.gd" type="Script" id=3]
+[ext_resource path="res://scenes/editor/scripts/menu_cityobj_selected.gd" type="Script" id=4]
+[ext_resource path="res://scenes/editor/scripts/menu_file.gd" type="Script" id=5]
+[ext_resource path="res://scenes/editor/scripts/gizmo.gd" type="Script" id=6]
+
+[sub_resource type="QuadMesh" id=3]
+size = Vector2( 2, 2 )
+
+[sub_resource type="Shader" id=4]
+code = "//THIS SHADER MUST BE APPLIED TO A QUAD (MeshInstance) WITH A SIZE OF (2, 2)
+//Extra Cull Margin on the quad should be turned up all the way!
+
+shader_type spatial;
+render_mode unshaded;
+
+uniform int outline_mode : hint_range(1, 3, 1) = 3;
+uniform float outline_intensity : hint_range(0, 5) = 1;
+uniform bool _round = false;
+uniform float outline_bias : hint_range(-10, 10) = 0;
+
+uniform vec4 outline_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+
+void vertex() {
+	POSITION = vec4(VERTEX, 1.0);
+}
+
+void fragment() {
+	ALBEDO = outline_color.rgb;
+	
+	vec2 screen_size = vec2(textureSize(SCREEN_TEXTURE, 1));
+	
+	float px = 0.5/screen_size.x;
+	float py = 0.5/screen_size.y;
+	
+	float d = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+	float du = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(0.0, py)).x;
+	float dd = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(0.0, -py)).x;
+	float dr = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, 0.0)).x;
+	float dl = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, 0.0)).x;
+	
+	if (outline_mode == 1){
+		ALPHA = 0.0 + abs(abs(d)-abs(du)) + abs(abs(d)-abs(dd)) + abs(abs(d)-abs(dl)) + abs(abs(d)-abs(dr));
+			
+		ALPHA *= 1000.0*outline_intensity;
+	} else if (outline_mode == 2) {
+		ALPHA = 0.0 + abs(abs(abs(d)-abs(du)) - abs(abs(d)-abs(dd))) + abs(abs(abs(d)-abs(dl)) - abs(abs(d)-abs(dr)));
+		
+		ALPHA *= 3.0*50000.0*outline_intensity;
+	} else if (outline_mode == 3) {
+		float dq = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, py)).x;
+		float de = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, py)).x;
+		float dz = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, -py)).x;
+		float dc = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, -py)).x;
+		
+		ALPHA = 0.0 + abs(abs(abs(d)-abs(du)) - abs(abs(d)-abs(dd))) + abs(abs(abs(d)-abs(dl)) - abs(abs(d)-abs(dr))) + abs(abs(abs(d)-abs(dq)) - abs(abs(d)-abs(dc))) + abs(abs(abs(d)-abs(dz)) - abs(abs(d)-abs(de)));
+
+		ALPHA *= 50000.0*outline_intensity;
+	}
+	
+	ALPHA += outline_bias;
+	
+	if (_round) {
+		ALPHA = round(ALPHA);
+	}
+	
+	ALPHA *= outline_color.a;
+}
+
+//Written by Warren Jennings"
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = SubResource( 4 )
+shader_param/outline_mode = 3
+shader_param/outline_intensity = 1.0
+shader_param/_round = false
+shader_param/outline_bias = 0.0
+shader_param/outline_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="CylinderMesh" id=6]
+top_radius = 0.01
+bottom_radius = 0.01
+height = 1.0
+radial_segments = 4
+rings = 0
+
+[sub_resource type="SpatialMaterial" id=7]
+render_priority = 127
+flags_unshaded = true
+flags_no_depth_test = true
+albedo_color = Color( 0.917647, 0.196078, 0.309804, 1 )
+
+[sub_resource type="SpatialMaterial" id=8]
+render_priority = 127
+flags_unshaded = true
+flags_no_depth_test = true
+albedo_color = Color( 0.505882, 0.803922, 0.054902, 1 )
+
+[sub_resource type="SpatialMaterial" id=9]
+flags_unshaded = true
+flags_no_depth_test = true
+albedo_color = Color( 0.156863, 0.52549, 0.917647, 1 )
+
+[sub_resource type="CylinderMesh" id=11]
+top_radius = 0.0
+bottom_radius = 0.06
+height = 0.25
+
+[sub_resource type="CubeMesh" id=12]
+size = Vector3( 0.1, 0.01, 0.1 )
+
+[sub_resource type="CylinderShape" id=13]
+height = 1.2
+radius = 0.05
+
+[node name="main" type="Spatial"]
+
+[node name="ui" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="vbox" type="VBoxContainer" parent="ui"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="ui/vbox"]
+margin_right = 1024.0
+margin_bottom = 15.0
+mouse_filter = 2
+bbcode_enabled = true
+bbcode_text = "Selected Chunk: -"
+text = "Selected Chunk: -"
+fit_content_height = true
+
+[node name="dock" type="PanelContainer" parent="ui"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -40.0
+margin_right = 74.0
+grow_vertical = 0
+
+[node name="hbox" type="HBoxContainer" parent="ui/dock"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 67.0
+margin_bottom = 33.0
+
+[node name="Button" type="Button" parent="ui/dock/hbox"]
+margin_right = 12.0
+margin_bottom = 26.0
+
+[node name="Button2" type="Button" parent="ui/dock/hbox"]
+margin_left = 16.0
+margin_right = 28.0
+margin_bottom = 26.0
+
+[node name="Button3" type="Button" parent="ui/dock/hbox"]
+margin_left = 32.0
+margin_right = 44.0
+margin_bottom = 26.0
+
+[node name="Button4" type="Button" parent="ui/dock/hbox"]
+margin_left = 48.0
+margin_right = 60.0
+margin_bottom = 26.0
+
+[node name="menu_cityobj_selected" type="PanelContainer" parent="ui"]
+visible = false
+margin_right = 360.0
+margin_bottom = 163.0
+script = ExtResource( 4 )
+
+[node name="vbox" type="VBoxContainer" parent="ui/menu_cityobj_selected"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 353.0
+margin_bottom = 156.0
+
+[node name="obj_name" type="Label" parent="ui/menu_cityobj_selected/vbox"]
+margin_right = 346.0
+margin_bottom = 14.0
+text = "name"
+
+[node name="pos_title" type="HBoxContainer" parent="ui/menu_cityobj_selected/vbox"]
+margin_top = 18.0
+margin_right = 346.0
+margin_bottom = 32.0
+
+[node name="Label" type="Label" parent="ui/menu_cityobj_selected/vbox/pos_title"]
+margin_right = 112.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "X"
+
+[node name="Label2" type="Label" parent="ui/menu_cityobj_selected/vbox/pos_title"]
+margin_left = 116.0
+margin_right = 229.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Y"
+
+[node name="Label3" type="Label" parent="ui/menu_cityobj_selected/vbox/pos_title"]
+margin_left = 233.0
+margin_right = 346.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Z"
+
+[node name="pos_inputs" type="HBoxContainer" parent="ui/menu_cityobj_selected/vbox"]
+margin_top = 36.0
+margin_right = 346.0
+margin_bottom = 56.0
+rect_min_size = Vector2( 0, 20 )
+
+[node name="input_x" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/pos_inputs"]
+margin_right = 112.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="input_y" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/pos_inputs"]
+margin_left = 116.0
+margin_right = 229.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="input_z" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/pos_inputs"]
+margin_left = 233.0
+margin_right = 346.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ui/menu_cityobj_selected/vbox"]
+margin_top = 60.0
+margin_right = 346.0
+margin_bottom = 108.0
+text = "I haven't bothered to make the gizmo work yet. You have to type the position manually.
+"
+autowrap = true
+
+[node name="mdl_inputs" type="HBoxContainer" parent="ui/menu_cityobj_selected/vbox"]
+margin_top = 112.0
+margin_right = 346.0
+margin_bottom = 132.0
+
+[node name="Label" type="Label" parent="ui/menu_cityobj_selected/vbox/mdl_inputs"]
+margin_top = 3.0
+margin_right = 140.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Model id:"
+
+[node name="input_mdl" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/mdl_inputs"]
+margin_left = 144.0
+margin_right = 284.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="input_mdl_ok" type="Button" parent="ui/menu_cityobj_selected/vbox/mdl_inputs"]
+margin_left = 288.0
+margin_right = 346.0
+margin_bottom = 20.0
+text = "Change"
+
+[node name="menu_file" type="Control" parent="ui"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 5 )
+
+[node name="input_help" type="Button" parent="ui/menu_file"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -36.0
+margin_top = 5.0
+margin_right = -4.0
+margin_bottom = 36.0
+toggle_mode = true
+icon = ExtResource( 1 )
+icon_align = 1
+expand_icon = true
+script = ExtResource( 3 )
+
+[node name="PanelContainer" type="PanelContainer" parent="ui/menu_file/input_help"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = -196.0
+margin_top = 14.0
+margin_right = 28.0
+margin_bottom = 195.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="ui/menu_file/input_help/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 217.0
+margin_bottom = 174.0
+text = "Help:
+
+Hold MMB to rotate view.
+Hold MMB + shift to move.
+Scroll to zoom.
+Press F to focus on selected.
+
+To get started, drag a chunkfile to this window.
+(open only one at a time)"
+
+[node name="input_clear" type="Button" parent="ui/menu_file"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -86.0
+margin_top = 5.0
+margin_right = -42.0
+margin_bottom = 36.0
+text = "Clear"
+
+[node name="input_save" type="Button" parent="ui/menu_file"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -136.0
+margin_top = 5.0
+margin_right = -92.0
+margin_bottom = 36.0
+text = "Save"
+
+[node name="env" type="Spatial" parent="."]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="env"]
+transform = Transform( 0.727497, -0.537737, 0.426129, 0, 0.621079, 0.783748, -0.68611, -0.570174, 0.451834, 0, 0, 0 )
+
+[node name="editor" type="Spatial" parent="."]
+
+[node name="cameraman" type="Spatial" parent="editor"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
+script = ExtResource( 2 )
+
+[node name="pivot" type="Spatial" parent="editor/cameraman"]
+
+[node name="cam" type="Camera" parent="editor/cameraman/pivot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.31033 )
+cull_mask = 1048573
+current = true
+near = 1.0
+far = 10000.0
+
+[node name="CSGMesh" type="CSGMesh" parent="editor/cameraman/pivot/cam"]
+transform = Transform( 1.08013, 0, 0, 0, 1.08013, 0, 0, 0, 1.08013, 0, 0, -1 )
+mesh = SubResource( 3 )
+material = SubResource( 5 )
+
+[node name="gizmos" type="Spatial" parent="editor"]
+
+[node name="gizmo_translation" type="Spatial" parent="editor/gizmos"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.230934, -0.541786, -3.39796 )
+visible = false
+script = ExtResource( 6 )
+
+[node name="rod_x" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.5, 0, 0 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 6 )
+material = SubResource( 7 )
+
+[node name="rod_y" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 6 )
+material = SubResource( 8 )
+
+[node name="rod_z" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 0.5 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 6 )
+material = SubResource( 9 )
+
+[node name="tip_x" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 1.1, 0, 0 )
+layers = 255
+cast_shadow = 0
+calculate_tangents = false
+mesh = SubResource( 11 )
+material = SubResource( 7 )
+
+[node name="tip_y" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0 )
+layers = 255
+cast_shadow = 0
+calculate_tangents = false
+mesh = SubResource( 11 )
+material = SubResource( 8 )
+
+[node name="tip_z" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 1.1 )
+layers = 255
+cast_shadow = 0
+calculate_tangents = false
+mesh = SubResource( 11 )
+material = SubResource( 9 )
+
+[node name="plane_yz" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0.2, 0.2 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 12 )
+material = SubResource( 7 )
+
+[node name="plane_xz" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, 0.2 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 12 )
+material = SubResource( 8 )
+
+[node name="plane_xy" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0.2, 0.2, 1.19209e-07 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 12 )
+material = SubResource( 9 )
+
+[node name="body_x" type="StaticBody" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="editor/gizmos/gizmo_translation/body_x"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+shape = SubResource( 13 )
+
+[node name="body_y" type="StaticBody" parent="editor/gizmos/gizmo_translation"]
+
+[node name="CollisionShape" type="CollisionShape" parent="editor/gizmos/gizmo_translation/body_y"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+shape = SubResource( 13 )
+
+[node name="body_z" type="StaticBody" parent="editor/gizmos/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="editor/gizmos/gizmo_translation/body_z"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+shape = SubResource( 13 )
+
+[node name="chunk" type="Spatial" parent="."]
+
+[node name="physmodels" type="Spatial" parent="chunk"]
+
+[node name="not implemented in chunkloader" type="Spatial" parent="chunk/physmodels"]
+visible = false
+
+[node name="rendermodels" type="Spatial" parent="chunk"]
+visible = false
+
+[node name="cityobjects" type="Spatial" parent="chunk"]
