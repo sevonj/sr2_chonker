@@ -3,7 +3,7 @@
 [ext_resource path="res://ui/stylebox_2008_button_pressed.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/stylebox_2008_button_normal.tres" type="StyleBox" id=2]
 [ext_resource path="res://ui/stylebox_2008_button_hover.tres" type="StyleBox" id=3]
-[ext_resource path="res://font/aileron.tres" type="DynamicFont" id=4]
+[ext_resource path="res://font/general.tres" type="DynamicFont" id=4]
 
 [sub_resource type="StyleBoxFlat" id=1]
 content_margin_left = 4.0

@@ -13,7 +13,7 @@ onready var cam = $pivot/cam
 func _ready():
 	ChunkEditor.cam = self
 
-func _input(event):
+func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		look_delta += event.relative * look_sensitivity
 		get_viewport().set_input_as_handled()
@@ -21,7 +21,7 @@ func _input(event):
 		if event.button_index == BUTTON_WHEEL_UP: cam.transform.origin.z *= .9
 		elif event.button_index == BUTTON_WHEEL_DOWN: cam.transform.origin.z /= .9
 		
-func _process(delta):
+func _process(_delta):
 	if Input.is_mouse_button_pressed(3):
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		
@@ -36,7 +36,7 @@ func _process(delta):
 		
 		# Mouse Drag Rotate
 		else:
-			rotate_y(look_delta.x)
+			rotate_y(-look_delta.x)
 			pivot.rotate_x(look_delta.y)
 			if pivot.rotation.x > 1.5:
 				pivot.rotation.x = 1.5

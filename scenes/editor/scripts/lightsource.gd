@@ -25,6 +25,17 @@ func _ready():
 	child_text.scale *= icon_scale
 	child_text.billboard = SpatialMaterial.BILLBOARD_ENABLED
 	add_child(child_text)
+	
+	# Collider grabs clicks
+	var collider = StaticBody.new()
+	var colshape = CollisionShape.new()
+	colshape.shape = SphereShape.new()
+	colshape.shape.radius = 1.3
+	colshape.translation.y += .52
+	collider.add_child(colshape)
+	add_child(collider)
+	collider.connect("input_event", self, "_input_event")
+	
 	_update()
 	
 func _set_highlight(_temp):
@@ -38,3 +49,9 @@ func _update():
 	child_light.light_color = color
 	child_icon.modulate = color
 	child_text.text = "\n\n\n" + name
+
+func _input_event(_camera, event, _click_position, _click_normal, _shape_idx):
+	if event is InputEventMouseButton:
+		if event.button_index == BUTTON_LEFT and event.is_pressed():
+			print("clicked ", name)
+			ChunkEditor._select(self)

@@ -3,17 +3,17 @@ using System;
 
 public class CityObjectNode : Spatial
 {
-    uint model;
+	uint model;
 
-    public override void _Ready()
-    {
-        
-    }
+	public override void _Ready()
+	{
+		
+	}
 
-    public void SetModel(uint _model){
-        model = _model;
-    }
+	public void SetModel(uint _model){
+		model = _model;
+	}
 
-    public uint GetModel() => model;
+	public uint GetModel() => model;
 
 }

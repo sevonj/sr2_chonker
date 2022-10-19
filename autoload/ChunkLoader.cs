@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using System.IO;
-
+/*
 public class CityObjectPart
 {
 	// at first
@@ -94,7 +94,7 @@ ModelBuffer
 	]
 }
 */
-
+/*
 public class RenderModel
 {
 	public Vector3 bboxMin;
@@ -174,7 +174,7 @@ public class ChunkLoader : Node
 	*   LoadChunk - parses content from .chunk_pc files
 	*   TODO: a lot.
 	*
-	*/
+	*//*
 	public CPUChunk LoadChunk(string filepath)
 	{
 		GD.Print(filepath);
@@ -580,7 +580,7 @@ public class ChunkLoader : Node
 	*   TODO: Instead of spawning nodes here, return meshes or meshinstances
 	*   TODO: Figure out models at the end of the file. After that, g_chunks are 100% done!
 	*/
-
+/*
 	public void LoadGPUChunk(CPUChunk chunk, string filepath)
 	{
 		if (!System.IO.File.Exists(filepath))
@@ -688,3 +688,4 @@ public class ChunkLoader : Node
 		return;
 	}
 }
+*/

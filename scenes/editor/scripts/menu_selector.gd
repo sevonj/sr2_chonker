@@ -1,15 +1,20 @@
 extends PanelContainer
 
-
 onready var tree = $Tree
 onready var chunk_root = $"/root/main/chunk"
+
+var chunk_object_dict = {}
 
 func _ready():
 	ChunkEditor.menu_selector = self
 	_update()
 	
-	tree.connect("item_selected", self, "_on_tree_selected")
+	tree.connect("item_activated", self, "_on_tree_selected")
 	tree.hide_root = true
+
+# Called by ChunkEditor
+func _on_select(target: Spatial):
+	chunk_object_dict[target.get_path()].select(0)
 
 func _on_tree_selected():
 	var selected_name = tree.get_selected().get_text(0)
@@ -28,6 +33,7 @@ func _on_tree_selected():
 
 func _update():
 	tree.clear()
+	chunk_object_dict.clear()
 	var treeitem_root = tree.create_item()
 	treeitem_root.set_text(0, "chunk_root")
 	
@@ -48,8 +54,12 @@ func _update():
 		treeitem.set_text(0, cobj.name)
 		if cobj.is_rendermodel_bad:
 			treeitem.set_custom_color(0, Color.maroon)
+			
+		chunk_object_dict[cobj.get_path()] = treeitem
 		
 	var light_root = chunk_root.get_node("lights")
 	for light in light_root.get_children():
 		var treeitem = tree.create_item(treeitem_lights)
 		treeitem.set_text(0, light.name)
+		
+		chunk_object_dict[light.get_path()] = treeitem

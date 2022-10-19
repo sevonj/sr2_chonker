@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://ui/icon_help.png" type="Texture" id=1]
 [ext_resource path="res://scenes/common/scripts/camera.gd" type="Script" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://ui/theme_2008.tres" type="Theme" id=12]
 [ext_resource path="res://ui/stylebox_2008_bluebar.tres" type="StyleBox" id=13]
 [ext_resource path="res://scenes/editor/scripts/menu_toolbar.gd" type="Script" id=14]
+[ext_resource path="res://scenes/editor/scripts/main.gd" type="Script" id=15]
 
 [sub_resource type="QuadMesh" id=3]
 size = Vector2( 2, 2 )
@@ -125,6 +126,7 @@ height = 1.2
 radius = 0.05
 
 [node name="main" type="Spatial"]
+script = ExtResource( 15 )
 
 [node name="ui" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -147,13 +149,20 @@ margin_right = 1020.0
 margin_bottom = 36.0
 
 [node name="menu_file" type="HBoxContainer" parent="ui/toolbar/hbox"]
-margin_right = 122.0
+margin_right = 144.0
 margin_bottom = 32.0
 mouse_filter = 2
 script = ExtResource( 5 )
 
+[node name="menu_file" type="MenuButton" parent="ui/toolbar/hbox/menu_file"]
+margin_right = 27.0
+margin_bottom = 32.0
+text = "File"
+flat = false
+
 [node name="input_help" type="Button" parent="ui/toolbar/hbox/menu_file"]
-margin_right = 32.0
+margin_left = 31.0
+margin_right = 63.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 32, 24 )
 toggle_mode = true
@@ -187,33 +196,33 @@ To get started, drag a chunkfile to this window.
 (open only one at a time)"
 
 [node name="input_clear" type="Button" parent="ui/toolbar/hbox/menu_file"]
-margin_left = 36.0
-margin_right = 79.0
+margin_left = 67.0
+margin_right = 105.0
 margin_bottom = 32.0
 text = "Clear"
 
 [node name="input_save" type="Button" parent="ui/toolbar/hbox/menu_file"]
-margin_left = 83.0
-margin_right = 122.0
+margin_left = 109.0
+margin_right = 144.0
 margin_bottom = 32.0
 text = "Save"
 
 [node name="spacer" type="Control" parent="ui/toolbar/hbox"]
-margin_left = 126.0
-margin_right = 126.0
+margin_left = 148.0
+margin_right = 148.0
 margin_bottom = 32.0
 
 [node name="input_toggle_cityobjs" type="Button" parent="ui/toolbar/hbox"]
-margin_left = 130.0
-margin_right = 170.0
+margin_left = 152.0
+margin_right = 192.0
 margin_bottom = 32.0
 toggle_mode = true
 pressed = true
 icon = ExtResource( 11 )
 
 [node name="input_toggle_lights" type="Button" parent="ui/toolbar/hbox"]
-margin_left = 174.0
-margin_right = 214.0
+margin_left = 196.0
+margin_right = 236.0
 margin_bottom = 32.0
 toggle_mode = true
 pressed = true
@@ -259,46 +268,46 @@ margin_bottom = 556.0
 
 [node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer"]
 margin_right = 332.0
-margin_bottom = 783.0
+margin_bottom = 761.0
 size_flags_horizontal = 3
 
 [node name="menu_selected_title" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
 margin_right = 332.0
-margin_bottom = 28.0
+margin_bottom = 26.0
 script = ExtResource( 8 )
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_title"]
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 328.0
-margin_bottom = 24.0
+margin_bottom = 22.0
 text = "Selected type: non"
 
 [node name="menu_selected_cityobj" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
-margin_top = 32.0
+margin_top = 30.0
 margin_right = 332.0
-margin_bottom = 202.0
+margin_bottom = 194.0
 script = ExtResource( 4 )
 
 [node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj"]
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 328.0
-margin_bottom = 166.0
+margin_bottom = 160.0
 
 [node name="name" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 text = "name"
 
 [node name="pos_title" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
-margin_top = 24.0
+margin_top = 22.0
 margin_right = 324.0
-margin_bottom = 44.0
+margin_bottom = 40.0
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_title"]
 margin_right = 105.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "X"
@@ -306,7 +315,7 @@ text = "X"
 [node name="Label2" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_title"]
 margin_left = 109.0
 margin_right = 214.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Y"
@@ -314,90 +323,95 @@ text = "Y"
 [node name="Label3" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_title"]
 margin_left = 218.0
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Z"
 
 [node name="pos_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
-margin_top = 48.0
+margin_top = 44.0
 margin_right = 324.0
-margin_bottom = 68.0
+margin_bottom = 66.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="input_x" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_inputs"]
 margin_right = 105.0
-margin_bottom = 20.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="input_y" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_inputs"]
 margin_left = 109.0
 margin_right = 214.0
-margin_bottom = 20.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="input_z" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_inputs"]
 margin_left = 218.0
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
-margin_top = 72.0
+margin_top = 70.0
 margin_right = 324.0
-margin_bottom = 138.0
+margin_bottom = 130.0
 text = "I haven't bothered to make the gizmo work yet. You have to type the position manually.
 "
 autowrap = true
 
 [node name="mdl_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
-margin_top = 142.0
+margin_top = 134.0
 margin_right = 324.0
-margin_bottom = 162.0
+margin_bottom = 156.0
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/mdl_inputs"]
-margin_right = 128.0
+margin_top = 2.0
+margin_right = 131.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 text = "Model id:"
 
 [node name="input_mdl" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/mdl_inputs"]
-margin_left = 132.0
-margin_right = 261.0
-margin_bottom = 20.0
+margin_left = 135.0
+margin_right = 267.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="input_mdl_ok" type="Button" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/mdl_inputs"]
-margin_left = 265.0
+margin_left = 271.0
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 22.0
 text = "Change"
 
 [node name="menu_selected_light" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
-margin_top = 206.0
+margin_top = 198.0
 margin_right = 332.0
-margin_bottom = 783.0
+margin_bottom = 761.0
 script = ExtResource( 9 )
 
 [node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light"]
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 328.0
-margin_bottom = 573.0
+margin_bottom = 559.0
 
 [node name="name" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 text = "name"
 
 [node name="pos_title" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 24.0
+margin_top = 22.0
 margin_right = 324.0
-margin_bottom = 44.0
+margin_bottom = 40.0
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_title"]
 margin_right = 105.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "X"
@@ -405,7 +419,7 @@ text = "X"
 [node name="Label2" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_title"]
 margin_left = 109.0
 margin_right = 214.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Y"
@@ -413,45 +427,48 @@ text = "Y"
 [node name="Label3" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_title"]
 margin_left = 218.0
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Z"
 
 [node name="pos_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 48.0
+margin_top = 44.0
 margin_right = 324.0
-margin_bottom = 68.0
+margin_bottom = 66.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="input_x" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_inputs"]
 margin_right = 105.0
-margin_bottom = 20.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="input_y" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_inputs"]
 margin_left = 109.0
 margin_right = 214.0
-margin_bottom = 20.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="input_z" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_inputs"]
 margin_left = 218.0
 margin_right = 324.0
-margin_bottom = 20.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 72.0
+margin_top = 70.0
 margin_right = 324.0
-margin_bottom = 115.0
+margin_bottom = 109.0
 text = "I haven't bothered to make the gizmo work yet. You have to type the position manually."
 autowrap = true
 
 [node name="color_input" type="ColorPicker" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 119.0
+margin_top = 113.0
 margin_right = 324.0
-margin_bottom = 569.0
+margin_bottom = 555.0
 edit_alpha = false
 
 [node name="env" type="Spatial" parent="."]

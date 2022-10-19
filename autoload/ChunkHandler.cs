@@ -1,132 +1,147 @@
 using Godot;
 using System;
 using System.IO;
+using Kaitai;
 
 public class ChunkHandler : Node
 {
-	ChunkLoader chunkLoader;
-	ChunkUnloader chunkUnloader;
+    Sr2CpuChunkPc loadedChunk;
+    string loadedChunkName;
+    string loadedChunkPath;
 
-	CPUChunk loadedChunk;
-	string loadedChunkPath;
+    /// Should only be called by ChunkEditor.
+    /// Clears any variables in ChunkHandler.
+    public void OnClearChunk()
+    {
+        loadedChunk = null;
+        loadedChunkName = null;
+        loadedChunkPath = null;
+    }
 
-	public override void _Ready()
-	{
-		chunkLoader = GetNode("/root/ChunkLoader") as ChunkLoader;
-		chunkUnloader = new ChunkUnloader();
-	}
+    /// Should only be called by ChunkEditor.
+    /// LoadChunk checks filepaths, sets a new loadedChunk, and then calls ImportChunkToScene.
+    /// It recognizes any of the chunk file types (.chunk_pc, .g_chunk_pc, .g_peg_pc)
+    public void LoadChunk(string input_filepath)
+    {
+        string cpu_chunk_filepath = "";
+        string gpu_chunk_filepath = "";
+        string peg_filepath = "";
 
-	public void ClearChunk()
-	{
-		loadedChunk = null;
-	}
+        // Get all filepaths
+        if (System.IO.Path.GetExtension(input_filepath) == ".chunk_pc" ||
+            System.IO.Path.GetExtension(input_filepath) == ".g_chunk_pc" ||
+            System.IO.Path.GetExtension(input_filepath) == ".g_peg_pc")
+        {
+            cpu_chunk_filepath = System.IO.Path.ChangeExtension(input_filepath, ".chunk_pc");
+            gpu_chunk_filepath = System.IO.Path.ChangeExtension(input_filepath, ".g_chunk_pc");
+            peg_filepath = System.IO.Path.ChangeExtension(input_filepath, ".g_peg_pc");
+        }
+        else
+        {
+            GD.Print("Error: Unknown file extension!");
+            return;
+        }
 
-	public void LoadChunk(string input_filepath)
-	{
-		string cpu_chunk_filepath = "";
-		string gpu_chunk_filepath = "";
-		// string peg_filepath;
+        // Sanity check for if files exist
+        if (!System.IO.File.Exists(cpu_chunk_filepath))
+        {
+            GD.Print("Error: " + cpu_chunk_filepath + " doesn't exist!");
+            return;
+        }
+        if (!System.IO.File.Exists(gpu_chunk_filepath))
+        {
+            GD.Print("Error: " + gpu_chunk_filepath + " doesn't exist!");
+            return;
+        }
 
-		GD.Print(input_filepath);
+        Sr2CpuChunkPc chunk = Sr2CpuChunkPc.FromFile(cpu_chunk_filepath);
 
-		// File Exist
-		if (!System.IO.File.Exists(input_filepath))
-		{
-			GD.Print("Error: Input File Doesn't Exist! " + input_filepath);
-			return;
-		}
+        GD.Print("Chunk parsed");
+        loadedChunk = chunk;
+        loadedChunkName = System.IO.Path.GetFileNameWithoutExtension(cpu_chunk_filepath);
+        loadedChunkPath = cpu_chunk_filepath;
+        ImportChunkToScene(loadedChunk, gpu_chunk_filepath);
+    }
 
-		// File Extension
-		if (System.IO.Path.GetExtension(input_filepath) == ".chunk_pc")
-		{
-			cpu_chunk_filepath = input_filepath;
-			gpu_chunk_filepath = System.IO.Path.ChangeExtension(input_filepath, ".g_chunk_pc");
-		}
-		else if (System.IO.Path.GetExtension(input_filepath) == ".g_chunk_pc")
-		{
-			cpu_chunk_filepath = System.IO.Path.ChangeExtension(input_filepath, ".chunk_pc");
-			gpu_chunk_filepath = input_filepath;
-		}
-		else if (System.IO.Path.GetExtension(input_filepath) == ".g_peg_pc")
-		{
-			cpu_chunk_filepath = System.IO.Path.ChangeExtension(input_filepath, ".chunk_pc");
-			gpu_chunk_filepath = System.IO.Path.ChangeExtension(input_filepath, ".g_chunk_pc");
-		}
-		else
-		{
-			GD.Print("Error: Unknown extension!");
-			return;
-		}
+    void ImportChunkToScene(Sr2CpuChunkPc chunk, string gpu_chunk_filepath)
+    {
+        Node chunkEditor = GetNode("/root/ChunkEditor");
+        Node world = GetNode("/root/main/chunk/cityobjects");
+        Node lights = GetNode("/root/main/chunk/lights");
 
-		// Chunkfile Exist
-		if (!System.IO.File.Exists(cpu_chunk_filepath))
-		{
-			GD.Print("Error: " + cpu_chunk_filepath + " doesn't exist!");
-			return;
-		}
-		if (!System.IO.File.Exists(gpu_chunk_filepath))
-		{
-			GD.Print("Error: " + gpu_chunk_filepath + " doesn't exist!");
-			return;
-		}
+        chunkEditor.Set("is_chunk_loaded", true);
 
-		loadedChunk = chunkLoader.LoadChunk(cpu_chunk_filepath);
-		loadedChunkPath = cpu_chunk_filepath;
-		if (loadedChunk != null)
-		{
-			chunkLoader.LoadGPUChunk(loadedChunk, gpu_chunk_filepath);
-			ImportChunkToScene(loadedChunk);
-		}
-		else
-		{
-			GD.PushWarning("ChunkLoader returned null.");
-		}
-	}
+        Sr2GpuChunkLoader gLoader = new Sr2GpuChunkLoader();
+        Mesh[] chunk_rendermodels = gLoader.LoadMeshesFromChunk(chunk, gpu_chunk_filepath);
+        GD.Print("meshes len: ", chunk_rendermodels.Length);
+        for (int i = 0; i < chunk.RendermodelCount; i++)
+        {
+            Mesh mesh = chunk_rendermodels[i];
+            chunkEditor.Call("_add_chunk_rendermodel", mesh);
+        }
 
-	public void ImportChunkToScene(CPUChunk chunk)
-	{
-		Node world = GetNode("/root/main/chunk/cityobjects");
-		for (int i = 0; i < chunk.cityObjectCount; i++)
-		{
-			CityObject cityObject = chunk.cityObjects[i];
-			uint partId = cityObject.cityObjectPart;
-			CityObjectPart temp = chunk.cityObjectParts[partId];
+        for (int i = 0; i < chunk.CityobjectCount; i++)
+        {
+            Sr2CpuChunkPc.Cityobject cobj = chunk.Cityobjects[i];
+            int partId = (int)cobj.CityobjectPartId;
+            Sr2CpuChunkPc.CityobjectPart temp = chunk.CityobjectParts[partId];
 
-			Spatial cityObjectNode = new Spatial();
-			cityObjectNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/cityobject.gd"));
-			cityObjectNode.Translation = temp.pos;
-			cityObjectNode.Name = cityObject.name;
-			cityObjectNode.Set("rendermodel_id", temp.model);
-			cityObjectNode.Set("cityobjpart_id", partId);
+            Spatial cityObjectNode = new Spatial();
+            cityObjectNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/cityobject.gd"));
+            cityObjectNode.Translation = new Vector3(-temp.Pos.X, temp.Pos.Y, temp.Pos.Z);
+            cityObjectNode.Name = chunk.CityobjectNames[i];
+            cityObjectNode.Set("rendermodel_id",/*-1);//*/ temp.RendermodelId);
+            cityObjectNode.Set("cityobjpart_id", partId);
 
-			world.AddChild(cityObjectNode);
-		}
-		Spatial camera = (Spatial)GetNode("/root/main/editor/cameraman");
-		camera.Translation = chunk.cityObjectParts[0].pos;
-	}
+            world.AddChild(cityObjectNode);
+        }
 
-	public void SaveChunk()
-	{
-		// Get cityobject data from nodes
-		Node cityObjContainer = GetNode("/root/main/chunk/cityobjects");
-		for (int i = 0; i < cityObjContainer.GetChildCount(); i++)
-		{
-			Spatial cityObjNode = cityObjContainer.GetChild(i) as Spatial;
-			uint model = (uint)(int)cityObjNode.Get("rendermodel_id");
-			Vector3 pos = cityObjNode.Translation;
+        for (int i = 0; i < chunk.LightCount; i++)
+        {
+            if (chunk.LightCount == 1212891981) break; // Duct tape solution for MCKH (this means chunk has no lights)
 
-			uint partid = loadedChunk.cityObjects[i].cityObjectPart;
-			loadedChunk.cityObjectParts[partid].pos = pos;
-			loadedChunk.cityObjectParts[partid].model = model;
-		}
+            Sr2CpuChunkPc.Light light = chunk.LightSections.Lights[i];
+            string name = chunk.LightSections.LightNames[i];
+            Vector3 pos = new Vector3(-light.Pos.X, light.Pos.Y, light.Pos.Z);
+            Color col = new Color(light.R, light.G, light.B);
 
-		string newChunkPath = System.IO.Path.ChangeExtension(loadedChunkPath, "_new.chunk_pc");
-		if (System.IO.File.Exists(newChunkPath))
-		{
-			System.IO.File.Delete(newChunkPath);
-		}
-		System.IO.File.Copy(loadedChunkPath, newChunkPath);
-		chunkUnloader.PatchChunk(loadedChunk, newChunkPath);
+            Spatial lightNode = new Spatial();
+            lightNode.Name = name;
+            lightNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/lightsource.gd"));
+            lightNode.Translation = pos;
+            lightNode.Set("color", col);
 
-	}
+            lights.AddChild(lightNode);
+
+        }
+
+        Spatial camera = (Spatial)GetNode("/root/main/editor/cameraman");
+        camera.Translation = new Vector3(
+            -loadedChunk.CityobjectParts[0].Pos.X,
+            loadedChunk.CityobjectParts[0].Pos.Y,
+            loadedChunk.CityobjectParts[0].Pos.Z
+        );
+
+        chunkEditor.Call("_update");
+    }
+
+    MeshInstance rendermodel2Mesh()
+    {
+        MeshInstance meshInstance = new MeshInstance();
+        return (meshInstance);
+    }
+    //*
+    public void SaveChunk()
+    {   
+        // Make a copy of the chunk
+        string newChunkPath = System.IO.Path.ChangeExtension(loadedChunkPath, "_new.chunk_pc");
+        if (System.IO.File.Exists(newChunkPath)) { System.IO.File.Delete(newChunkPath); }
+        System.IO.File.Copy(loadedChunkPath, newChunkPath);
+
+        // Patch the new chunk
+        ChunkUnloader unloader = new ChunkUnloader();
+        AddChild(unloader);
+        unloader.PatchChunk(loadedChunk, newChunkPath);
+        unloader.QueueFree();
+    }
 }

@@ -96,6 +96,7 @@ namespace Kaitai
                 _rendermodelUnk0s.Add(new RendermodelUnk0(m_io, this, m_root));
             }
             _align2 = m_io.ReadBytes(KaitaiStream.Mod((16 - M_Io.Pos), 16));
+            _cityobjectPartsOffset = new Offset(M_Io.Pos, m_io, this, m_root);
             _cityobjectParts = new List<CityobjectPart>();
             for (var i = 0; i < CityobjectPartCount; i++)
             {
@@ -279,13 +280,13 @@ namespace Kaitai
             _pad24 = m_io.ReadBytes(4);
             if (!((KaitaiStream.ByteArrayCompare(Pad24, new byte[] { 0, 0, 0, 0 }) == 0)))
             {
-                throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Pad24, M_Io, "/seq/112");
+                throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Pad24, M_Io, "/seq/113");
             }
             _unknown25Count = m_io.ReadU4le();
             _pad25 = m_io.ReadBytes(4);
             if (!((KaitaiStream.ByteArrayCompare(Pad25, new byte[] { 0, 0, 0, 0 }) == 0)))
             {
-                throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Pad25, M_Io, "/seq/114");
+                throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Pad25, M_Io, "/seq/115");
             }
             _unknown24 = new List<byte[]>();
             for (var i = 0; i < Unknown24Count; i++)
@@ -340,6 +341,7 @@ namespace Kaitai
             }
             _align32 = m_io.ReadBytes(KaitaiStream.Mod((16 - M_Io.Pos), 16));
             _lightCount = m_io.ReadU4le();
+            _lightsOffset = new Offset(M_Io.Pos, m_io, this, m_root);
             if (LightCount != 1212891981) {
                 _lightSections = new LightSection(LightCount, m_io, this, m_root);
             }
@@ -751,6 +753,25 @@ namespace Kaitai
             public bool IsPhysmodel { get { return _isPhysmodel; } }
             public uint IndexCount { get { return _indexCount; } }
             public uint VertCount { get { return _vertCount; } }
+            public Sr2CpuChunkPc M_Root { get { return m_root; } }
+            public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+        }
+        public partial class Offset : KaitaiStruct
+        {
+            public Offset(long p_off, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+            {
+                m_parent = p__parent;
+                m_root = p__root;
+                _off = p_off;
+                _read();
+            }
+            private void _read()
+            {
+            }
+            private long _off;
+            private Sr2CpuChunkPc m_root;
+            private Sr2CpuChunkPc m_parent;
+            public long Off { get { return _off; } }
             public Sr2CpuChunkPc M_Root { get { return m_root; } }
             public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
         }
@@ -1301,9 +1322,9 @@ namespace Kaitai
             {
                 _unk0 = m_io.ReadU4le();
                 _unk1 = m_io.ReadU4le();
-                _unk2 = m_io.ReadF4le();
-                _unk3 = m_io.ReadF4le();
-                _unk4 = m_io.ReadF4le();
+                _r = m_io.ReadF4le();
+                _g = m_io.ReadF4le();
+                _b = m_io.ReadF4le();
                 _unk5 = m_io.ReadU4le();
                 _unk6 = m_io.ReadU4le();
                 _unk7 = m_io.ReadU4le();
@@ -1320,14 +1341,14 @@ namespace Kaitai
                 _unk20 = m_io.ReadU4le();
                 _unk21 = m_io.ReadU4le();
                 _unk22 = m_io.ReadF4le();
-                _unk23 = m_io.ReadU4le();
-                _unk24 = m_io.ReadU4le();
-                _unk25 = m_io.ReadU4le();
-                _unk26 = m_io.ReadU4le();
+                _unk23 = m_io.ReadF4le();
+                _unk24 = m_io.ReadF4le();
+                _unk25 = m_io.ReadF4le();
+                _unk26 = m_io.ReadF4le();
                 _unk27 = m_io.ReadU4le();
                 _unk28 = m_io.ReadU4le();
-                _unk29 = m_io.ReadU4le();
-                _unk30 = m_io.ReadU4le();
+                _unk29 = m_io.ReadF4le();
+                _unk30 = m_io.ReadF4le();
                 _unk31 = m_io.ReadU4le();
                 _unk32 = m_io.ReadU4le();
                 _unk33 = m_io.ReadU4le();
@@ -1337,9 +1358,9 @@ namespace Kaitai
             }
             private uint _unk0;
             private uint _unk1;
-            private float _unk2;
-            private float _unk3;
-            private float _unk4;
+            private float _r;
+            private float _g;
+            private float _b;
             private uint _unk5;
             private uint _unk6;
             private uint _unk7;
@@ -1356,14 +1377,14 @@ namespace Kaitai
             private uint _unk20;
             private uint _unk21;
             private float _unk22;
-            private uint _unk23;
-            private uint _unk24;
-            private uint _unk25;
-            private uint _unk26;
+            private float _unk23;
+            private float _unk24;
+            private float _unk25;
+            private float _unk26;
             private uint _unk27;
             private uint _unk28;
-            private uint _unk29;
-            private uint _unk30;
+            private float _unk29;
+            private float _unk30;
             private uint _unk31;
             private uint _unk32;
             private uint _unk33;
@@ -1374,9 +1395,9 @@ namespace Kaitai
             private Sr2CpuChunkPc.LightSection m_parent;
             public uint Unk0 { get { return _unk0; } }
             public uint Unk1 { get { return _unk1; } }
-            public float Unk2 { get { return _unk2; } }
-            public float Unk3 { get { return _unk3; } }
-            public float Unk4 { get { return _unk4; } }
+            public float R { get { return _r; } }
+            public float G { get { return _g; } }
+            public float B { get { return _b; } }
             public uint Unk5 { get { return _unk5; } }
             public uint Unk6 { get { return _unk6; } }
             public uint Unk7 { get { return _unk7; } }
@@ -1393,14 +1414,14 @@ namespace Kaitai
             public uint Unk20 { get { return _unk20; } }
             public uint Unk21 { get { return _unk21; } }
             public float Unk22 { get { return _unk22; } }
-            public uint Unk23 { get { return _unk23; } }
-            public uint Unk24 { get { return _unk24; } }
-            public uint Unk25 { get { return _unk25; } }
-            public uint Unk26 { get { return _unk26; } }
+            public float Unk23 { get { return _unk23; } }
+            public float Unk24 { get { return _unk24; } }
+            public float Unk25 { get { return _unk25; } }
+            public float Unk26 { get { return _unk26; } }
             public uint Unk27 { get { return _unk27; } }
             public uint Unk28 { get { return _unk28; } }
-            public uint Unk29 { get { return _unk29; } }
-            public uint Unk30 { get { return _unk30; } }
+            public float Unk29 { get { return _unk29; } }
+            public float Unk30 { get { return _unk30; } }
             public uint Unk31 { get { return _unk31; } }
             public uint Unk32 { get { return _unk32; } }
             public uint Unk33 { get { return _unk33; } }
@@ -1591,6 +1612,7 @@ namespace Kaitai
         private byte[] _align1;
         private List<RendermodelUnk0> _rendermodelUnk0s;
         private byte[] _align2;
+        private Offset _cityobjectPartsOffset;
         private List<CityobjectPart> _cityobjectParts;
         private byte[] _align3;
         private List<Unknown3> _unknown3s;
@@ -1679,6 +1701,7 @@ namespace Kaitai
         private List<MeshMoverName> _meshMoverNames;
         private byte[] _align32;
         private uint _lightCount;
+        private Offset _lightsOffset;
         private LightSection _lightSections;
         private Sr2CpuChunkPc m_root;
         private KaitaiStruct m_parent;
@@ -1722,6 +1745,7 @@ namespace Kaitai
         public byte[] Align1 { get { return _align1; } }
         public List<RendermodelUnk0> RendermodelUnk0s { get { return _rendermodelUnk0s; } }
         public byte[] Align2 { get { return _align2; } }
+        public Offset CityobjectPartsOffset { get { return _cityobjectPartsOffset; } }
         public List<CityobjectPart> CityobjectParts { get { return _cityobjectParts; } }
         public byte[] Align3 { get { return _align3; } }
         public List<Unknown3> Unknown3s { get { return _unknown3s; } }
@@ -1810,6 +1834,7 @@ namespace Kaitai
         public List<MeshMoverName> MeshMoverNames { get { return _meshMoverNames; } }
         public byte[] Align32 { get { return _align32; } }
         public uint LightCount { get { return _lightCount; } }
+        public Offset LightsOffset { get { return _lightsOffset; } }
         public LightSection LightSections { get { return _lightSections; } }
         public Sr2CpuChunkPc M_Root { get { return m_root; } }
         public KaitaiStruct M_Parent { get { return m_parent; } }

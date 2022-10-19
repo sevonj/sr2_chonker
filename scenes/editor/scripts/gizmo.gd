@@ -17,3 +17,7 @@ var original_transform = null
 
 func _ready():
 	ChunkEditor.gizmo = self
+
+func _process(_delta):
+	var dist = (ChunkEditor.cam.get_node("pivot").get_node("cam").transform.origin - transform.origin).length()
+	scale = Vector3.ONE * dist * Globals.UI_GIZMO_SIZE * .1
