@@ -19,9 +19,16 @@ config/windows_native_icon="res://icon.ico"
 
 [autoload]
 
-ChunkLoader="*res://autoload/ChunkLoader.cs"
+Globals="*res://autoload/Globals.gd"
 ChunkHandler="*res://autoload/ChunkHandler.cs"
 ChunkEditor="*res://autoload/ChunkEditor.gd"
+
+[display]
+
+window/size/width=1920
+window/size/height=1080
+window/size/test_width=1920
+window/size/test_height=1080
 
 [editor_plugins]
 

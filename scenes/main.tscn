@@ -1,11 +1,20 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://ui/icon_help.png" type="Texture" id=1]
 [ext_resource path="res://scenes/common/scripts/camera.gd" type="Script" id=2]
 [ext_resource path="res://scenes/editor/scripts/help_toggle.gd" type="Script" id=3]
-[ext_resource path="res://scenes/editor/scripts/menu_cityobj_selected.gd" type="Script" id=4]
+[ext_resource path="res://scenes/editor/scripts/menu_selected_cityobj.gd" type="Script" id=4]
 [ext_resource path="res://scenes/editor/scripts/menu_file.gd" type="Script" id=5]
 [ext_resource path="res://scenes/editor/scripts/gizmo.gd" type="Script" id=6]
+[ext_resource path="res://ui/icon_lightbulb.png" type="Texture" id=7]
+[ext_resource path="res://scenes/editor/scripts/menu_selected_title.gd" type="Script" id=8]
+[ext_resource path="res://scenes/editor/scripts/menu_selected_light.gd" type="Script" id=9]
+[ext_resource path="res://scenes/editor/scripts/menu_selector.gd" type="Script" id=10]
+[ext_resource path="res://ui/icon_rendermodels.png" type="Texture" id=11]
+[ext_resource path="res://ui/theme_2008.tres" type="Theme" id=12]
+[ext_resource path="res://ui/stylebox_2008_bluebar.tres" type="StyleBox" id=13]
+[ext_resource path="res://scenes/editor/scripts/menu_toolbar.gd" type="Script" id=14]
+[ext_resource path="res://scenes/editor/scripts/main.gd" type="Script" id=15]
 
 [sub_resource type="QuadMesh" id=3]
 size = Vector2( 2, 2 )
@@ -117,193 +126,65 @@ height = 1.2
 radius = 0.05
 
 [node name="main" type="Spatial"]
+script = ExtResource( 15 )
 
-[node name="ui" type="Control" parent="."]
+[node name="ui" type="VBoxContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+theme = ExtResource( 12 )
+custom_constants/separation = 0
 
-[node name="vbox" type="VBoxContainer" parent="ui"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-
-[node name="RichTextLabel" type="RichTextLabel" parent="ui/vbox"]
-margin_right = 1024.0
-margin_bottom = 15.0
-mouse_filter = 2
-bbcode_enabled = true
-bbcode_text = "Selected Chunk: -"
-text = "Selected Chunk: -"
-fit_content_height = true
-
-[node name="dock" type="PanelContainer" parent="ui"]
-visible = false
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_top = -40.0
-margin_right = 74.0
+[node name="toolbar" type="PanelContainer" parent="ui"]
+margin_right = 1920.0
+margin_bottom = 40.0
 grow_vertical = 0
+custom_styles/panel = ExtResource( 13 )
+script = ExtResource( 14 )
 
-[node name="hbox" type="HBoxContainer" parent="ui/dock"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 67.0
-margin_bottom = 33.0
+[node name="hbox" type="HBoxContainer" parent="ui/toolbar"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 1916.0
+margin_bottom = 36.0
 
-[node name="Button" type="Button" parent="ui/dock/hbox"]
-margin_right = 12.0
-margin_bottom = 26.0
-
-[node name="Button2" type="Button" parent="ui/dock/hbox"]
-margin_left = 16.0
-margin_right = 28.0
-margin_bottom = 26.0
-
-[node name="Button3" type="Button" parent="ui/dock/hbox"]
-margin_left = 32.0
-margin_right = 44.0
-margin_bottom = 26.0
-
-[node name="Button4" type="Button" parent="ui/dock/hbox"]
-margin_left = 48.0
-margin_right = 60.0
-margin_bottom = 26.0
-
-[node name="menu_cityobj_selected" type="PanelContainer" parent="ui"]
-visible = false
-margin_right = 360.0
-margin_bottom = 163.0
-script = ExtResource( 4 )
-
-[node name="vbox" type="VBoxContainer" parent="ui/menu_cityobj_selected"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 353.0
-margin_bottom = 156.0
-
-[node name="obj_name" type="Label" parent="ui/menu_cityobj_selected/vbox"]
-margin_right = 346.0
-margin_bottom = 14.0
-text = "name"
-
-[node name="pos_title" type="HBoxContainer" parent="ui/menu_cityobj_selected/vbox"]
-margin_top = 18.0
-margin_right = 346.0
+[node name="menu_file" type="HBoxContainer" parent="ui/toolbar/hbox"]
+margin_right = 144.0
 margin_bottom = 32.0
-
-[node name="Label" type="Label" parent="ui/menu_cityobj_selected/vbox/pos_title"]
-margin_right = 112.0
-margin_bottom = 14.0
-size_flags_horizontal = 3
-size_flags_vertical = 6
-text = "X"
-
-[node name="Label2" type="Label" parent="ui/menu_cityobj_selected/vbox/pos_title"]
-margin_left = 116.0
-margin_right = 229.0
-margin_bottom = 14.0
-size_flags_horizontal = 3
-size_flags_vertical = 6
-text = "Y"
-
-[node name="Label3" type="Label" parent="ui/menu_cityobj_selected/vbox/pos_title"]
-margin_left = 233.0
-margin_right = 346.0
-margin_bottom = 14.0
-size_flags_horizontal = 3
-size_flags_vertical = 6
-text = "Z"
-
-[node name="pos_inputs" type="HBoxContainer" parent="ui/menu_cityobj_selected/vbox"]
-margin_top = 36.0
-margin_right = 346.0
-margin_bottom = 56.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="input_x" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/pos_inputs"]
-margin_right = 112.0
-margin_bottom = 20.0
-size_flags_horizontal = 3
-
-[node name="input_y" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/pos_inputs"]
-margin_left = 116.0
-margin_right = 229.0
-margin_bottom = 20.0
-size_flags_horizontal = 3
-
-[node name="input_z" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/pos_inputs"]
-margin_left = 233.0
-margin_right = 346.0
-margin_bottom = 20.0
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="ui/menu_cityobj_selected/vbox"]
-margin_top = 60.0
-margin_right = 346.0
-margin_bottom = 108.0
-text = "I haven't bothered to make the gizmo work yet. You have to type the position manually.
-"
-autowrap = true
-
-[node name="mdl_inputs" type="HBoxContainer" parent="ui/menu_cityobj_selected/vbox"]
-margin_top = 112.0
-margin_right = 346.0
-margin_bottom = 132.0
-
-[node name="Label" type="Label" parent="ui/menu_cityobj_selected/vbox/mdl_inputs"]
-margin_top = 3.0
-margin_right = 140.0
-margin_bottom = 17.0
-size_flags_horizontal = 3
-text = "Model id:"
-
-[node name="input_mdl" type="TextEdit" parent="ui/menu_cityobj_selected/vbox/mdl_inputs"]
-margin_left = 144.0
-margin_right = 284.0
-margin_bottom = 20.0
-size_flags_horizontal = 3
-
-[node name="input_mdl_ok" type="Button" parent="ui/menu_cityobj_selected/vbox/mdl_inputs"]
-margin_left = 288.0
-margin_right = 346.0
-margin_bottom = 20.0
-text = "Change"
-
-[node name="menu_file" type="Control" parent="ui"]
-anchor_right = 1.0
-anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource( 5 )
 
-[node name="input_help" type="Button" parent="ui/menu_file"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -36.0
-margin_top = 5.0
-margin_right = -4.0
-margin_bottom = 36.0
+[node name="menu_file" type="MenuButton" parent="ui/toolbar/hbox/menu_file"]
+margin_right = 27.0
+margin_bottom = 32.0
+text = "File"
+flat = false
+
+[node name="input_help" type="Button" parent="ui/toolbar/hbox/menu_file"]
+margin_left = 31.0
+margin_right = 63.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 32, 24 )
 toggle_mode = true
 icon = ExtResource( 1 )
 icon_align = 1
 expand_icon = true
 script = ExtResource( 3 )
 
-[node name="PanelContainer" type="PanelContainer" parent="ui/menu_file/input_help"]
+[node name="PanelContainer" type="PanelContainer" parent="ui/toolbar/hbox/menu_file/input_help"]
 visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = -196.0
-margin_top = 14.0
-margin_right = 28.0
-margin_bottom = 195.0
+margin_left = 259.0
+margin_top = -19.0
+margin_right = 483.0
+margin_bottom = 162.0
 
-[node name="RichTextLabel" type="RichTextLabel" parent="ui/menu_file/input_help/PanelContainer"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 217.0
-margin_bottom = 174.0
+[node name="RichTextLabel" type="RichTextLabel" parent="ui/toolbar/hbox/menu_file/input_help/PanelContainer"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 220.0
+margin_bottom = 177.0
 text = "Help:
 
 Hold MMB to rotate view.
@@ -314,23 +195,204 @@ Press F to focus on selected.
 To get started, drag a chunkfile to this window.
 (open only one at a time)"
 
-[node name="input_clear" type="Button" parent="ui/menu_file"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -86.0
-margin_top = 5.0
-margin_right = -42.0
-margin_bottom = 36.0
+[node name="input_clear" type="Button" parent="ui/toolbar/hbox/menu_file"]
+margin_left = 67.0
+margin_right = 105.0
+margin_bottom = 32.0
 text = "Clear"
 
-[node name="input_save" type="Button" parent="ui/menu_file"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -136.0
-margin_top = 5.0
-margin_right = -92.0
-margin_bottom = 36.0
+[node name="input_save" type="Button" parent="ui/toolbar/hbox/menu_file"]
+margin_left = 109.0
+margin_right = 144.0
+margin_bottom = 32.0
 text = "Save"
+
+[node name="spacer" type="Control" parent="ui/toolbar/hbox"]
+margin_left = 148.0
+margin_right = 148.0
+margin_bottom = 32.0
+
+[node name="input_toggle_cityobjs" type="Button" parent="ui/toolbar/hbox"]
+margin_left = 152.0
+margin_right = 192.0
+margin_bottom = 32.0
+toggle_mode = true
+pressed = true
+icon = ExtResource( 11 )
+
+[node name="input_toggle_lights" type="Button" parent="ui/toolbar/hbox"]
+margin_left = 196.0
+margin_right = 236.0
+margin_bottom = 32.0
+toggle_mode = true
+pressed = true
+icon = ExtResource( 7 )
+
+[node name="hbox" type="HBoxContainer" parent="ui"]
+margin_top = 40.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+mouse_filter = 2
+size_flags_vertical = 3
+
+[node name="selector" type="PanelContainer" parent="ui/hbox"]
+margin_right = 256.0
+margin_bottom = 1040.0
+rect_min_size = Vector2( 256, 0 )
+script = ExtResource( 10 )
+
+[node name="Tree" type="Tree" parent="ui/hbox/selector"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 252.0
+margin_bottom = 1036.0
+
+[node name="spacer" type="Control" parent="ui/hbox"]
+margin_left = 260.0
+margin_right = 1564.0
+margin_bottom = 1040.0
+mouse_filter = 2
+size_flags_horizontal = 3
+
+[node name="inspector" type="PanelContainer" parent="ui/hbox"]
+margin_left = 1568.0
+margin_right = 1920.0
+margin_bottom = 1040.0
+rect_min_size = Vector2( 352, 0 )
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ui/hbox/inspector"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 348.0
+margin_bottom = 1036.0
+
+[node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer"]
+margin_right = 344.0
+margin_bottom = 30.0
+size_flags_horizontal = 3
+
+[node name="menu_selected_title" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+margin_right = 344.0
+margin_bottom = 26.0
+script = ExtResource( 8 )
+
+[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_title"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 340.0
+margin_bottom = 22.0
+text = "Selected type: non"
+
+[node name="menu_selected_cityobj" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+visible = false
+margin_top = 30.0
+margin_right = 332.0
+margin_bottom = 194.0
+script = ExtResource( 4 )
+
+[node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 328.0
+margin_bottom = 160.0
+
+[node name="name" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
+margin_right = 324.0
+margin_bottom = 18.0
+text = "name"
+
+[node name="pos_title" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
+margin_top = 22.0
+margin_right = 324.0
+margin_bottom = 40.0
+
+[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_title"]
+margin_right = 105.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "X"
+
+[node name="Label2" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_title"]
+margin_left = 109.0
+margin_right = 214.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Y"
+
+[node name="Label3" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_title"]
+margin_left = 218.0
+margin_right = 324.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Z"
+
+[node name="pos_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
+margin_top = 44.0
+margin_right = 324.0
+margin_bottom = 66.0
+rect_min_size = Vector2( 0, 20 )
+
+[node name="input_x" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_inputs"]
+margin_right = 105.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
+size_flags_horizontal = 3
+
+[node name="input_y" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_inputs"]
+margin_left = 109.0
+margin_right = 214.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
+size_flags_horizontal = 3
+
+[node name="input_z" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/pos_inputs"]
+margin_left = 218.0
+margin_right = 324.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
+margin_top = 70.0
+margin_right = 324.0
+margin_bottom = 130.0
+text = "I haven't bothered to make the gizmo work yet. You have to type the position manually.
+"
+autowrap = true
+
+[node name="mdl_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox"]
+margin_top = 134.0
+margin_right = 324.0
+margin_bottom = 156.0
+
+[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/mdl_inputs"]
+margin_top = 2.0
+margin_right = 131.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Model id:"
+
+[node name="input_mdl" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/mdl_inputs"]
+margin_left = 135.0
+margin_right = 267.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 0, 22 )
+size_flags_horizontal = 3
+
+[node name="input_mdl_ok" type="Button" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/vbox/mdl_inputs"]
+margin_left = 271.0
+margin_right = 324.0
+margin_bottom = 22.0
+text = "Change"
+
+[node name="menu_selected_light" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+margin_top = 30.0
+margin_right = 344.0
+margin_bottom = 30.0
+script = ExtResource( 9 )
 
 [node name="env" type="Spatial" parent="."]
 
@@ -452,12 +514,6 @@ shape = SubResource( 13 )
 
 [node name="chunk" type="Spatial" parent="."]
 
-[node name="physmodels" type="Spatial" parent="chunk"]
-
-[node name="not implemented in chunkloader" type="Spatial" parent="chunk/physmodels"]
-visible = false
-
-[node name="rendermodels" type="Spatial" parent="chunk"]
-visible = false
-
 [node name="cityobjects" type="Spatial" parent="chunk"]
+
+[node name="lights" type="Spatial" parent="chunk"]
