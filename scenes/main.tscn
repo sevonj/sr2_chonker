@@ -136,7 +136,7 @@ theme = ExtResource( 12 )
 custom_constants/separation = 0
 
 [node name="toolbar" type="PanelContainer" parent="ui"]
-margin_right = 1024.0
+margin_right = 1920.0
 margin_bottom = 40.0
 grow_vertical = 0
 custom_styles/panel = ExtResource( 13 )
@@ -145,7 +145,7 @@ script = ExtResource( 14 )
 [node name="hbox" type="HBoxContainer" parent="ui/toolbar"]
 margin_left = 4.0
 margin_top = 4.0
-margin_right = 1020.0
+margin_right = 1916.0
 margin_bottom = 36.0
 
 [node name="menu_file" type="HBoxContainer" parent="ui/toolbar/hbox"]
@@ -230,14 +230,14 @@ icon = ExtResource( 7 )
 
 [node name="hbox" type="HBoxContainer" parent="ui"]
 margin_top = 40.0
-margin_right = 1024.0
-margin_bottom = 600.0
+margin_right = 1920.0
+margin_bottom = 1080.0
 mouse_filter = 2
 size_flags_vertical = 3
 
 [node name="selector" type="PanelContainer" parent="ui/hbox"]
 margin_right = 256.0
-margin_bottom = 560.0
+margin_bottom = 1040.0
 rect_min_size = Vector2( 256, 0 )
 script = ExtResource( 10 )
 
@@ -245,45 +245,46 @@ script = ExtResource( 10 )
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 252.0
-margin_bottom = 556.0
+margin_bottom = 1036.0
 
 [node name="spacer" type="Control" parent="ui/hbox"]
 margin_left = 260.0
-margin_right = 668.0
-margin_bottom = 560.0
+margin_right = 1564.0
+margin_bottom = 1040.0
 mouse_filter = 2
 size_flags_horizontal = 3
 
 [node name="inspector" type="PanelContainer" parent="ui/hbox"]
-margin_left = 672.0
-margin_right = 1024.0
-margin_bottom = 560.0
+margin_left = 1568.0
+margin_right = 1920.0
+margin_bottom = 1040.0
 rect_min_size = Vector2( 352, 0 )
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ui/hbox/inspector"]
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 348.0
-margin_bottom = 556.0
+margin_bottom = 1036.0
 
 [node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer"]
-margin_right = 332.0
-margin_bottom = 761.0
+margin_right = 344.0
+margin_bottom = 30.0
 size_flags_horizontal = 3
 
 [node name="menu_selected_title" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
-margin_right = 332.0
+margin_right = 344.0
 margin_bottom = 26.0
 script = ExtResource( 8 )
 
 [node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_title"]
 margin_left = 4.0
 margin_top = 4.0
-margin_right = 328.0
+margin_right = 340.0
 margin_bottom = 22.0
 text = "Selected type: non"
 
 [node name="menu_selected_cityobj" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+visible = false
 margin_top = 30.0
 margin_right = 332.0
 margin_bottom = 194.0
@@ -387,89 +388,11 @@ margin_right = 324.0
 margin_bottom = 22.0
 text = "Change"
 
-[node name="menu_selected_light" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
-margin_top = 198.0
-margin_right = 332.0
-margin_bottom = 761.0
+[node name="menu_selected_light" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+margin_top = 30.0
+margin_right = 344.0
+margin_bottom = 30.0
 script = ExtResource( 9 )
-
-[node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light"]
-margin_left = 4.0
-margin_top = 4.0
-margin_right = 328.0
-margin_bottom = 559.0
-
-[node name="name" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_right = 324.0
-margin_bottom = 18.0
-text = "name"
-
-[node name="pos_title" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 22.0
-margin_right = 324.0
-margin_bottom = 40.0
-
-[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_title"]
-margin_right = 105.0
-margin_bottom = 18.0
-size_flags_horizontal = 3
-size_flags_vertical = 6
-text = "X"
-
-[node name="Label2" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_title"]
-margin_left = 109.0
-margin_right = 214.0
-margin_bottom = 18.0
-size_flags_horizontal = 3
-size_flags_vertical = 6
-text = "Y"
-
-[node name="Label3" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_title"]
-margin_left = 218.0
-margin_right = 324.0
-margin_bottom = 18.0
-size_flags_horizontal = 3
-size_flags_vertical = 6
-text = "Z"
-
-[node name="pos_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 44.0
-margin_right = 324.0
-margin_bottom = 66.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="input_x" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_inputs"]
-margin_right = 105.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 0, 22 )
-size_flags_horizontal = 3
-
-[node name="input_y" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_inputs"]
-margin_left = 109.0
-margin_right = 214.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 0, 22 )
-size_flags_horizontal = 3
-
-[node name="input_z" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox/pos_inputs"]
-margin_left = 218.0
-margin_right = 324.0
-margin_bottom = 22.0
-rect_min_size = Vector2( 0, 22 )
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 70.0
-margin_right = 324.0
-margin_bottom = 109.0
-text = "I haven't bothered to make the gizmo work yet. You have to type the position manually."
-autowrap = true
-
-[node name="color_input" type="ColorPicker" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_light/vbox"]
-margin_top = 113.0
-margin_right = 324.0
-margin_bottom = 555.0
-edit_alpha = false
 
 [node name="env" type="Spatial" parent="."]
 

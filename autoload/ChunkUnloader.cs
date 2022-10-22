@@ -46,35 +46,76 @@ public class ChunkUnloader : Node
 			}
 
 			// --- Lights --- //
-			fs.Seek(chunk.LightsOffset.Off, 0);
+			fs.Seek(chunk.LightsOffset.Off + 4, 0);
 			for (int i = 0; i < chunk.LightCount; i++)
 			{
+				Sr2CpuChunkPc.Light light = chunk.LightSections.Lights[i];
 				// Get Cityobject Node data
 				Spatial lightNode = (Spatial)GetNode("/root/main/chunk/lights").GetChild(i);
 
+				// Construct a bit flag int from array of bools.
+				// I am sure this could've been done with much less effort.
+				int flags = 0;
+				Godot.Collections.Array flags_arr = (Godot.Collections.Array)lightNode.Get("flags");
+
+				for (int j = 0; j < 8; j++)
+					if ((bool)flags_arr[7 - j])
+						flags |= 1 << 7 - j;
+				flags <<= 8;
+
+				for (int j = 0; j < 8; j++)
+					if ((bool)flags_arr[15 - j])
+						flags |= 1 << 7 - j;
+				flags <<= 8;
+
+				for (int j = 0; j < 8; j++)
+					if ((bool)flags_arr[23 - j])
+						flags |= 1 << 7 - j;
+				flags <<= 8;
+
+				for (int j = 0; j < 8; j++)
+					if ((bool)flags_arr[31 - j])
+						flags |= 1 << 7 - j;
+
+
 				Color col = (Color)lightNode.Get("color");
 
-				col.r = 0;
-				col.g = 1;
-				col.b = 1;
+				uint unk10 = (uint)(int)lightNode.Get("unk10");
 
 				float x = lightNode.Transform.origin.x;
 				float y = lightNode.Transform.origin.y;
 				float z = lightNode.Transform.origin.z;
 
-				fs.Seek(8, SeekOrigin.Current);
+				float radius_inner = (float)lightNode.Get("radius_inner");
+				float radius_outer = (float)lightNode.Get("radius_outer");
+				float render_dist = (float)lightNode.Get("render_dist");
 
-				bw.Write((Single)col.r);
-				bw.Write((Single)col.g);
-				bw.Write((Single)col.b);
+				bw.Write(flags);
 
-				fs.Seek(40, SeekOrigin.Current);
+				fs.Seek(4, SeekOrigin.Current);
 
-				bw.Write(-(Single)x);
-				bw.Write((Single)y);
-				bw.Write((Single)z);
-				
-				fs.Seek(76, SeekOrigin.Current);
+				bw.Write(col.r);
+				bw.Write(col.g);
+				bw.Write(col.b);
+
+				fs.Seek(20, SeekOrigin.Current);
+
+				bw.Write(unk10);
+
+				fs.Seek(16, SeekOrigin.Current);
+
+				bw.Write(-x);
+				bw.Write(y);
+				bw.Write(z);
+
+				fs.Seek(44, SeekOrigin.Current);
+
+				bw.Write(radius_inner);
+				bw.Write(radius_outer);
+				bw.Write(render_dist);
+
+				fs.Seek(20, SeekOrigin.Current);
+
 			}
 			// City Objects
 			/*

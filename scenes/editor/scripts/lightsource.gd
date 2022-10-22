@@ -3,7 +3,45 @@ extends Spatial
 var icon = preload("res://ui/icon_lightbulb.png")
 var icon_scale = 16
 
+var flags = [
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	true,
+	true,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	true,
+	true,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	true,
+	true,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	true,
+	true,
+]
 var color: Color
+var unk10: int
+var radius_inner: float
+var radius_outer: float
+var render_dist: float
 
 var child_light: OmniLight
 var child_icon: Sprite3D

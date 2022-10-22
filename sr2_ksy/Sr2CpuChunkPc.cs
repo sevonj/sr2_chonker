@@ -1320,7 +1320,7 @@ namespace Kaitai
             }
             private void _read()
             {
-                _unk0 = m_io.ReadU4le();
+                _flags = new Bitflags(m_io, this, m_root);
                 _unk1 = m_io.ReadU4le();
                 _r = m_io.ReadF4le();
                 _g = m_io.ReadF4le();
@@ -1345,18 +1345,135 @@ namespace Kaitai
                 _unk24 = m_io.ReadF4le();
                 _unk25 = m_io.ReadF4le();
                 _unk26 = m_io.ReadF4le();
-                _unk27 = m_io.ReadU4le();
-                _unk28 = m_io.ReadU4le();
-                _unk29 = m_io.ReadF4le();
-                _unk30 = m_io.ReadF4le();
-                _unk31 = m_io.ReadU4le();
+                _unk27 = m_io.ReadF4le();
+                _unk28 = m_io.ReadF4le();
+                _radiusInner = m_io.ReadF4le();
+                _radiusOuter = m_io.ReadF4le();
+                _renderDist = m_io.ReadF4le();
                 _unk32 = m_io.ReadU4le();
                 _unk33 = m_io.ReadU4le();
                 _unk34 = m_io.ReadU4le();
                 _unk35 = m_io.ReadU4le();
                 _unk36 = m_io.ReadU4le();
             }
-            private uint _unk0;
+            public partial class Bitflags : KaitaiStruct
+            {
+                public static Bitflags FromFile(string fileName)
+                {
+                    return new Bitflags(new KaitaiStream(fileName));
+                }
+
+                public Bitflags(KaitaiStream p__io, Sr2CpuChunkPc.Light p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+                {
+                    m_parent = p__parent;
+                    m_root = p__root;
+                    _read();
+                }
+                private void _read()
+                {
+                    _bit1f = m_io.ReadBitsIntBe(1) != 0;
+                    _bit1e = m_io.ReadBitsIntBe(1) != 0;
+                    _bit1d = m_io.ReadBitsIntBe(1) != 0;
+                    _bit1c = m_io.ReadBitsIntBe(1) != 0;
+                    _bit1b = m_io.ReadBitsIntBe(1) != 0;
+                    _bit1a = m_io.ReadBitsIntBe(1) != 0;
+                    _bit19 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit18 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit17 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit16 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit15 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit14 = m_io.ReadBitsIntBe(1) != 0;
+                    _castShadowsOnPeople = m_io.ReadBitsIntBe(1) != 0;
+                    _castShadowsOnWorld = m_io.ReadBitsIntBe(1) != 0;
+                    _bit11 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit10 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit0f = m_io.ReadBitsIntBe(1) != 0;
+                    _bit0e = m_io.ReadBitsIntBe(1) != 0;
+                    _bit0d = m_io.ReadBitsIntBe(1) != 0;
+                    _bit0c = m_io.ReadBitsIntBe(1) != 0;
+                    _bit0b = m_io.ReadBitsIntBe(1) != 0;
+                    _bit0a = m_io.ReadBitsIntBe(1) != 0;
+                    _bit09 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit08 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit07 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit06 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit05 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit04 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit03 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit02 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit01 = m_io.ReadBitsIntBe(1) != 0;
+                    _bit00 = m_io.ReadBitsIntBe(1) != 0;
+                }
+                private bool _bit1f;
+                private bool _bit1e;
+                private bool _bit1d;
+                private bool _bit1c;
+                private bool _bit1b;
+                private bool _bit1a;
+                private bool _bit19;
+                private bool _bit18;
+                private bool _bit17;
+                private bool _bit16;
+                private bool _bit15;
+                private bool _bit14;
+                private bool _castShadowsOnPeople;
+                private bool _castShadowsOnWorld;
+                private bool _bit11;
+                private bool _bit10;
+                private bool _bit0f;
+                private bool _bit0e;
+                private bool _bit0d;
+                private bool _bit0c;
+                private bool _bit0b;
+                private bool _bit0a;
+                private bool _bit09;
+                private bool _bit08;
+                private bool _bit07;
+                private bool _bit06;
+                private bool _bit05;
+                private bool _bit04;
+                private bool _bit03;
+                private bool _bit02;
+                private bool _bit01;
+                private bool _bit00;
+                private Sr2CpuChunkPc m_root;
+                private Sr2CpuChunkPc.Light m_parent;
+                public bool Bit1f { get { return _bit1f; } }
+                public bool Bit1e { get { return _bit1e; } }
+                public bool Bit1d { get { return _bit1d; } }
+                public bool Bit1c { get { return _bit1c; } }
+                public bool Bit1b { get { return _bit1b; } }
+                public bool Bit1a { get { return _bit1a; } }
+                public bool Bit19 { get { return _bit19; } }
+                public bool Bit18 { get { return _bit18; } }
+                public bool Bit17 { get { return _bit17; } }
+                public bool Bit16 { get { return _bit16; } }
+                public bool Bit15 { get { return _bit15; } }
+                public bool Bit14 { get { return _bit14; } }
+                public bool CastShadowsOnPeople { get { return _castShadowsOnPeople; } }
+                public bool CastShadowsOnWorld { get { return _castShadowsOnWorld; } }
+                public bool Bit11 { get { return _bit11; } }
+                public bool Bit10 { get { return _bit10; } }
+                public bool Bit0f { get { return _bit0f; } }
+                public bool Bit0e { get { return _bit0e; } }
+                public bool Bit0d { get { return _bit0d; } }
+                public bool Bit0c { get { return _bit0c; } }
+                public bool Bit0b { get { return _bit0b; } }
+                public bool Bit0a { get { return _bit0a; } }
+                public bool Bit09 { get { return _bit09; } }
+                public bool Bit08 { get { return _bit08; } }
+                public bool Bit07 { get { return _bit07; } }
+                public bool Bit06 { get { return _bit06; } }
+                public bool Bit05 { get { return _bit05; } }
+                public bool Bit04 { get { return _bit04; } }
+                public bool Bit03 { get { return _bit03; } }
+                public bool Bit02 { get { return _bit02; } }
+                public bool Bit01 { get { return _bit01; } }
+                public bool Bit00 { get { return _bit00; } }
+                public Sr2CpuChunkPc M_Root { get { return m_root; } }
+                public Sr2CpuChunkPc.Light M_Parent { get { return m_parent; } }
+            }
+            private Bitflags _flags;
             private uint _unk1;
             private float _r;
             private float _g;
@@ -1381,11 +1498,11 @@ namespace Kaitai
             private float _unk24;
             private float _unk25;
             private float _unk26;
-            private uint _unk27;
-            private uint _unk28;
-            private float _unk29;
-            private float _unk30;
-            private uint _unk31;
+            private float _unk27;
+            private float _unk28;
+            private float _radiusInner;
+            private float _radiusOuter;
+            private float _renderDist;
             private uint _unk32;
             private uint _unk33;
             private uint _unk34;
@@ -1393,7 +1510,7 @@ namespace Kaitai
             private uint _unk36;
             private Sr2CpuChunkPc m_root;
             private Sr2CpuChunkPc.LightSection m_parent;
-            public uint Unk0 { get { return _unk0; } }
+            public Bitflags Flags { get { return _flags; } }
             public uint Unk1 { get { return _unk1; } }
             public float R { get { return _r; } }
             public float G { get { return _g; } }
@@ -1418,11 +1535,11 @@ namespace Kaitai
             public float Unk24 { get { return _unk24; } }
             public float Unk25 { get { return _unk25; } }
             public float Unk26 { get { return _unk26; } }
-            public uint Unk27 { get { return _unk27; } }
-            public uint Unk28 { get { return _unk28; } }
-            public float Unk29 { get { return _unk29; } }
-            public float Unk30 { get { return _unk30; } }
-            public uint Unk31 { get { return _unk31; } }
+            public float Unk27 { get { return _unk27; } }
+            public float Unk28 { get { return _unk28; } }
+            public float RadiusInner { get { return _radiusInner; } }
+            public float RadiusOuter { get { return _radiusOuter; } }
+            public float RenderDist { get { return _renderDist; } }
             public uint Unk32 { get { return _unk32; } }
             public uint Unk33 { get { return _unk33; } }
             public uint Unk34 { get { return _unk34; } }

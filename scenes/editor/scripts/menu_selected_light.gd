@@ -2,39 +2,96 @@ extends Control
 
 var target
 
-onready var namelabel = $vbox/name
-onready var input_posx = $vbox/pos_inputs/input_x
-onready var input_posy = $vbox/pos_inputs/input_y
-onready var input_posz = $vbox/pos_inputs/input_z
-onready var input_color = $vbox/color_input
+var panel_flags
+var panel_color
+var panel_transform
+var panel_properties
 
+var flag_names = [
+	"flag00",
+	"flag01",
+	"flag02",
+	"flag03",
+	"flag04",
+	"flag05",
+	"flag06",
+	"flag07",
+	"flag08",
+	"flag09",
+	"flag0a",
+	"flag0b",
+	"flag0c",
+	"flag0d",
+	"flag0e",
+	"flag0f",
+	"flag10",
+	"flag11",
+	"cast_shadows_on_world",
+	"cast_shadows_on_people",
+	"flag14",
+	"flag15",
+	"flag16",
+	"flag17",
+	"flag18",
+	"flag19",
+	"flag1a",
+	"flag1b",
+	"flag1c",
+	"flag1d",
+	"flag1e",
+	"flag1f"
+]
 
 func _ready():
 	ChunkEditor.menu_selected_light = self
 	hide()
+	#var vbox = VBoxContainer.new()
+	#vbox.size_flags_horizontal = 3 # expand
+	#add_child(vbox)
 	
-	input_posx.connect("text_changed", self, "_update_pos")
-	input_posy.connect("text_changed", self, "_update_pos")
-	input_posz.connect("text_changed", self, "_update_pos")
-	input_color.connect("color_changed", self, "_update_color")
+	panel_flags = PanelContainer.new()
+	panel_flags.set_script(load("res://scenes/editor/scripts/inspector_panel_flags.gd"))
+	panel_flags.name = "Flags"
+	add_child(panel_flags)
+	panel_flags._create_menu(flag_names, self, "_update_flag")
+	
+	panel_color = PanelContainer.new()
+	panel_color.set_script(load("res://scenes/editor/scripts/inspector_panel_color.gd"))
+	panel_color.name = "Color"
+	add_child(panel_color)
+	panel_color._create_menu(self, "_update_color")
+	
+	panel_transform = PanelContainer.new()
+	panel_transform.set_script(load("res://scenes/editor/scripts/inspector_panel_transform.gd"))
+	panel_transform.name = "Transform"
+	add_child(panel_transform)
+	panel_transform._create_menu(self, "_update_transform")
+	
+	panel_properties = PanelContainer.new()
+	panel_properties.set_script(load("res://scenes/editor/scripts/inspector_panel_properties.gd"))
+	panel_properties.name = "Properties"
+	add_child(panel_properties)
+	panel_properties._create_menu(self, "_update_properties")
 
 func _select(cityobj):
 	target = cityobj
 	
-	namelabel.text = target.name
-	input_posx.text = str(target.translation.x)
-	input_posy.text = str(target.translation.y)
-	input_posz.text = str(target.translation.z)
-	
-func _update_pos():
-	var deltapos = Vector3(
-		float(input_posx.text),
-		float(input_posy.text),
-		float(input_posz.text)
-		)
-	target.translation = deltapos
+	panel_flags._update_flags(target.flags)
+	panel_color._update_color(target.color)
+	panel_transform._update_transform(target.transform.origin)
+	panel_properties._update_properties(target.radius_inner, target.radius_outer, target.render_dist)
+
+func _update_flag(set, id):
+	target.flags[id] = set
+
+func _update_transform(origin):
+	target.transform.origin = origin
 
 func _update_color(color:  Color):
-	input_color.color = color
 	target._change_color(color)
-	
+
+func _update_properties(radius_inner, radius_outer, render_dist):
+	target.radius_inner = radius_inner
+	target.radius_outer = radius_outer
+	target.render_dist = render_dist
+
