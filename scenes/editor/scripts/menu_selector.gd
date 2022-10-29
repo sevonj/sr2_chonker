@@ -42,14 +42,17 @@ func _update():
 		treeitem_placeholder.set_text(0, "No chunk loaded.")
 		treeitem_placeholder.set_selectable(0, false)
 		return
-
+		
+	var cobj_root = chunk_root.get_node("cityobjects")
+	var light_root = chunk_root.get_node("lights")
+	
 	var treeitem_cityobjects = tree.create_item()
 	treeitem_cityobjects.set_text(0, "city objects")
 	var treeitem_lights = tree.create_item()
 	treeitem_lights.set_text(0, "light sources")
 	
-	var cobj_root = chunk_root.get_node("cityobjects")
-	for cobj in cobj_root.get_children():
+	for i in range(cobj_root.get_child_count()):
+		var cobj = cobj_root.get_child(i)
 		var treeitem = tree.create_item(treeitem_cityobjects)
 		treeitem.set_text(0, cobj.name)
 		if cobj.is_rendermodel_bad:
@@ -57,8 +60,8 @@ func _update():
 			
 		chunk_object_dict[cobj.get_path()] = treeitem
 		
-	var light_root = chunk_root.get_node("lights")
-	for light in light_root.get_children():
+	for i in range(light_root.get_child_count()):
+		var light = light_root.get_child(i)
 		var treeitem = tree.create_item(treeitem_lights)
 		treeitem.set_text(0, light.name)
 		

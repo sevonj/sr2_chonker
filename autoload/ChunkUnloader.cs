@@ -28,19 +28,41 @@ public class ChunkUnloader : Node
 				// Get Cityobject Node data
 				Spatial cobjNode = (Spatial)GetNode("/root/main/chunk/cityobjects").GetChild(i);
 
-				float x = cobjNode.Transform.origin.x;
-				float y = cobjNode.Transform.origin.y;
-				float z = cobjNode.Transform.origin.z;
+				float posX = cobjNode.Transform.origin.x;
+				float posY = cobjNode.Transform.origin.y;
+				float posZ = cobjNode.Transform.origin.z;
+
+				float basis0X = cobjNode.Transform.basis[0].x;
+				float basis0Y = cobjNode.Transform.basis[0].y;
+				float basis0Z = cobjNode.Transform.basis[0].z;
+				float basis1X = cobjNode.Transform.basis[1].x;
+				float basis1Y = cobjNode.Transform.basis[1].y;
+				float basis1Z = cobjNode.Transform.basis[1].z;
+				float basis2X = cobjNode.Transform.basis[2].x;
+				float basis2Y = cobjNode.Transform.basis[2].y;
+				float basis2Z = cobjNode.Transform.basis[2].z;
+
 				uint modelId = (uint)(int)cobjNode.Get("rendermodel_id");
 
 				// Find out which CityobjectPart belongs to this Cityobject and seek there.
 				uint cobjPartId = chunk.Cityobjects[i].CityobjectPartId;
 				fs.Seek(chunk.CityobjectPartsOffset.Off + cobjPartId * 96, 0);
 
-				bw.Write(-(Single)x);
-				bw.Write((Single)y);
-				bw.Write((Single)z);
-				fs.Seek(76, SeekOrigin.Current);
+				// Transform
+				bw.Write(-posX);
+				bw.Write(posY);
+				bw.Write(posZ);
+				bw.Write(basis0X);				
+				bw.Write(basis0Y);
+				bw.Write(-basis0Z);
+				bw.Write(basis1X);
+				bw.Write(basis1Y);
+				bw.Write(basis1Z);
+				bw.Write(-basis2X);
+				bw.Write(basis2Y);
+				bw.Write(basis2Z);
+				
+				fs.Seek(40, SeekOrigin.Current);
 				bw.Write((UInt32)modelId);
 				fs.Seek(4, SeekOrigin.Current);
 			}

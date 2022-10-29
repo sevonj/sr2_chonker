@@ -26,13 +26,16 @@ func _unhandled_input(event):
 			_unselect()
 
 # Load a dropped file.
-func _on_files_dropped(files, _screen):
+func _on_files_dropped(files: Array, _screen):
 	if len(files) != 1:
 		print("One file at a time!")
 		return
-	var fext = files[0].get_extension()
+	_load_file(files[0])
+
+func _load_file(fpath: String):
+	var fext = fpath.get_extension()
 	if fext == "chunk_pc" or fext == "g_chunk_pc" or fext == "g_peg_pc":
-		Globals.on_clear_chunkfile_to_load = files[0]
+		Globals.on_clear_chunkfile_to_load = fpath
 		_clear()
 	else: print("Unknown file extension: " + fext)
 

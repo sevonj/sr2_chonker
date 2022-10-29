@@ -57,7 +57,7 @@ func _update_properties(radius_inner, radius_outer, render_dist):
 	input_radius_outer.text = str(radius_outer)
 	input_render_dist.text = str(render_dist)
 	
-func _set_properties(col):
+func _set_properties():
 	var radius_inner = float(input_radius_inner.text)
 	var radius_outer = float(input_radius_outer.text)
 	var render_dist = float(input_render_dist.text)

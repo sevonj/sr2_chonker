@@ -1,25 +1,89 @@
-[gd_resource type="Theme" load_steps=7 format=2]
+[gd_resource type="Theme" load_steps=12 format=2]
 
 [ext_resource path="res://ui/stylebox_2008_button_pressed.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/stylebox_2008_button_normal.tres" type="StyleBox" id=2]
 [ext_resource path="res://ui/stylebox_2008_button_hover.tres" type="StyleBox" id=3]
 [ext_resource path="res://font/general.tres" type="DynamicFont" id=4]
+[ext_resource path="res://ui/ui_tex_2008_window.svg" type="Texture" id=5]
 [ext_resource path="res://ui/stylebox_panel.tres" type="StyleBox" id=6]
+[ext_resource path="res://ui/ui_tex_2008_close_button.svg" type="Texture" id=7]
+[ext_resource path="res://ui/ui_tex_2008_close_button_hover.svg" type="Texture" id=8]
+[ext_resource path="res://ui/stylebox_2008_indent.tres" type="StyleBox" id=9]
+[ext_resource path="res://ui/stylebox_2008_bluebar.tres" type="StyleBox" id=10]
 
-[sub_resource type="StyleBoxFlat" id=2]
-bg_color = Color( 0.227451, 0.239216, 0.258824, 1 )
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color( 0, 0, 0, 1 )
-border_blend = true
+[sub_resource type="StyleBoxTexture" id=3]
+texture = ExtResource( 5 )
+region_rect = Rect2( 0, 0, 64, 64 )
+margin_left = 8.0
+margin_right = 8.0
+margin_top = 33.0
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+expand_margin_top = 24.0
 
 [resource]
 default_font = ExtResource( 4 )
 Button/styles/hover = ExtResource( 3 )
 Button/styles/normal = ExtResource( 2 )
 Button/styles/pressed = ExtResource( 1 )
+FileDialog/colors/file_icon_modulate = Color( 0.329412, 0.843137, 0.980392, 1 )
+FileDialog/colors/files_disabled = Color( 1, 1, 1, 0.25 )
+FileDialog/colors/folder_icon_modulate = Color( 0.329412, 0.843137, 0.980392, 1 )
+FileDialog/colors/font_color = Color( 1, 0, 0, 1 )
+FileDialog/fonts/font = ExtResource( 4 )
+FileDialog/icons/file = null
+FileDialog/icons/folder = null
+FileDialog/icons/parent_folder = null
+FileDialog/icons/reload = null
+FileDialog/icons/toggle_hidden = null
+FileDialog/styles/panel = SubResource( 3 )
+FileDialog/styles/textedit_normal = ExtResource( 10 )
 Panel/styles/panel = ExtResource( 6 )
 PanelContainer/styles/panel = ExtResource( 6 )
-Tree/styles/bg = SubResource( 2 )
+TextEdit/colors/background_color = Color( 0, 0, 0, 0 )
+TextEdit/colors/bookmark_color = Color( 0.08, 0.49, 0.98, 1 )
+TextEdit/colors/brace_mismatch_color = Color( 1, 0.2, 0.2, 1 )
+TextEdit/colors/breakpoint_color = Color( 0.8, 0.8, 0.4, 0.2 )
+TextEdit/colors/caret_background_color = Color( 0, 0, 0, 1 )
+TextEdit/colors/caret_color = Color( 0.88, 0.88, 0.88, 1 )
+TextEdit/colors/code_folding_color = Color( 0.8, 0.8, 0.8, 0.8 )
+TextEdit/colors/completion_background_color = Color( 0.17, 0.16, 0.2, 1 )
+TextEdit/colors/completion_existing_color = Color( 0.87, 0.87, 0.87, 0.13 )
+TextEdit/colors/completion_font_color = Color( 0.67, 0.67, 0.67, 1 )
+TextEdit/colors/completion_scroll_color = Color( 1, 1, 1, 0.29 )
+TextEdit/colors/completion_selected_color = Color( 0.26, 0.26, 0.27, 1 )
+TextEdit/colors/current_line_color = Color( 0.25, 0.25, 0.26, 0.8 )
+TextEdit/colors/executing_line_color = Color( 0.2, 0.8, 0.2, 0.4 )
+TextEdit/colors/font_color = Color( 0.88, 0.88, 0.88, 1 )
+TextEdit/colors/font_color_readonly = Color( 0.88, 0.88, 0.88, 0.5 )
+TextEdit/colors/font_color_selected = Color( 0, 0, 0, 1 )
+TextEdit/colors/function_color = Color( 0.4, 0.64, 0.81, 1 )
+TextEdit/colors/line_number_color = Color( 0.67, 0.67, 0.67, 0.4 )
+TextEdit/colors/mark_color = Color( 1, 0.4, 0.4, 0.4 )
+TextEdit/colors/member_variable_color = Color( 0.9, 0.31, 0.35, 1 )
+TextEdit/colors/number_color = Color( 0.92, 0.58, 0.2, 1 )
+TextEdit/colors/safe_line_number_color = Color( 0.67, 0.78, 0.67, 0.6 )
+TextEdit/colors/selection_color = Color( 0.49, 0.49, 0.49, 1 )
+TextEdit/colors/symbol_color = Color( 0.94, 0.94, 0.94, 1 )
+TextEdit/colors/word_highlighted_color = Color( 0.8, 0.9, 0.9, 0.15 )
+TextEdit/constants/completion_lines = 7
+TextEdit/constants/completion_max_width = 50
+TextEdit/constants/completion_scroll_width = 6
+TextEdit/constants/line_spacing = 4
+TextEdit/icons/fold = null
+TextEdit/icons/folded = null
+TextEdit/icons/space = null
+TextEdit/icons/tab = null
+TextEdit/styles/completion = ExtResource( 9 )
+TextEdit/styles/focus = ExtResource( 9 )
+TextEdit/styles/normal = ExtResource( 9 )
+TextEdit/styles/read_only = null
+Tree/styles/bg = ExtResource( 9 )
+WindowDialog/colors/title_color = Color( 1, 1, 1, 1 )
+WindowDialog/constants/close_h_ofs = 18
+WindowDialog/constants/close_v_ofs = 18
+WindowDialog/constants/scaleborder_size = 4
+WindowDialog/constants/title_height = 20
+WindowDialog/icons/close = ExtResource( 7 )
+WindowDialog/icons/close_highlight = ExtResource( 8 )
+WindowDialog/styles/panel = null

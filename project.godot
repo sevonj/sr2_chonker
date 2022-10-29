@@ -37,6 +37,7 @@ enabled=PoolStringArray(  )
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
+theme/custom="res://ui/theme_2008.tres"
 
 [physics]
 

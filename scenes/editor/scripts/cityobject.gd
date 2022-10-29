@@ -12,6 +12,9 @@ var is_highlighted = false
 func _ready():
 	load_model()
 
+func _set_transform(t: Transform):
+	transform = t
+
 func change_model(id: int):
 	rendermodel_id = id
 	is_highlighted = false

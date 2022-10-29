@@ -86,10 +86,20 @@ public class ChunkHandler : Node
 			int partId = (int)cobj.CityobjectPartId;
 			Sr2CpuChunkPc.CityobjectPart temp = chunk.CityobjectParts[partId];
 
+			// Create a transform
+			Vector3 origin = new Vector3(-temp.Pos.X, temp.Pos.Y, temp.Pos.Z);
+			Vector3 basisX = new Vector3(temp.BasisX.X, temp.BasisX.Y, -temp.BasisX.Z);
+			Vector3 basisY = new Vector3(temp.BasisY.X, -temp.BasisY.Y, temp.BasisY.Z);
+			Vector3 basisZ = new Vector3(-temp.BasisZ.X, temp.BasisZ.Y, temp.BasisZ.Z);
+			Transform transform = new Transform(basisX, -basisY, basisZ, origin);
+
+			// Setup a node
 			Spatial cityObjectNode = new Spatial();
 			cityObjectNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/cityobject.gd"));
-			cityObjectNode.Translation = new Vector3(-temp.Pos.X, temp.Pos.Y, temp.Pos.Z);
 			cityObjectNode.Name = chunk.CityobjectNames[i];
+			cityObjectNode.Call("_set_transform", transform); // Editing transform values in C# turned out rather painful. Moved it to GDScript.
+
+			// Cityobj specific values
 			cityObjectNode.Set("rendermodel_id", temp.RendermodelId);
 			cityObjectNode.Set("cityobjpart_id", partId);
 

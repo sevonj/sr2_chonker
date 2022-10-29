@@ -3,38 +3,35 @@ extends Control
 var target
 
 onready var namelabel = $vbox/name
-onready var input_posx = $vbox/pos_inputs/input_x
-onready var input_posy = $vbox/pos_inputs/input_y
-onready var input_posz = $vbox/pos_inputs/input_z
 onready var input_mdl = $vbox/mdl_inputs/input_mdl
 onready var input_mdl_ok = $vbox/mdl_inputs/input_mdl_ok
+
+var panel_transform
 
 
 func _ready():
 	ChunkEditor.menu_selected_cityobj = self
 	hide()
-	
-	input_posx.connect("text_changed", self, "_update_pos")
-	input_posy.connect("text_changed", self, "_update_pos")
-	input_posz.connect("text_changed", self, "_update_pos")
 	input_mdl_ok.connect("pressed", self, "_update_mdl")
+	
+	panel_transform = PanelContainer.new()
+	panel_transform.set_script(load("res://scenes/editor/scripts/inspector_panel_transform.gd"))
+	panel_transform.name = "Transform"
+	add_child(panel_transform)
+	panel_transform._create_menu(self, "_update_transform")
 
 func _select(cityobj):
 	target = cityobj
 	
 	namelabel.text = target.name
-	input_posx.text = str(target.translation.x)
-	input_posy.text = str(target.translation.y)
-	input_posz.text = str(target.translation.z)
 	input_mdl.text = str(target.rendermodel_id)
-	
-func _update_pos():
-	var deltapos = Vector3(
-		float(input_posx.text),
-		float(input_posy.text),
-		float(input_posz.text)
-		)
-	target.translation = deltapos
+
+	panel_transform._update_transform(target)
+
+func _update_transform(translation, rotation, scale):
+	target.set_global_translation(translation)
+	target.set_rotation_degrees(rotation)
+	target.set_scale(scale)
 
 func _update_mdl():
 	var id = int(input_mdl.text)

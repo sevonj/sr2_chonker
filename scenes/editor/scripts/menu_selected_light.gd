@@ -26,8 +26,8 @@ var flag_names = [
 	"flag0f",
 	"flag10",
 	"flag11",
-	"cast_shadows_on_world",
-	"cast_shadows_on_people",
+	"shadows_world",
+	"shadows_people",
 	"flag14",
 	"flag15",
 	"flag16",
@@ -78,14 +78,16 @@ func _select(cityobj):
 	
 	panel_flags._update_flags(target.flags)
 	panel_color._update_color(target.color)
-	panel_transform._update_transform(target.transform.origin)
+	panel_transform._update_transform(target)
 	panel_properties._update_properties(target.radius_inner, target.radius_outer, target.render_dist)
 
 func _update_flag(set, id):
 	target.flags[id] = set
 
-func _update_transform(origin):
-	target.transform.origin = origin
+func _update_transform(translation, rotation, scale):
+	target.set_global_translation(translation)
+	target.set_rotation_degrees(rotation)
+	target.set_scale(scale)
 
 func _update_color(color:  Color):
 	target._change_color(color)
