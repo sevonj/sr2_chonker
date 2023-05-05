@@ -5,6 +5,8 @@
 extends Node
 
 var is_chunk_loaded = false
+var opt_cityobjects = true
+var opt_lights = true
 
 var cam
 var gizmo
@@ -15,6 +17,9 @@ var menu_selector
 
 var currently_selected: Spatial
 var chunk_rendermodels = []
+
+var file_import_dialog = preload("res://scenes/editor/scripts/import_dialog.gd")
+var ui
 
 func _ready():
 	get_tree().connect("files_dropped", self, "_on_files_dropped")
@@ -30,14 +35,18 @@ func _on_files_dropped(files, _screen):
 	if len(files) != 1:
 		print("One file at a time!")
 		return
-	var fext = files[0].get_extension()
-	if fext == "chunk_pc" or fext == "g_chunk_pc" or fext == "g_peg_pc":
-		Globals.on_clear_chunkfile_to_load = files[0]
-		_clear()
-	else: print("Unknown file extension: " + fext)
+	var dialog = file_import_dialog.new()
+	ui.add_child(dialog)
+	dialog._set_file(files[0])
+#	var fext = files[0].get_extension()
+#	if fext == "chunk_pc" or fext == "g_chunk_pc" or fext == "g_peg_pc":
+#		Globals.on_clear_chunkfile_to_load = files[0]
+#		_clear()
+	#else: print("Unknown file extension: " + fext)
 
 # On Clear / Reload
 func _on_main_ready():
+	ui = get_tree().root.get_node("main").get_node("ui")
 	if Globals.on_clear_chunkfile_to_load:
 		ChunkHandler.LoadChunk(Globals.on_clear_chunkfile_to_load)
 		Globals.on_clear_chunkfile_to_load = null
