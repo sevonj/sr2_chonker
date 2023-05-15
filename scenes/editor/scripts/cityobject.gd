@@ -9,6 +9,9 @@ var rendermodel_id: int = -1
 var cityobjpart_id: int
 var is_highlighted = false
 
+const MDL_PLACEHOLDER = preload("res://scenes/editor/mdl_model_placeholder.tres")
+const TEX_PLACEHOLDER = preload("res://scenes/editor/tex_model_placeholder.png")
+
 func _ready():
 	load_model()
 
@@ -30,31 +33,33 @@ func load_model():
 			return
 		
 		var rendermodel = ChunkEditor.chunk_rendermodels[rendermodel_id] # get_node("/root/main/chunk/rendermodels/RenderModel" + str(rendermodel_id))
+		var model = MeshInstance.new()
+		var mat = SpatialMaterial.new()
 		
-		# Abort on empty mesh
-		if rendermodel.get_surface_count() == 0:
+		# Rendermodel OK
+		if rendermodel.get_surface_count() > 0:
+			model.mesh = rendermodel
+			mat.albedo_color = Color(
+				fmod(randf(), .2) +.5,
+				fmod(randf(), .2) +.5,
+				fmod(randf(), .2) +.5
+				)
+		# Rendemodel BAD, load placeholder
+		else:
 			is_rendermodel_bad = true
 			#push_warning(name + ": empty mesh")
-			return
+			model.mesh = MDL_PLACEHOLDER
+			mat.albedo_texture = TEX_PLACEHOLDER
 		
-		var meshinstance = MeshInstance.new()
-		meshinstance.mesh = rendermodel
+		# Material
+		mat.params_cull_mode = SpatialMaterial.CULL_DISABLED
+		model.material_override = mat
 		
 		# Colliders are used to select cityobj by click (Collider uses rendermodel, NOT physmodel)
-		meshinstance.create_trimesh_collision()
-		meshinstance.get_child(0).connect("input_event", self, "_input_event")
+		model.create_trimesh_collision()
+		model.get_child(0).connect("input_event", self, "_input_event")
+		add_child(model)
 		
-		add_child(meshinstance)
-		
-		# Material)
-		var mat = SpatialMaterial.new()
-		mat.albedo_color = Color(
-			fmod(randf(), .2) +.5,
-			fmod(randf(), .2) +.5,
-			fmod(randf(), .2) +.5
-			)
-		mat.params_cull_mode = SpatialMaterial.CULL_DISABLED
-		meshinstance.material_override = mat
 
 func _input_event(_camera, event, _click_position, _click_normal, _shape_idx):
 	if event is InputEventMouseButton:

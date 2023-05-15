@@ -15,3 +15,7 @@ data_*/
 *.g_chunk_pc
 *.g_peg
 *.vpp_pc
+
+# Project
+build*/
+build*.zip
