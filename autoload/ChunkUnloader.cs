@@ -42,9 +42,9 @@ public class ChunkUnloader : Node
 					bw.Write(-(Single)cobjNode.Transform.basis.x.z);
 					bw.Write(-(Single)cobjNode.Transform.basis.y.x);
 					bw.Write((Single)cobjNode.Transform.basis.y.y);
-					bw.Write(-(Single)cobjNode.Transform.basis.y.z);
+					bw.Write((Single)cobjNode.Transform.basis.y.z);
 					bw.Write(-(Single)cobjNode.Transform.basis.z.x);
-					bw.Write(-(Single)cobjNode.Transform.basis.z.y);
+					bw.Write((Single)cobjNode.Transform.basis.z.y);
 					bw.Write((Single)cobjNode.Transform.basis.z.z);
 					fs.Seek(40, SeekOrigin.Current);
 
@@ -100,9 +100,9 @@ public class ChunkUnloader : Node
 					bw.Write(-(Single)lightNode.Transform.basis.x.z);
 					bw.Write(-(Single)lightNode.Transform.basis.y.x);
 					bw.Write((Single)lightNode.Transform.basis.y.y);
-					bw.Write(-(Single)lightNode.Transform.basis.y.z);
+					bw.Write((Single)lightNode.Transform.basis.y.z);
 					bw.Write(-(Single)lightNode.Transform.basis.z.x);
-					bw.Write(-(Single)lightNode.Transform.basis.z.y);
+					bw.Write((Single)lightNode.Transform.basis.z.y);
 					bw.Write((Single)lightNode.Transform.basis.z.z);
 					fs.Seek(8, SeekOrigin.Current);
 					bw.Write((float)lightNode.Get("radius_inner"));

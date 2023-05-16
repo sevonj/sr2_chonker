@@ -112,8 +112,8 @@ public class ChunkHandler : Node
 			// Has to be done in this roundabout way, cannot set transform via csharp?
 			cityObjectNode.Call("_set_basis", new Basis(
 				new Vector3(temp.BasisX.X, -temp.BasisX.Y, -temp.BasisX.Z),
-				new Vector3(-temp.BasisY.X, temp.BasisY.Y, -temp.BasisY.Z),
-				new Vector3(-temp.BasisZ.X, -temp.BasisZ.Y, temp.BasisZ.Z)));
+				new Vector3(-temp.BasisY.X, temp.BasisY.Y, temp.BasisY.Z),
+				new Vector3(-temp.BasisZ.X, temp.BasisZ.Y, temp.BasisZ.Z)));
 		}
 		globals.Set("loaded_cityobjects", loaded_cobjs);
 
@@ -156,8 +156,8 @@ public class ChunkHandler : Node
 			// Has to be done in this roundabout way, cannot set transform via csharp?
 			lightNode.Call("_set_basis", new Basis(
 				new Vector3(light.BasisX.X, -light.BasisX.Y, -light.BasisX.Z),
-				new Vector3(-light.BasisY.X, light.BasisY.Y, -light.BasisY.Z),
-				new Vector3(-light.BasisZ.X, -light.BasisZ.Y, light.BasisZ.Z)));
+				new Vector3(-light.BasisY.X, light.BasisY.Y, light.BasisY.Z),
+				new Vector3(-light.BasisZ.X, light.BasisZ.Y, light.BasisZ.Z)));
 
 		}
 		globals.Set("loaded_lights", loaded_lights);
