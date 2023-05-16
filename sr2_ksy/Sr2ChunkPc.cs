@@ -4,14 +4,25 @@ using System.Collections.Generic;
 
 namespace Kaitai
 {
-	public partial class Sr2CpuChunkPc : KaitaiStruct
+
+	/// <summary>
+	/// MIT License
+	/// Copyright (c) 2022 Möyh Mäyhem
+	/// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+	/// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+	/// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	/// 
+	/// 
+	/// The chunk parser is incomplete, but it gets pretty far.
+	/// </summary>
+	public partial class Sr2ChunkPc : KaitaiStruct
 	{
-		public static Sr2CpuChunkPc FromFile(string fileName)
+		public static Sr2ChunkPc FromFile(string fileName)
 		{
-			return new Sr2CpuChunkPc(new KaitaiStream(fileName));
+			return new Sr2ChunkPc(new KaitaiStream(fileName));
 		}
 
-		public Sr2CpuChunkPc(KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+		public Sr2ChunkPc(KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 		{
 			m_parent = p__parent;
 			m_root = p__root ?? this;
@@ -19,85 +30,113 @@ namespace Kaitai
 		}
 		private void _read()
 		{
-			__unnamed0 = m_io.ReadBytes(4);
-			if (!((KaitaiStream.ByteArrayCompare(Unnamed_0, new byte[] { 18, 202, 202, 187 }) == 0)))
+			_magic = m_io.ReadBytes(4);
+			if (!((KaitaiStream.ByteArrayCompare(Magic, new byte[] { 18, 202, 202, 187 }) == 0)))
 			{
-				throw new ValidationNotEqualError(new byte[] { 18, 202, 202, 187 }, Unnamed_0, M_Io, "/seq/0");
+				throw new ValidationNotEqualError(new byte[] { 18, 202, 202, 187 }, Magic, M_Io, "/seq/0");
 			}
 			_version = m_io.ReadBytes(4);
 			if (!((KaitaiStream.ByteArrayCompare(Version, new byte[] { 121, 0, 0, 0 }) == 0)))
 			{
 				throw new ValidationNotEqualError(new byte[] { 121, 0, 0, 0 }, Version, M_Io, "/seq/1");
 			}
-			_header0x8 = m_io.ReadU4le();
+			__unnamed2 = m_io.ReadBytes(4);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_2, new byte[] { 14, 0, 0, 0 }) == 0)))
+			{
+				throw new ValidationNotEqualError(new byte[] { 14, 0, 0, 0 }, Unnamed_2, M_Io, "/seq/2");
+			}
 			_meshlibrary = m_io.ReadBytes(4);
 			_header0x10 = m_io.ReadU4le();
-			_header0x14 = m_io.ReadBytes(128);
-			_cityobjectCount = m_io.ReadU4le();
-			_unknown23Count = m_io.ReadU4le();
+			_header0x14 = m_io.ReadBytes(24);
+			__unnamed6 = m_io.ReadBytes(8);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_6, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }) == 0)))
+			{
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, Unnamed_6, M_Io, "/seq/6");
+			}
+			_headerXx = m_io.ReadBytes(40);
+			__unnamed8 = m_io.ReadBytes(4);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_8, new byte[] { 0, 0, 0, 0 }) == 0)))
+			{
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_8, M_Io, "/seq/8");
+			}
+			_headerXxx = m_io.ReadBytes(20);
+			__unnamed10 = m_io.ReadBytes(4);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_10, new byte[] { 0, 0, 0, 0 }) == 0)))
+			{
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_10, M_Io, "/seq/10");
+			}
+			_headerXxxx = m_io.ReadBytes(20);
+			_lenGChunk1 = m_io.ReadU4le();
+			_lenGChunk2 = m_io.ReadU4le();
+			_numCityobjects = m_io.ReadU4le();
+			_numUnknown23 = m_io.ReadU4le();
 			_header0x9c = m_io.ReadU4le();
 			_header0xa0 = m_io.ReadU4le();
-			_header0xa4 = m_io.ReadBytes(16);
-			_meshMoverCount = m_io.ReadU4le();
-			_unknown27Count = m_io.ReadU4le();
-			_unknown28Count = m_io.ReadU4le();
-			_unknown29Count = m_io.ReadU4le();
-			_unknown30Count = m_io.ReadU4le();
-			_unknown31Count = m_io.ReadU4le();
+			__unnamed18 = m_io.ReadBytes(16);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_18, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }) == 0)))
+			{
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Unnamed_18, M_Io, "/seq/18");
+			}
+			_numMeshMovers = m_io.ReadU4le();
+			_numUnknown27 = m_io.ReadU4le();
+			_numUnknown28 = m_io.ReadU4le();
+			_numUnknown29 = m_io.ReadU4le();
+			_numUnknown30 = m_io.ReadU4le();
+			_numUnknown31 = m_io.ReadU4le();
 			_header0xcc = m_io.ReadU4le();
 			_numUnknown26 = m_io.ReadU4le();
-			_headerWorldpos0X = m_io.ReadF4le();
-			_headerWorldpos0Y = m_io.ReadF4le();
-			_headerWorldpos0Z = m_io.ReadF4le();
-			_header0xe0 = m_io.ReadF4le();
-			_header0xe4 = m_io.ReadF4le();
-			_header0xe8 = m_io.ReadF4le();
+			_worldMinX = m_io.ReadF4le();
+			_worldMinY = m_io.ReadF4le();
+			_worldMinZ = m_io.ReadF4le();
+			_worldMaxX = m_io.ReadF4le();
+			_worldMaxY = m_io.ReadF4le();
+			_worldMaxZ = m_io.ReadF4le();
 			_header0xec = m_io.ReadF4le();
-			_header0xf0 = m_io.ReadU4le();
-			__unnamed27 = m_io.ReadBytes(12);
-			if (!((KaitaiStream.ByteArrayCompare(Unnamed_27, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }) == 0)))
+			_numUnknown32 = m_io.ReadU4le();
+			__unnamed35 = m_io.ReadBytes(12);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_35, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }) == 0)))
 			{
-				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Unnamed_27, M_Io, "/seq/27");
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Unnamed_35, M_Io, "/seq/35");
 			}
 			_numTextureNames = m_io.ReadU4le();
-			__unnamed29 = m_io.ReadBytes((NumTextureNames * 4));
+			__unnamed37 = m_io.ReadBytes((NumTextureNames * 4));
 			_textureNames = new List<string>();
 			for (var i = 0; i < NumTextureNames; i++)
 			{
 				_textureNames.Add(System.Text.Encoding.GetEncoding("utf-8").GetString(m_io.ReadBytesTerm(0, false, true, true)));
 			}
-			__unnamed31 = new Align(16, m_io, this, m_root);
+			__unnamed39 = new Align(16, m_io, this, m_root);
 			_numRendermodels = m_io.ReadU4le();
 			_numCityobjectParts = m_io.ReadU4le();
 			_modelCount = m_io.ReadU4le();
 			_numUnknown3s = m_io.ReadU4le();
 			_numUnknown4s = m_io.ReadU4le();
-			__unnamed37 = new Align(16, m_io, this, m_root);
+			__unnamed45 = new Align(16, m_io, this, m_root);
 			_rendermodelUnk0s = new List<RendermodelUnk0>();
 			for (var i = 0; i < NumRendermodels; i++)
 			{
 				_rendermodelUnk0s.Add(new RendermodelUnk0(m_io, this, m_root));
 			}
-			__unnamed39 = new Align(16, m_io, this, m_root);
+			__unnamed47 = new Align(16, m_io, this, m_root);
 			_cityobjectPartsOffset = new Offset(M_Io.Pos, m_io, this, m_root);
 			_cityobjectParts = new List<CityobjectPart>();
 			for (var i = 0; i < NumCityobjectParts; i++)
 			{
 				_cityobjectParts.Add(new CityobjectPart(m_io, this, m_root));
 			}
-			__unnamed42 = new Align(16, m_io, this, m_root);
+			__unnamed50 = new Align(16, m_io, this, m_root);
 			_unknown3s = new List<Unknown3>();
 			for (var i = 0; i < NumUnknown3s; i++)
 			{
 				_unknown3s.Add(new Unknown3(m_io, this, m_root));
 			}
-			__unnamed44 = new Align(16, m_io, this, m_root);
+			__unnamed52 = new Align(16, m_io, this, m_root);
 			_unknown4s = new List<Unknown4>();
 			for (var i = 0; i < NumUnknown4s; i++)
 			{
 				_unknown4s.Add(new Unknown4(m_io, this, m_root));
 			}
-			__unnamed46 = new Align(16, m_io, this, m_root);
+			__unnamed54 = new Align(16, m_io, this, m_root);
 			_numUnkWorldpositions = m_io.ReadU4le();
 			_unkWorldpositions = new List<Vec3>();
 			for (var i = 0; i < NumUnkWorldpositions; i++)
@@ -122,14 +161,14 @@ namespace Kaitai
 			{
 				_unknown8s.Add(m_io.ReadBytes(12));
 			}
-			__unnamed55 = new Align(16, m_io, this, m_root);
+			__unnamed63 = new Align(16, m_io, this, m_root);
 			_lenHavokMopp = m_io.ReadU4le();
-			__unnamed57 = new Align(16, m_io, this, m_root);
+			__unnamed65 = new Align(16, m_io, this, m_root);
 			_havokMopp = m_io.ReadBytes(LenHavokMopp);
-			__unnamed59 = new Align(4, m_io, this, m_root);
+			__unnamed67 = new Align(4, m_io, this, m_root);
 			_unknown10min = new Vec3(m_io, this, m_root);
 			_unknown10max = new Vec3(m_io, this, m_root);
-			__unnamed62 = new Align(16, m_io, this, m_root);
+			__unnamed70 = new Align(16, m_io, this, m_root);
 			_modelHeaders = new List<ModelHeader>();
 			for (var i = 0; i < ModelCount; i++)
 			{
@@ -140,17 +179,17 @@ namespace Kaitai
 			{
 				_vertHeaders.Add(new VertHeaderCont(ModelHeaders[i].VertHeaderCount, m_io, this, m_root));
 			}
-			__unnamed65 = new Align(16, m_io, this, m_root);
+			__unnamed73 = new Align(16, m_io, this, m_root);
 			_physModels = new List<PhysModelBuffer>();
 			for (var i = 0; i < ModelCount; i++)
 			{
-				_physModels.Add(new PhysModelBuffer(ModelHeaders[i].Type == 7, ModelHeaders[i].IndexCount, VertHeaders[i].VertHeader[0].VertCount, m_io, this, m_root));
+				_physModels.Add(new PhysModelBuffer(ModelHeaders[i].Type == 7, ModelHeaders[i].NumIndices, VertHeaders[i].VertHeader[0].NumVertices, m_io, this, m_root));
 			}
 			_numMaterials = m_io.ReadU4le();
-			__unnamed68 = new Align(16, m_io, this, m_root);
-			_matShaderParamCount = m_io.ReadU4le();
+			__unnamed76 = new Align(16, m_io, this, m_root);
+			_numMatShaderParams = m_io.ReadU4le();
 			_padMat = m_io.ReadBytes(8);
-			_matUnknown3Count = m_io.ReadU4le();
+			_numMatUnknown3s = m_io.ReadU4le();
 			_matUnknown1 = m_io.ReadU4le();
 			_materials = new List<Material>();
 			for (var i = 0; i < NumMaterials; i++)
@@ -167,9 +206,9 @@ namespace Kaitai
 			{
 				_matUnknown2.Add(m_io.ReadBytes(16));
 			}
-			__unnamed76 = new Align(16, m_io, this, m_root);
+			__unnamed84 = new Align(16, m_io, this, m_root);
 			_matShaderParams = new List<float>();
-			for (var i = 0; i < MatShaderParamCount; i++)
+			for (var i = 0; i < NumMatShaderParams; i++)
 			{
 				_matShaderParams.Add(m_io.ReadF4le());
 			}
@@ -179,12 +218,12 @@ namespace Kaitai
 				_matTextures.Add(new MatTexCont(m_io, this, m_root));
 			}
 			_matUnknown3s = new List<MatUnknown3>();
-			for (var i = 0; i < MatUnknown3Count; i++)
+			for (var i = 0; i < NumMatUnknown3s; i++)
 			{
 				_matUnknown3s.Add(new MatUnknown3(m_io, this, m_root));
 			}
 			_matUnknown3Unk2 = new List<byte[]>();
-			for (var i = 0; i < MatUnknown3Count; i++)
+			for (var i = 0; i < NumMatUnknown3s; i++)
 			{
 				_matUnknown3Unk2.Add(m_io.ReadBytes((MatUnknown3s[i].Unk2Count * 4)));
 			}
@@ -194,146 +233,163 @@ namespace Kaitai
 				_rendermodels.Add(new Rendermodel(m_io, this, m_root));
 			}
 			_cityobjects = new List<Cityobject>();
-			for (var i = 0; i < CityobjectCount; i++)
+			for (var i = 0; i < NumCityobjects; i++)
 			{
 				_cityobjects.Add(new Cityobject(m_io, this, m_root));
 			}
 			_cityobjectNames = new List<string>();
-			for (var i = 0; i < CityobjectCount; i++)
+			for (var i = 0; i < NumCityobjects; i++)
 			{
 				_cityobjectNames.Add(System.Text.Encoding.GetEncoding("utf-8").GetString(m_io.ReadBytesTerm(0, false, true, true)));
 			}
-			__unnamed84 = new Align(16, m_io, this, m_root);
-			_unknownNamesLen = m_io.ReadU4le();
-			_unknownNames = m_io.ReadBytes(UnknownNamesLen);
-			__unnamed87 = new Align(16, m_io, this, m_root);
-			_unknown13Count = m_io.ReadU4le();
+			__unnamed92 = new Align(16, m_io, this, m_root);
+			_lenUnknownNames = m_io.ReadU4le();
+			_unknownNames = m_io.ReadBytes(LenUnknownNames);
+			__unnamed95 = new Align(16, m_io, this, m_root);
+			_numUnknown13 = m_io.ReadU4le();
 			_unknown13 = new List<uint>();
-			for (var i = 0; i < Unknown13Count; i++)
+			for (var i = 0; i < NumUnknown13; i++)
 			{
 				_unknown13.Add(m_io.ReadU4le());
 			}
-			__unnamed90 = new Align(16, m_io, this, m_root);
-			_cdPad17Size = m_io.ReadU4le();
-			__unnamed92 = m_io.ReadBytes(CdPad17Size);
-			__unnamed93 = new Align(16, m_io, this, m_root);
-			_unknown18Count = m_io.ReadU4le();
+			__unnamed98 = new Align(16, m_io, this, m_root);
+			_lenPad17 = m_io.ReadU4le();
+			__unnamed100 = m_io.ReadBytes(LenPad17);
+			__unnamed101 = new Align(16, m_io, this, m_root);
+			_numUnknown18s = m_io.ReadU4le();
 			_unknown18s = new List<Unknown18>();
-			for (var i = 0; i < Unknown18Count; i++)
+			for (var i = 0; i < NumUnknown18s; i++)
 			{
 				_unknown18s.Add(new Unknown18(m_io, this, m_root));
 			}
-			__unnamed96 = new Align(16, m_io, this, m_root);
-			_unknown19Count = m_io.ReadU4le();
-			__unnamed98 = m_io.ReadBytes((Unknown19Count * 28));
+			__unnamed104 = new Align(16, m_io, this, m_root);
+			_numUnknown19 = m_io.ReadU4le();
+			__unnamed106 = m_io.ReadBytes((NumUnknown19 * 28));
 			_unknown19 = new List<float>();
-			for (var i = 0; i < (Unknown19Count * 7); i++)
+			for (var i = 0; i < (NumUnknown19 * 7); i++)
 			{
 				_unknown19.Add(m_io.ReadF4le());
 			}
-			_unknown20Count = m_io.ReadU4le();
-			__unnamed101 = m_io.ReadBytes((Unknown20Count * 12));
+			_numUnknown20 = m_io.ReadU4le();
+			__unnamed109 = m_io.ReadBytes((NumUnknown20 * 12));
 			_unknown20 = new List<byte[]>();
-			for (var i = 0; i < Unknown20Count; i++)
+			for (var i = 0; i < NumUnknown20; i++)
 			{
 				_unknown20.Add(m_io.ReadBytes(12));
 			}
-			__unnamed103 = new Align(16, m_io, this, m_root);
-			_unknown21Count = m_io.ReadU4le();
-			_unknown21Pad = m_io.ReadBytes((Unknown21Count * 8));
+			__unnamed111 = new Align(16, m_io, this, m_root);
+			_numUnknown21 = m_io.ReadU4le();
+			_unknown21Pad = m_io.ReadBytes((NumUnknown21 * 8));
 			_unknown21 = new List<uint>();
-			for (var i = 0; i < (Unknown21Count * 2); i++)
+			for (var i = 0; i < (NumUnknown21 * 2); i++)
 			{
 				_unknown21.Add(m_io.ReadU4le());
 			}
-			__unnamed107 = new Align(16, m_io, this, m_root);
-			_unknown22Count = m_io.ReadU4le();
+			__unnamed115 = new Align(16, m_io, this, m_root);
+			_numUnknown22 = m_io.ReadU4le();
 			_unknown22 = new List<uint>();
-			for (var i = 0; i < Unknown22Count; i++)
+			for (var i = 0; i < NumUnknown22; i++)
 			{
 				_unknown22.Add(m_io.ReadU4le());
 			}
-			__unnamed110 = new Align(16, m_io, this, m_root);
+			__unnamed118 = new Align(16, m_io, this, m_root);
 			_unknown23 = new List<float>();
-			for (var i = 0; i < (Unknown23Count * 12); i++)
+			for (var i = 0; i < (NumUnknown23 * 12); i++)
 			{
 				_unknown23.Add(m_io.ReadF4le());
 			}
-			_unknown24Count = m_io.ReadU4le();
-			__unnamed113 = m_io.ReadBytes(4);
-			if (!((KaitaiStream.ByteArrayCompare(Unnamed_113, new byte[] { 0, 0, 0, 0 }) == 0)))
+			_numUnknown24s = m_io.ReadU4le();
+			__unnamed121 = m_io.ReadBytes(4);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_121, new byte[] { 0, 0, 0, 0 }) == 0)))
 			{
-				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_113, M_Io, "/seq/113");
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_121, M_Io, "/seq/121");
 			}
-			_unknown25Count = m_io.ReadU4le();
-			__unnamed115 = m_io.ReadBytes(4);
-			if (!((KaitaiStream.ByteArrayCompare(Unnamed_115, new byte[] { 0, 0, 0, 0 }) == 0)))
+			_numUnknown25 = m_io.ReadU4le();
+			__unnamed123 = m_io.ReadBytes(4);
+			if (!((KaitaiStream.ByteArrayCompare(Unnamed_123, new byte[] { 0, 0, 0, 0 }) == 0)))
 			{
-				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_115, M_Io, "/seq/115");
+				throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_123, M_Io, "/seq/123");
 			}
-			_unknown24 = new List<byte[]>();
-			for (var i = 0; i < Unknown24Count; i++)
+			_unknown24s = new List<Unknown24>();
+			for (var i = 0; i < NumUnknown24s; i++)
 			{
-				_unknown24.Add(m_io.ReadBytes(48));
+				_unknown24s.Add(new Unknown24(m_io, this, m_root));
 			}
 			_unknown25 = new List<byte[]>();
-			for (var i = 0; i < Unknown25Count; i++)
+			for (var i = 0; i < NumUnknown25; i++)
 			{
 				_unknown25.Add(m_io.ReadBytes(2));
 			}
-			__unnamed118 = new Align(16, m_io, this, m_root);
+			__unnamed126 = new Align(16, m_io, this, m_root);
 			_unknown26 = new List<byte[]>();
 			for (var i = 0; i < NumUnknown26; i++)
 			{
 				_unknown26.Add(m_io.ReadBytes(2));
 			}
-			__unnamed120 = new Align(16, m_io, this, m_root);
+			__unnamed128 = new Align(16, m_io, this, m_root);
 			_meshMovers = new List<MeshMover>();
-			for (var i = 0; i < MeshMoverCount; i++)
+			for (var i = 0; i < NumMeshMovers; i++)
 			{
 				_meshMovers.Add(new MeshMover(m_io, this, m_root));
 			}
 			_unknown27 = new List<byte[]>();
-			for (var i = 0; i < Unknown27Count; i++)
+			for (var i = 0; i < NumUnknown27; i++)
 			{
 				_unknown27.Add(m_io.ReadBytes(24));
 			}
 			_unknown28 = new List<byte[]>();
-			for (var i = 0; i < Unknown28Count; i++)
+			for (var i = 0; i < NumUnknown28; i++)
 			{
 				_unknown28.Add(m_io.ReadBytes(36));
 			}
 			_unknown29 = new List<byte[]>();
-			for (var i = 0; i < Unknown29Count; i++)
+			for (var i = 0; i < NumUnknown29; i++)
 			{
 				_unknown29.Add(m_io.ReadBytes(4));
 			}
 			_unknown30 = new List<byte[]>();
-			for (var i = 0; i < Unknown30Count; i++)
+			for (var i = 0; i < NumUnknown30; i++)
 			{
 				_unknown30.Add(m_io.ReadBytes(12));
 			}
 			_unknown31 = new List<byte[]>();
-			for (var i = 0; i < Unknown31Count; i++)
+			for (var i = 0; i < NumUnknown31; i++)
 			{
 				_unknown31.Add(m_io.ReadBytes(8));
 			}
 			_unknown32 = new List<byte[]>();
-			for (var i = 0; i < Header0xf0; i++)
+			for (var i = 0; i < NumUnknown32; i++)
 			{
 				_unknown32.Add(m_io.ReadBytes(8));
 			}
 			_meshMoverNames = new List<MeshMoverName>();
-			for (var i = 0; i < MeshMoverCount; i++)
+			for (var i = 0; i < NumMeshMovers; i++)
 			{
 				_meshMoverNames.Add(new MeshMoverName(MeshMovers[i].StartCount, m_io, this, m_root));
 			}
-			__unnamed129 = new Align(16, m_io, this, m_root);
-			_lightCount = m_io.ReadU4le();
+			__unnamed137 = new Align(16, m_io, this, m_root);
+			_numLights = new NumLightsType(m_io, this, m_root);
 			_lightsOffset = new Offset(M_Io.Pos, m_io, this, m_root);
-			if (LightCount != 1212891981) {
-				_lightSections = new LightSection(LightCount, m_io, this, m_root);
+			if (NumLights.Result != 0) {
+				_lightUnknown = m_io.ReadU4le();
 			}
+			_lightData = new List<LightDataType>();
+			for (var i = 0; i < NumLights.Result; i++)
+			{
+				_lightData.Add(new LightDataType(m_io, this, m_root));
+			}
+			_lightNames = new List<string>();
+			for (var i = 0; i < NumLights.Result; i++)
+			{
+				_lightNames.Add(System.Text.Encoding.GetEncoding("utf-8").GetString(m_io.ReadBytesTerm(0, false, true, true)));
+			}
+			__unnamed143 = new Align(16, m_io, this, m_root);
+			_lightUnkfloats = new List<LightUnkfloatsType>();
+			for (var i = 0; i < NumLights.Result; i++)
+			{
+				_lightUnkfloats.Add(new LightUnkfloatsType(LightData[i].NumLightUnkfloats, m_io, this, m_root));
+			}
+			__unnamed145 = new Align(16, m_io, this, m_root);
 		}
 		public partial class MatUnknown3 : KaitaiStruct
 		{
@@ -342,7 +398,7 @@ namespace Kaitai
 				return new MatUnknown3(new KaitaiStream(fileName));
 			}
 
-			public MatUnknown3(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public MatUnknown3(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -363,14 +419,14 @@ namespace Kaitai
 			private ushort _unk2Count;
 			private ushort _unk3;
 			private byte[] __unnamed3;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public byte[] Unk { get { return _unk; } }
 			public ushort Unk2Count { get { return _unk2Count; } }
 			public ushort Unk3 { get { return _unk3; } }
 			public byte[] Unnamed_3 { get { return __unnamed3; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class Unknown4 : KaitaiStruct
 		{
@@ -379,7 +435,7 @@ namespace Kaitai
 				return new Unknown4(new KaitaiStream(fileName));
 			}
 
-			public Unknown4(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Unknown4(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -414,8 +470,8 @@ namespace Kaitai
 			private float _floata;
 			private float _floatb;
 			private float _floatc;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public float Float0 { get { return _float0; } }
 			public float Float1 { get { return _float1; } }
 			public float Float2 { get { return _float2; } }
@@ -429,57 +485,333 @@ namespace Kaitai
 			public float Floata { get { return _floata; } }
 			public float Floatb { get { return _floatb; } }
 			public float Floatc { get { return _floatc; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
-		public partial class LightSection : KaitaiStruct
+		public partial class LightDataType : KaitaiStruct
 		{
-			public LightSection(uint p_lightCount, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public static LightDataType FromFile(string fileName)
+			{
+				return new LightDataType(new KaitaiStream(fileName));
+			}
+
+			public LightDataType(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
-				_lightCount = p_lightCount;
+				f_shadowCharacter = false;
+				f_shadowLevel = false;
+				f_bitflag22 = false;
+				f_bitflag8 = false;
+				f_bitflag2 = false;
+				f_bitflag10 = false;
+				f_lightCharacter = false;
+				f_lightLevel = false;
+				f_bitflag3 = false;
+				f_bitflag4 = false;
+				f_bitflag1 = false;
+				f_bitflag0 = false;
 				_read();
 			}
 			private void _read()
 			{
-				_unknown26b = m_io.ReadU4le();
-				_lights = new List<Light>();
-				for (var i = 0; i < LightCount; i++)
+				_bitmask = new List<bool>();
+				for (var i = 0; i < 32; i++)
 				{
-					_lights.Add(new Light(m_io, this, m_root));
+					_bitmask.Add(m_io.ReadBitsIntBe(1) != 0);
 				}
-				_lightNames = new List<string>();
-				for (var i = 0; i < LightCount; i++)
+				m_io.AlignToByte();
+				__unnamed1 = m_io.ReadBytes(4);
+				if (!((KaitaiStream.ByteArrayCompare(Unnamed_1, new byte[] { 0, 0, 0, 0 }) == 0)))
 				{
-					_lightNames.Add(System.Text.Encoding.GetEncoding("utf-8").GetString(m_io.ReadBytesTerm(0, false, true, true)));
+					throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_1, M_Io, "/types/light_data_type/seq/1");
 				}
-				__unnamed3 = new Align(16, m_io, this, m_root);
-				_lightUnk2 = new List<byte[]>();
-				for (var i = 0; i < LightCount; i++)
+				_r = m_io.ReadF4le();
+				_g = m_io.ReadF4le();
+				_b = m_io.ReadF4le();
+				_unk5 = m_io.ReadU4le();
+				_unk6 = m_io.ReadU4le();
+				_unk7 = m_io.ReadU4le();
+				_numLightUnkfloats = m_io.ReadU4le();
+				__unnamed9 = m_io.ReadBytes(4);
+				if (!((KaitaiStream.ByteArrayCompare(Unnamed_9, new byte[] { 255, 255, 255, 255 }) == 0)))
 				{
-					_lightUnk2.Add(m_io.ReadBytes((Lights[i].Unk8 * 4)));
+					throw new ValidationNotEqualError(new byte[] { 255, 255, 255, 255 }, Unnamed_9, M_Io, "/types/light_data_type/seq/9");
 				}
-				__unnamed5 = new Align(16, m_io, this, m_root);
+				_unk10 = m_io.ReadU4le();
+				__unnamed11 = m_io.ReadBytes(4);
+				if (!((KaitaiStream.ByteArrayCompare(Unnamed_11, new byte[] { 255, 255, 255, 255 }) == 0)))
+				{
+					throw new ValidationNotEqualError(new byte[] { 255, 255, 255, 255 }, Unnamed_11, M_Io, "/types/light_data_type/seq/11");
+				}
+				_unk12 = m_io.ReadU4le();
+				_unkf13 = m_io.ReadF4le();
+				_unkf14 = m_io.ReadF4le();
+				_position = new Vec3(m_io, this, m_root);
+				_basisX = new Vec3(m_io, this, m_root);
+				_basisY = new Vec3(m_io, this, m_root);
+				_basisZ = new Vec3(m_io, this, m_root);
+				_unkf27 = m_io.ReadF4le();
+				_unkf28 = m_io.ReadF4le();
+				_radiusInner = m_io.ReadF4le();
+				_radiusOuter = m_io.ReadF4le();
+				_renderDist = m_io.ReadF4le();
+				__unnamed24 = m_io.ReadBytes(4);
+				if (!((KaitaiStream.ByteArrayCompare(Unnamed_24, new byte[] { 255, 255, 255, 255 }) == 0)))
+				{
+					throw new ValidationNotEqualError(new byte[] { 255, 255, 255, 255 }, Unnamed_24, M_Io, "/types/light_data_type/seq/24");
+				}
+				_parentCityobject = m_io.ReadS4le();
+				_unk34 = m_io.ReadU4le();
+				_unk35 = m_io.ReadU4le();
+				_type = m_io.ReadU4le();
 			}
-			private uint _unknown26b;
-			private List<Light> _lights;
-			private List<string> _lightNames;
-			private Align __unnamed3;
-			private List<byte[]> _lightUnk2;
-			private Align __unnamed5;
-			private uint _lightCount;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
-			public uint Unknown26b { get { return _unknown26b; } }
-			public List<Light> Lights { get { return _lights; } }
-			public List<string> LightNames { get { return _lightNames; } }
-			public Align Unnamed_3 { get { return __unnamed3; } }
-			public List<byte[]> LightUnk2 { get { return _lightUnk2; } }
-			public Align Unnamed_5 { get { return __unnamed5; } }
-			public uint LightCount { get { return _lightCount; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			private bool f_shadowCharacter;
+			private bool _shadowCharacter;
+			public bool ShadowCharacter
+			{
+				get
+				{
+					if (f_shadowCharacter)
+						return _shadowCharacter;
+					_shadowCharacter = (bool) (Bitmask[12]);
+					f_shadowCharacter = true;
+					return _shadowCharacter;
+				}
+			}
+			private bool f_shadowLevel;
+			private bool _shadowLevel;
+			public bool ShadowLevel
+			{
+				get
+				{
+					if (f_shadowLevel)
+						return _shadowLevel;
+					_shadowLevel = (bool) (Bitmask[13]);
+					f_shadowLevel = true;
+					return _shadowLevel;
+				}
+			}
+			private bool f_bitflag22;
+			private bool _bitflag22;
+			public bool Bitflag22
+			{
+				get
+				{
+					if (f_bitflag22)
+						return _bitflag22;
+					_bitflag22 = (bool) (Bitmask[22]);
+					f_bitflag22 = true;
+					return _bitflag22;
+				}
+			}
+			private bool f_bitflag8;
+			private bool _bitflag8;
+			public bool Bitflag8
+			{
+				get
+				{
+					if (f_bitflag8)
+						return _bitflag8;
+					_bitflag8 = (bool) (Bitmask[8]);
+					f_bitflag8 = true;
+					return _bitflag8;
+				}
+			}
+			private bool f_bitflag2;
+			private bool _bitflag2;
+			public bool Bitflag2
+			{
+				get
+				{
+					if (f_bitflag2)
+						return _bitflag2;
+					_bitflag2 = (bool) (Bitmask[2]);
+					f_bitflag2 = true;
+					return _bitflag2;
+				}
+			}
+			private bool f_bitflag10;
+			private bool _bitflag10;
+			public bool Bitflag10
+			{
+				get
+				{
+					if (f_bitflag10)
+						return _bitflag10;
+					_bitflag10 = (bool) (Bitmask[10]);
+					f_bitflag10 = true;
+					return _bitflag10;
+				}
+			}
+			private bool f_lightCharacter;
+			private bool _lightCharacter;
+			public bool LightCharacter
+			{
+				get
+				{
+					if (f_lightCharacter)
+						return _lightCharacter;
+					_lightCharacter = (bool) (Bitmask[14]);
+					f_lightCharacter = true;
+					return _lightCharacter;
+				}
+			}
+			private bool f_lightLevel;
+			private bool _lightLevel;
+			public bool LightLevel
+			{
+				get
+				{
+					if (f_lightLevel)
+						return _lightLevel;
+					_lightLevel = (bool) (Bitmask[15]);
+					f_lightLevel = true;
+					return _lightLevel;
+				}
+			}
+			private bool f_bitflag3;
+			private bool _bitflag3;
+			public bool Bitflag3
+			{
+				get
+				{
+					if (f_bitflag3)
+						return _bitflag3;
+					_bitflag3 = (bool) (Bitmask[3]);
+					f_bitflag3 = true;
+					return _bitflag3;
+				}
+			}
+			private bool f_bitflag4;
+			private bool _bitflag4;
+			public bool Bitflag4
+			{
+				get
+				{
+					if (f_bitflag4)
+						return _bitflag4;
+					_bitflag4 = (bool) (Bitmask[4]);
+					f_bitflag4 = true;
+					return _bitflag4;
+				}
+			}
+			private bool f_bitflag1;
+			private bool _bitflag1;
+			public bool Bitflag1
+			{
+				get
+				{
+					if (f_bitflag1)
+						return _bitflag1;
+					_bitflag1 = (bool) (Bitmask[1]);
+					f_bitflag1 = true;
+					return _bitflag1;
+				}
+			}
+			private bool f_bitflag0;
+			private bool _bitflag0;
+			public bool Bitflag0
+			{
+				get
+				{
+					if (f_bitflag0)
+						return _bitflag0;
+					_bitflag0 = (bool) (Bitmask[0]);
+					f_bitflag0 = true;
+					return _bitflag0;
+				}
+			}
+			private List<bool> _bitmask;
+			private byte[] __unnamed1;
+			private float _r;
+			private float _g;
+			private float _b;
+			private uint _unk5;
+			private uint _unk6;
+			private uint _unk7;
+			private uint _numLightUnkfloats;
+			private byte[] __unnamed9;
+			private uint _unk10;
+			private byte[] __unnamed11;
+			private uint _unk12;
+			private float _unkf13;
+			private float _unkf14;
+			private Vec3 _position;
+			private Vec3 _basisX;
+			private Vec3 _basisY;
+			private Vec3 _basisZ;
+			private float _unkf27;
+			private float _unkf28;
+			private float _radiusInner;
+			private float _radiusOuter;
+			private float _renderDist;
+			private byte[] __unnamed24;
+			private int _parentCityobject;
+			private uint _unk34;
+			private uint _unk35;
+			private uint _type;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
+			public List<bool> Bitmask { get { return _bitmask; } }
+			public byte[] Unnamed_1 { get { return __unnamed1; } }
+			public float R { get { return _r; } }
+			public float G { get { return _g; } }
+			public float B { get { return _b; } }
+
+			/// <summary>
+			/// bitmask?
+			/// </summary>
+			public uint Unk5 { get { return _unk5; } }
+
+			/// <summary>
+			/// bitmask?
+			/// </summary>
+			public uint Unk6 { get { return _unk6; } }
+
+			/// <summary>
+			/// bitmask?
+			/// </summary>
+			public uint Unk7 { get { return _unk7; } }
+			public uint NumLightUnkfloats { get { return _numLightUnkfloats; } }
+			public byte[] Unnamed_9 { get { return __unnamed9; } }
+
+			/// <summary>
+			/// bitmask?
+			/// </summary>
+			public uint Unk10 { get { return _unk10; } }
+			public byte[] Unnamed_11 { get { return __unnamed11; } }
+
+			/// <summary>
+			/// bitmask?
+			/// </summary>
+			public uint Unk12 { get { return _unk12; } }
+			public float Unkf13 { get { return _unkf13; } }
+			public float Unkf14 { get { return _unkf14; } }
+			public Vec3 Position { get { return _position; } }
+			public Vec3 BasisX { get { return _basisX; } }
+			public Vec3 BasisY { get { return _basisY; } }
+			public Vec3 BasisZ { get { return _basisZ; } }
+			public float Unkf27 { get { return _unkf27; } }
+			public float Unkf28 { get { return _unkf28; } }
+			public float RadiusInner { get { return _radiusInner; } }
+			public float RadiusOuter { get { return _radiusOuter; } }
+			public float RenderDist { get { return _renderDist; } }
+			public byte[] Unnamed_24 { get { return __unnamed24; } }
+			public int ParentCityobject { get { return _parentCityobject; } }
+
+			/// <summary>
+			/// bitmask?
+			/// </summary>
+			public uint Unk34 { get { return _unk34; } }
+
+			/// <summary>
+			/// often 0, otherwise &lt;250
+			/// </summary>
+			public uint Unk35 { get { return _unk35; } }
+			public uint Type { get { return _type; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 
 		/// <summary>
@@ -508,7 +840,7 @@ namespace Kaitai
 				return new VertHeader(new KaitaiStream(fileName));
 			}
 
-			public VertHeader(KaitaiStream p__io, Sr2CpuChunkPc.VertHeaderCont p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public VertHeader(KaitaiStream p__io, Sr2ChunkPc.VertHeaderCont p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -519,7 +851,7 @@ namespace Kaitai
 				_unk2bCount = m_io.ReadU1();
 				_uvCount = m_io.ReadU1();
 				_vertSize = m_io.ReadU2le();
-				_vertCount = m_io.ReadU4le();
+				_numVertices = m_io.ReadU4le();
 				__unnamed4 = m_io.ReadBytes(4);
 				if (!((KaitaiStream.ByteArrayCompare(Unnamed_4, new byte[] { 255, 255, 255, 255 }) == 0)))
 				{
@@ -534,19 +866,19 @@ namespace Kaitai
 			private byte _unk2bCount;
 			private byte _uvCount;
 			private ushort _vertSize;
-			private uint _vertCount;
+			private uint _numVertices;
 			private byte[] __unnamed4;
 			private byte[] __unnamed5;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc.VertHeaderCont m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc.VertHeaderCont m_parent;
 			public byte Unk2bCount { get { return _unk2bCount; } }
 			public byte UvCount { get { return _uvCount; } }
 			public ushort VertSize { get { return _vertSize; } }
-			public uint VertCount { get { return _vertCount; } }
+			public uint NumVertices { get { return _numVertices; } }
 			public byte[] Unnamed_4 { get { return __unnamed4; } }
 			public byte[] Unnamed_5 { get { return __unnamed5; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc.VertHeaderCont M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc.VertHeaderCont M_Parent { get { return m_parent; } }
 		}
 		public partial class MeshMover : KaitaiStruct
 		{
@@ -555,7 +887,7 @@ namespace Kaitai
 				return new MeshMover(new KaitaiStream(fileName));
 			}
 
-			public MeshMover(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public MeshMover(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -570,17 +902,17 @@ namespace Kaitai
 			private byte[] _unk0;
 			private ushort _startCount;
 			private byte[] _unk1;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public byte[] Unk0 { get { return _unk0; } }
 			public ushort StartCount { get { return _startCount; } }
 			public byte[] Unk1 { get { return _unk1; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class Align : KaitaiStruct
 		{
-			public Align(uint p_size, KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Align(uint p_size, KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -593,11 +925,11 @@ namespace Kaitai
 			}
 			private byte[] __unnamed0;
 			private uint _size;
-			private Sr2CpuChunkPc m_root;
+			private Sr2ChunkPc m_root;
 			private KaitaiStruct m_parent;
 			public byte[] Unnamed_0 { get { return __unnamed0; } }
 			public uint Size { get { return _size; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
 			public KaitaiStruct M_Parent { get { return m_parent; } }
 		}
 		public partial class RendermodelUnk0 : KaitaiStruct
@@ -607,7 +939,7 @@ namespace Kaitai
 				return new RendermodelUnk0(new KaitaiStream(fileName));
 			}
 
-			public RendermodelUnk0(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public RendermodelUnk0(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -628,16 +960,52 @@ namespace Kaitai
 			private uint _unk3;
 			private uint _unk4;
 			private uint _unk5;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public uint Unk0 { get { return _unk0; } }
 			public uint Unk1 { get { return _unk1; } }
 			public uint Unk2 { get { return _unk2; } }
 			public uint Unk3 { get { return _unk3; } }
 			public uint Unk4 { get { return _unk4; } }
 			public uint Unk5 { get { return _unk5; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
+		}
+		public partial class Unknown33 : KaitaiStruct
+		{
+			public static Unknown33 FromFile(string fileName)
+			{
+				return new Unknown33(new KaitaiStream(fileName));
+			}
+
+			public Unknown33(KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
+			{
+				m_parent = p__parent;
+				m_root = p__root;
+				_read();
+			}
+			private void _read()
+			{
+				_boxMin = new Vec3(m_io, this, m_root);
+				__unnamed1 = m_io.ReadBytes(4);
+				_boxMax = new Vec3(m_io, this, m_root);
+				__unnamed3 = m_io.ReadBytes(4);
+				_unk = m_io.ReadBytes(16);
+			}
+			private Vec3 _boxMin;
+			private byte[] __unnamed1;
+			private Vec3 _boxMax;
+			private byte[] __unnamed3;
+			private byte[] _unk;
+			private Sr2ChunkPc m_root;
+			private KaitaiStruct m_parent;
+			public Vec3 BoxMin { get { return _boxMin; } }
+			public byte[] Unnamed_1 { get { return __unnamed1; } }
+			public Vec3 BoxMax { get { return _boxMax; } }
+			public byte[] Unnamed_3 { get { return __unnamed3; } }
+			public byte[] Unk { get { return _unk; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public KaitaiStruct M_Parent { get { return m_parent; } }
 		}
 
 		/// <summary>
@@ -645,29 +1013,29 @@ namespace Kaitai
 		/// </summary>
 		public partial class VertHeaderCont : KaitaiStruct
 		{
-			public VertHeaderCont(ushort p_vertHeaderCount, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public VertHeaderCont(ushort p_numVertHeader, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
-				_vertHeaderCount = p_vertHeaderCount;
+				_numVertHeader = p_numVertHeader;
 				_read();
 			}
 			private void _read()
 			{
 				_vertHeader = new List<VertHeader>();
-				for (var i = 0; i < VertHeaderCount; i++)
+				for (var i = 0; i < NumVertHeader; i++)
 				{
 					_vertHeader.Add(new VertHeader(m_io, this, m_root));
 				}
 			}
 			private List<VertHeader> _vertHeader;
-			private ushort _vertHeaderCount;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private ushort _numVertHeader;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public List<VertHeader> VertHeader { get { return _vertHeader; } }
-			public ushort VertHeaderCount { get { return _vertHeaderCount; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public ushort NumVertHeader { get { return _numVertHeader; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class MatTex : KaitaiStruct
 		{
@@ -676,7 +1044,7 @@ namespace Kaitai
 				return new MatTex(new KaitaiStream(fileName));
 			}
 
-			public MatTex(KaitaiStream p__io, Sr2CpuChunkPc.MatTexCont p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public MatTex(KaitaiStream p__io, Sr2ChunkPc.MatTexCont p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -689,16 +1057,16 @@ namespace Kaitai
 			}
 			private ushort _texId;
 			private ushort _texFlag;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc.MatTexCont m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc.MatTexCont m_parent;
 			public ushort TexId { get { return _texId; } }
 			public ushort TexFlag { get { return _texFlag; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc.MatTexCont M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc.MatTexCont M_Parent { get { return m_parent; } }
 		}
 		public partial class MeshMoverName : KaitaiStruct
 		{
-			public MeshMoverName(ushort p_startCount, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public MeshMoverName(ushort p_startCount, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -717,85 +1085,125 @@ namespace Kaitai
 			private string _name;
 			private List<string> _startNames;
 			private ushort _startCount;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public string Name { get { return _name; } }
 			public List<string> StartNames { get { return _startNames; } }
 			public ushort StartCount { get { return _startCount; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
+		}
+		public partial class LightUnkfloatsType : KaitaiStruct
+		{
+			public LightUnkfloatsType(uint p_num, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
+			{
+				m_parent = p__parent;
+				m_root = p__root;
+				_num = p_num;
+				_read();
+			}
+			private void _read()
+			{
+				_unk = new List<float>();
+				for (var i = 0; i < Num; i++)
+				{
+					_unk.Add(m_io.ReadF4le());
+				}
+			}
+			private List<float> _unk;
+			private uint _num;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
+			public List<float> Unk { get { return _unk; } }
+			public uint Num { get { return _num; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class PhysModelBuffer : KaitaiStruct
 		{
-			public PhysModelBuffer(bool p_isPhysmodel, uint p_indexCount, uint p_vertCount, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public PhysModelBuffer(bool p_isPhysmodel, uint p_numIndices, uint p_numVertices, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
 				_isPhysmodel = p_isPhysmodel;
-				_indexCount = p_indexCount;
-				_vertCount = p_vertCount;
+				_numIndices = p_numIndices;
+				_numVertices = p_numVertices;
 				_read();
 			}
 			private void _read()
 			{
 				if (IsPhysmodel) {
-					_vbuf = new List<Vec3>();
-					for (var i = 0; i < VertCount; i++)
+					_vertices = new List<Vec3>();
+					for (var i = 0; i < NumVertices; i++)
 					{
-						_vbuf.Add(new Vec3(m_io, this, m_root));
+						_vertices.Add(new Vec3(m_io, this, m_root));
 					}
 				}
 				__unnamed1 = new Align(16, m_io, this, m_root);
 				if (IsPhysmodel) {
-					_ibuf = new List<ushort>();
-					for (var i = 0; i < IndexCount; i++)
+					_indices = new List<ushort>();
+					for (var i = 0; i < NumIndices; i++)
 					{
-						_ibuf.Add(m_io.ReadU2le());
+						_indices.Add(m_io.ReadU2le());
 					}
 				}
 				__unnamed3 = new Align(16, m_io, this, m_root);
 			}
-			private List<Vec3> _vbuf;
+			private List<Vec3> _vertices;
 			private Align __unnamed1;
-			private List<ushort> _ibuf;
+			private List<ushort> _indices;
 			private Align __unnamed3;
 			private bool _isPhysmodel;
-			private uint _indexCount;
-			private uint _vertCount;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
-			public List<Vec3> Vbuf { get { return _vbuf; } }
+			private uint _numIndices;
+			private uint _numVertices;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
+			public List<Vec3> Vertices { get { return _vertices; } }
 			public Align Unnamed_1 { get { return __unnamed1; } }
-			public List<ushort> Ibuf { get { return _ibuf; } }
+			public List<ushort> Indices { get { return _indices; } }
 			public Align Unnamed_3 { get { return __unnamed3; } }
 			public bool IsPhysmodel { get { return _isPhysmodel; } }
-			public uint IndexCount { get { return _indexCount; } }
-			public uint VertCount { get { return _vertCount; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public uint NumIndices { get { return _numIndices; } }
+			public uint NumVertices { get { return _numVertices; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class Offset : KaitaiStruct
 		{
-			public Offset(long p_off, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Offset(long p_input, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
-				_off = p_off;
+				_input = p_input;
+				f_temp = false;
 				_read();
 			}
 			private void _read()
 			{
 			}
-			private long _off;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
-			public long Off { get { return _off; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			private bool f_temp;
+			private long _temp;
+			public long Temp
+			{
+				get
+				{
+					if (f_temp)
+						return _temp;
+					_temp = (long) (Input);
+					f_temp = true;
+					return _temp;
+				}
+			}
+			private long _input;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
+			public long Input { get { return _input; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class MatBitflag : KaitaiStruct
 		{
-			public MatBitflag(ushort p_size, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public MatBitflag(ushort p_size, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -810,13 +1218,13 @@ namespace Kaitai
 			private byte[] _data;
 			private byte[] __unnamed1;
 			private ushort _size;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public byte[] Data { get { return _data; } }
 			public byte[] Unnamed_1 { get { return __unnamed1; } }
 			public ushort Size { get { return _size; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class CityobjectPart : KaitaiStruct
 		{
@@ -825,7 +1233,7 @@ namespace Kaitai
 				return new CityobjectPart(new KaitaiStream(fileName));
 			}
 
-			public CityobjectPart(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public CityobjectPart(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -850,8 +1258,8 @@ namespace Kaitai
 			private uint _unk0;
 			private uint _rendermodelId;
 			private uint _unk1;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public Vec3 Pos { get { return _pos; } }
 			public Vec3 BasisX { get { return _basisX; } }
 			public Vec3 BasisY { get { return _basisY; } }
@@ -860,8 +1268,8 @@ namespace Kaitai
 			public uint Unk0 { get { return _unk0; } }
 			public uint RendermodelId { get { return _rendermodelId; } }
 			public uint Unk1 { get { return _unk1; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 
 		/// <summary>
@@ -874,7 +1282,7 @@ namespace Kaitai
 				return new Material(new KaitaiStream(fileName));
 			}
 
-			public Material(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Material(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -899,16 +1307,16 @@ namespace Kaitai
 			private byte[] __unnamed3;
 			private ushort _unk1;
 			private int _unk2;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public byte[] Unk { get { return _unk; } }
 			public ushort BitflagCount { get { return _bitflagCount; } }
 			public ushort TexCount { get { return _texCount; } }
 			public byte[] Unnamed_3 { get { return __unnamed3; } }
 			public ushort Unk1 { get { return _unk1; } }
 			public int Unk2 { get { return _unk2; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class Vec3 : KaitaiStruct
 		{
@@ -917,7 +1325,7 @@ namespace Kaitai
 				return new Vec3(new KaitaiStream(fileName));
 			}
 
-			public Vec3(KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Vec3(KaitaiStream p__io, KaitaiStruct p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -932,12 +1340,12 @@ namespace Kaitai
 			private float _x;
 			private float _y;
 			private float _z;
-			private Sr2CpuChunkPc m_root;
+			private Sr2ChunkPc m_root;
 			private KaitaiStruct m_parent;
 			public float X { get { return _x; } }
 			public float Y { get { return _y; } }
 			public float Z { get { return _z; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
 			public KaitaiStruct M_Parent { get { return m_parent; } }
 		}
 
@@ -957,7 +1365,7 @@ namespace Kaitai
 				return new Rendermodel(new KaitaiStream(fileName));
 			}
 
-			public Rendermodel(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Rendermodel(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1030,7 +1438,7 @@ namespace Kaitai
 					return new Submesh(new KaitaiStream(fileName));
 				}
 
-				public Submesh(KaitaiStream p__io, Sr2CpuChunkPc.Rendermodel p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+				public Submesh(KaitaiStream p__io, Sr2ChunkPc.Rendermodel p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 				{
 					m_parent = p__parent;
 					m_root = p__root;
@@ -1039,25 +1447,25 @@ namespace Kaitai
 				private void _read()
 				{
 					_vertBufferId = m_io.ReadU4le();
-					_indexOffset = m_io.ReadU4le();
-					_vertOffset = m_io.ReadU4le();
-					_indexCount = m_io.ReadU2le();
+					_offIndices = m_io.ReadU4le();
+					_offVertices = m_io.ReadU4le();
+					_numIndices = m_io.ReadU2le();
 					_materialId = m_io.ReadU2le();
 				}
 				private uint _vertBufferId;
-				private uint _indexOffset;
-				private uint _vertOffset;
-				private ushort _indexCount;
+				private uint _offIndices;
+				private uint _offVertices;
+				private ushort _numIndices;
 				private ushort _materialId;
-				private Sr2CpuChunkPc m_root;
-				private Sr2CpuChunkPc.Rendermodel m_parent;
+				private Sr2ChunkPc m_root;
+				private Sr2ChunkPc.Rendermodel m_parent;
 				public uint VertBufferId { get { return _vertBufferId; } }
-				public uint IndexOffset { get { return _indexOffset; } }
-				public uint VertOffset { get { return _vertOffset; } }
-				public ushort IndexCount { get { return _indexCount; } }
+				public uint OffIndices { get { return _offIndices; } }
+				public uint OffVertices { get { return _offVertices; } }
+				public ushort NumIndices { get { return _numIndices; } }
 				public ushort MaterialId { get { return _materialId; } }
-				public Sr2CpuChunkPc M_Root { get { return m_root; } }
-				public Sr2CpuChunkPc.Rendermodel M_Parent { get { return m_parent; } }
+				public Sr2ChunkPc M_Root { get { return m_root; } }
+				public Sr2ChunkPc.Rendermodel M_Parent { get { return m_parent; } }
 			}
 			public partial class Submesh2 : KaitaiStruct
 			{
@@ -1066,7 +1474,7 @@ namespace Kaitai
 					return new Submesh2(new KaitaiStream(fileName));
 				}
 
-				public Submesh2(KaitaiStream p__io, Sr2CpuChunkPc.Rendermodel p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+				public Submesh2(KaitaiStream p__io, Sr2ChunkPc.Rendermodel p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 				{
 					m_parent = p__parent;
 					m_root = p__root;
@@ -1085,23 +1493,23 @@ namespace Kaitai
 					{
 						throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unused2, M_Io, "/types/rendermodel/types/submesh2/seq/2");
 					}
-					_indexCount = m_io.ReadU2le();
+					_numIndices = m_io.ReadU2le();
 					_materialId = m_io.ReadU2le();
 				}
 				private byte[] _unused;
 				private byte[] _unknown;
 				private byte[] _unused2;
-				private ushort _indexCount;
+				private ushort _numIndices;
 				private ushort _materialId;
-				private Sr2CpuChunkPc m_root;
-				private Sr2CpuChunkPc.Rendermodel m_parent;
+				private Sr2ChunkPc m_root;
+				private Sr2ChunkPc.Rendermodel m_parent;
 				public byte[] Unused { get { return _unused; } }
 				public byte[] Unknown { get { return _unknown; } }
 				public byte[] Unused2 { get { return _unused2; } }
-				public ushort IndexCount { get { return _indexCount; } }
+				public ushort NumIndices { get { return _numIndices; } }
 				public ushort MaterialId { get { return _materialId; } }
-				public Sr2CpuChunkPc M_Root { get { return m_root; } }
-				public Sr2CpuChunkPc.Rendermodel M_Parent { get { return m_parent; } }
+				public Sr2ChunkPc M_Root { get { return m_root; } }
+				public Sr2ChunkPc.Rendermodel M_Parent { get { return m_parent; } }
 			}
 			private Vec3 _bboxMin;
 			private Vec3 _bboxMax;
@@ -1122,8 +1530,8 @@ namespace Kaitai
 			private byte[] _submesh2Pad1;
 			private List<Submesh> _submeshes;
 			private List<Submesh2> _submesh2s;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public Vec3 BboxMin { get { return _bboxMin; } }
 			public Vec3 BboxMax { get { return _bboxMax; } }
 			public uint Unk0 { get { return _unk0; } }
@@ -1143,8 +1551,8 @@ namespace Kaitai
 			public byte[] Submesh2Pad1 { get { return _submesh2Pad1; } }
 			public List<Submesh> Submeshes { get { return _submeshes; } }
 			public List<Submesh2> Submesh2s { get { return _submesh2s; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class Unknown3 : KaitaiStruct
 		{
@@ -1153,7 +1561,7 @@ namespace Kaitai
 				return new Unknown3(new KaitaiStream(fileName));
 			}
 
-			public Unknown3(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Unknown3(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1212,8 +1620,8 @@ namespace Kaitai
 			private float _float16;
 			private float _float17;
 			private float _float18;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public float Float0 { get { return _float0; } }
 			public float Float1 { get { return _float1; } }
 			public float Float2 { get { return _float2; } }
@@ -1239,8 +1647,8 @@ namespace Kaitai
 			public float Float16 { get { return _float16; } }
 			public float Float17 { get { return _float17; } }
 			public float Float18 { get { return _float18; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 
 		/// <summary>
@@ -1253,7 +1661,7 @@ namespace Kaitai
 				return new Cityobject(new KaitaiStream(fileName));
 			}
 
-			public Cityobject(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Cityobject(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1312,8 +1720,8 @@ namespace Kaitai
 			private uint _unk5;
 			private int _unk6;
 			private int _unk7;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public Vec3 BboxMin { get { return _bboxMin; } }
 			public byte[] Unnamed_1 { get { return __unnamed1; } }
 			public Vec3 BboxMax { get { return _bboxMax; } }
@@ -1331,17 +1739,17 @@ namespace Kaitai
 			public uint Unk5 { get { return _unk5; } }
 			public int Unk6 { get { return _unk6; } }
 			public int Unk7 { get { return _unk7; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
-		public partial class Light : KaitaiStruct
+		public partial class Unknown24 : KaitaiStruct
 		{
-			public static Light FromFile(string fileName)
+			public static Unknown24 FromFile(string fileName)
 			{
-				return new Light(new KaitaiStream(fileName));
+				return new Unknown24(new KaitaiStream(fileName));
 			}
 
-			public Light(KaitaiStream p__io, Sr2CpuChunkPc.LightSection p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Unknown24(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1349,233 +1757,39 @@ namespace Kaitai
 			}
 			private void _read()
 			{
-				_flags = new Bitflags(m_io, this, m_root);
+				_boxMin = new Vec3(m_io, this, m_root);
+				_unk0 = m_io.ReadU4le();
+				_boxMax = new Vec3(m_io, this, m_root);
 				_unk1 = m_io.ReadU4le();
-				_r = m_io.ReadF4le();
-				_g = m_io.ReadF4le();
-				_b = m_io.ReadF4le();
+				_unk2 = m_io.ReadU4le();
+				__unnamed5 = m_io.ReadBytes(4);
+				if (!((KaitaiStream.ByteArrayCompare(Unnamed_5, new byte[] { 0, 0, 0, 0 }) == 0)))
+				{
+					throw new ValidationNotEqualError(new byte[] { 0, 0, 0, 0 }, Unnamed_5, M_Io, "/types/unknown24/seq/5");
+				}
+				_unk4 = m_io.ReadU4le();
 				_unk5 = m_io.ReadU4le();
-				_unk6 = m_io.ReadU4le();
-				_unk7 = m_io.ReadU4le();
-				_unk8 = m_io.ReadU4le();
-				_unk9 = m_io.ReadS4le();
-				_unk10 = m_io.ReadU4le();
-				_unk11 = m_io.ReadS4le();
-				_unk12 = m_io.ReadU4le();
-				_unk13 = m_io.ReadF4le();
-				_unk14 = m_io.ReadU4le();
-				_pos = new Vec3(m_io, this, m_root);
-				_unk18 = m_io.ReadF4le();
-				_unk19 = m_io.ReadF4le();
-				_unk20 = m_io.ReadU4le();
-				_unk21 = m_io.ReadU4le();
-				_unk22 = m_io.ReadF4le();
-				_unk23 = m_io.ReadF4le();
-				_unk24 = m_io.ReadF4le();
-				_unk25 = m_io.ReadF4le();
-				_unk26 = m_io.ReadF4le();
-				_unk27 = m_io.ReadF4le();
-				_unk28 = m_io.ReadF4le();
-				_radiusInner = m_io.ReadF4le();
-				_radiusOuter = m_io.ReadF4le();
-				_renderDist = m_io.ReadF4le();
-				_unk32 = m_io.ReadS4le();
-				_unk33 = m_io.ReadS4le();
-				_unk34 = m_io.ReadU4le();
-				_unk35 = m_io.ReadU4le();
-				_unk36 = m_io.ReadU4le();
 			}
-			public partial class Bitflags : KaitaiStruct
-			{
-				public static Bitflags FromFile(string fileName)
-				{
-					return new Bitflags(new KaitaiStream(fileName));
-				}
-
-				public Bitflags(KaitaiStream p__io, Sr2CpuChunkPc.Light p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
-				{
-					m_parent = p__parent;
-					m_root = p__root;
-					_read();
-				}
-				private void _read()
-				{
-					_bit1f = m_io.ReadBitsIntBe(1) != 0;
-					_bit1e = m_io.ReadBitsIntBe(1) != 0;
-					_bit1d = m_io.ReadBitsIntBe(1) != 0;
-					_bit1c = m_io.ReadBitsIntBe(1) != 0;
-					_bit1b = m_io.ReadBitsIntBe(1) != 0;
-					_bit1a = m_io.ReadBitsIntBe(1) != 0;
-					_bit19 = m_io.ReadBitsIntBe(1) != 0;
-					_bit18 = m_io.ReadBitsIntBe(1) != 0;
-					_bit17 = m_io.ReadBitsIntBe(1) != 0;
-					_bit16 = m_io.ReadBitsIntBe(1) != 0;
-					_bit15 = m_io.ReadBitsIntBe(1) != 0;
-					_bit14 = m_io.ReadBitsIntBe(1) != 0;
-					_castShadowsOnPeople = m_io.ReadBitsIntBe(1) != 0;
-					_castShadowsOnWorld = m_io.ReadBitsIntBe(1) != 0;
-					_bit11 = m_io.ReadBitsIntBe(1) != 0;
-					_bit10 = m_io.ReadBitsIntBe(1) != 0;
-					_bit0f = m_io.ReadBitsIntBe(1) != 0;
-					_bit0e = m_io.ReadBitsIntBe(1) != 0;
-					_bit0d = m_io.ReadBitsIntBe(1) != 0;
-					_bit0c = m_io.ReadBitsIntBe(1) != 0;
-					_bit0b = m_io.ReadBitsIntBe(1) != 0;
-					_bit0a = m_io.ReadBitsIntBe(1) != 0;
-					_bit09 = m_io.ReadBitsIntBe(1) != 0;
-					_bit08 = m_io.ReadBitsIntBe(1) != 0;
-					_bit07 = m_io.ReadBitsIntBe(1) != 0;
-					_bit06 = m_io.ReadBitsIntBe(1) != 0;
-					_bit05 = m_io.ReadBitsIntBe(1) != 0;
-					_bit04 = m_io.ReadBitsIntBe(1) != 0;
-					_bit03 = m_io.ReadBitsIntBe(1) != 0;
-					_bit02 = m_io.ReadBitsIntBe(1) != 0;
-					_bit01 = m_io.ReadBitsIntBe(1) != 0;
-					_bit00 = m_io.ReadBitsIntBe(1) != 0;
-				}
-				private bool _bit1f;
-				private bool _bit1e;
-				private bool _bit1d;
-				private bool _bit1c;
-				private bool _bit1b;
-				private bool _bit1a;
-				private bool _bit19;
-				private bool _bit18;
-				private bool _bit17;
-				private bool _bit16;
-				private bool _bit15;
-				private bool _bit14;
-				private bool _castShadowsOnPeople;
-				private bool _castShadowsOnWorld;
-				private bool _bit11;
-				private bool _bit10;
-				private bool _bit0f;
-				private bool _bit0e;
-				private bool _bit0d;
-				private bool _bit0c;
-				private bool _bit0b;
-				private bool _bit0a;
-				private bool _bit09;
-				private bool _bit08;
-				private bool _bit07;
-				private bool _bit06;
-				private bool _bit05;
-				private bool _bit04;
-				private bool _bit03;
-				private bool _bit02;
-				private bool _bit01;
-				private bool _bit00;
-				private Sr2CpuChunkPc m_root;
-				private Sr2CpuChunkPc.Light m_parent;
-				public bool Bit1f { get { return _bit1f; } }
-				public bool Bit1e { get { return _bit1e; } }
-				public bool Bit1d { get { return _bit1d; } }
-				public bool Bit1c { get { return _bit1c; } }
-				public bool Bit1b { get { return _bit1b; } }
-				public bool Bit1a { get { return _bit1a; } }
-				public bool Bit19 { get { return _bit19; } }
-				public bool Bit18 { get { return _bit18; } }
-				public bool Bit17 { get { return _bit17; } }
-				public bool Bit16 { get { return _bit16; } }
-				public bool Bit15 { get { return _bit15; } }
-				public bool Bit14 { get { return _bit14; } }
-				public bool CastShadowsOnPeople { get { return _castShadowsOnPeople; } }
-				public bool CastShadowsOnWorld { get { return _castShadowsOnWorld; } }
-				public bool Bit11 { get { return _bit11; } }
-				public bool Bit10 { get { return _bit10; } }
-				public bool Bit0f { get { return _bit0f; } }
-				public bool Bit0e { get { return _bit0e; } }
-				public bool Bit0d { get { return _bit0d; } }
-				public bool Bit0c { get { return _bit0c; } }
-				public bool Bit0b { get { return _bit0b; } }
-				public bool Bit0a { get { return _bit0a; } }
-				public bool Bit09 { get { return _bit09; } }
-				public bool Bit08 { get { return _bit08; } }
-				public bool Bit07 { get { return _bit07; } }
-				public bool Bit06 { get { return _bit06; } }
-				public bool Bit05 { get { return _bit05; } }
-				public bool Bit04 { get { return _bit04; } }
-				public bool Bit03 { get { return _bit03; } }
-				public bool Bit02 { get { return _bit02; } }
-				public bool Bit01 { get { return _bit01; } }
-				public bool Bit00 { get { return _bit00; } }
-				public Sr2CpuChunkPc M_Root { get { return m_root; } }
-				public Sr2CpuChunkPc.Light M_Parent { get { return m_parent; } }
-			}
-			private Bitflags _flags;
+			private Vec3 _boxMin;
+			private uint _unk0;
+			private Vec3 _boxMax;
 			private uint _unk1;
-			private float _r;
-			private float _g;
-			private float _b;
+			private uint _unk2;
+			private byte[] __unnamed5;
+			private uint _unk4;
 			private uint _unk5;
-			private uint _unk6;
-			private uint _unk7;
-			private uint _unk8;
-			private int _unk9;
-			private uint _unk10;
-			private int _unk11;
-			private uint _unk12;
-			private float _unk13;
-			private uint _unk14;
-			private Vec3 _pos;
-			private float _unk18;
-			private float _unk19;
-			private uint _unk20;
-			private uint _unk21;
-			private float _unk22;
-			private float _unk23;
-			private float _unk24;
-			private float _unk25;
-			private float _unk26;
-			private float _unk27;
-			private float _unk28;
-			private float _radiusInner;
-			private float _radiusOuter;
-			private float _renderDist;
-			private int _unk32;
-			private int _unk33;
-			private uint _unk34;
-			private uint _unk35;
-			private uint _unk36;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc.LightSection m_parent;
-			public Bitflags Flags { get { return _flags; } }
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
+			public Vec3 BoxMin { get { return _boxMin; } }
+			public uint Unk0 { get { return _unk0; } }
+			public Vec3 BoxMax { get { return _boxMax; } }
 			public uint Unk1 { get { return _unk1; } }
-			public float R { get { return _r; } }
-			public float G { get { return _g; } }
-			public float B { get { return _b; } }
+			public uint Unk2 { get { return _unk2; } }
+			public byte[] Unnamed_5 { get { return __unnamed5; } }
+			public uint Unk4 { get { return _unk4; } }
 			public uint Unk5 { get { return _unk5; } }
-			public uint Unk6 { get { return _unk6; } }
-			public uint Unk7 { get { return _unk7; } }
-			public uint Unk8 { get { return _unk8; } }
-			public int Unk9 { get { return _unk9; } }
-			public uint Unk10 { get { return _unk10; } }
-			public int Unk11 { get { return _unk11; } }
-			public uint Unk12 { get { return _unk12; } }
-			public float Unk13 { get { return _unk13; } }
-			public uint Unk14 { get { return _unk14; } }
-			public Vec3 Pos { get { return _pos; } }
-			public float Unk18 { get { return _unk18; } }
-			public float Unk19 { get { return _unk19; } }
-			public uint Unk20 { get { return _unk20; } }
-			public uint Unk21 { get { return _unk21; } }
-			public float Unk22 { get { return _unk22; } }
-			public float Unk23 { get { return _unk23; } }
-			public float Unk24 { get { return _unk24; } }
-			public float Unk25 { get { return _unk25; } }
-			public float Unk26 { get { return _unk26; } }
-			public float Unk27 { get { return _unk27; } }
-			public float Unk28 { get { return _unk28; } }
-			public float RadiusInner { get { return _radiusInner; } }
-			public float RadiusOuter { get { return _radiusOuter; } }
-			public float RenderDist { get { return _renderDist; } }
-			public int Unk32 { get { return _unk32; } }
-			public int Unk33 { get { return _unk33; } }
-			public uint Unk34 { get { return _unk34; } }
-			public uint Unk35 { get { return _unk35; } }
-			public uint Unk36 { get { return _unk36; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc.LightSection M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class MatTexCont : KaitaiStruct
 		{
@@ -1584,7 +1798,7 @@ namespace Kaitai
 				return new MatTexCont(new KaitaiStream(fileName));
 			}
 
-			public MatTexCont(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public MatTexCont(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1599,11 +1813,49 @@ namespace Kaitai
 				}
 			}
 			private List<MatTex> _texData;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public List<MatTex> TexData { get { return _texData; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
+		}
+		public partial class NumLightsType : KaitaiStruct
+		{
+			public static NumLightsType FromFile(string fileName)
+			{
+				return new NumLightsType(new KaitaiStream(fileName));
+			}
+
+			public NumLightsType(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
+			{
+				m_parent = p__parent;
+				m_root = p__root;
+				f_result = false;
+				_read();
+			}
+			private void _read()
+			{
+				_input = m_io.ReadU4le();
+			}
+			private bool f_result;
+			private uint _result;
+			public uint Result
+			{
+				get
+				{
+					if (f_result)
+						return _result;
+					_result = (uint) ((Input != 1212891981 ? Input : 0));
+					f_result = true;
+					return _result;
+				}
+			}
+			private uint _input;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
+			public uint Input { get { return _input; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 		public partial class Unknown18 : KaitaiStruct
 		{
@@ -1612,7 +1864,7 @@ namespace Kaitai
 				return new Unknown18(new KaitaiStream(fileName));
 			}
 
-			public Unknown18(KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public Unknown18(KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1653,8 +1905,8 @@ namespace Kaitai
 			private uint _numData2;
 			private byte[] __unnamed8;
 			private List<uint> _data2;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public uint Unk0 { get { return _unk0; } }
 			public uint NumData0 { get { return _numData0; } }
 			public byte[] Unnamed_2 { get { return __unnamed2; } }
@@ -1665,8 +1917,8 @@ namespace Kaitai
 			public uint NumData2 { get { return _numData2; } }
 			public byte[] Unnamed_8 { get { return __unnamed8; } }
 			public List<uint> Data2 { get { return _data2; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
 
 		/// <summary>
@@ -1689,7 +1941,7 @@ namespace Kaitai
 		/// </summary>
 		public partial class ModelHeader : KaitaiStruct
 		{
-			public ModelHeader(int p_i, KaitaiStream p__io, Sr2CpuChunkPc p__parent = null, Sr2CpuChunkPc p__root = null) : base(p__io)
+			public ModelHeader(int p_i, KaitaiStream p__io, Sr2ChunkPc p__parent = null, Sr2ChunkPc p__root = null) : base(p__io)
 			{
 				m_parent = p__parent;
 				m_root = p__root;
@@ -1700,7 +1952,7 @@ namespace Kaitai
 			{
 				_type = m_io.ReadU2le();
 				_vertHeaderCount = m_io.ReadU2le();
-				_indexCount = m_io.ReadU4le();
+				_numIndices = m_io.ReadU4le();
 				__unnamed3 = m_io.ReadBytes(4);
 				if (!((KaitaiStream.ByteArrayCompare(Unnamed_3, new byte[] { 255, 255, 255, 255 }) == 0)))
 				{
@@ -1719,70 +1971,78 @@ namespace Kaitai
 			}
 			private ushort _type;
 			private ushort _vertHeaderCount;
-			private uint _indexCount;
+			private uint _numIndices;
 			private byte[] __unnamed3;
 			private byte[] __unnamed4;
 			private byte[] __unnamed5;
 			private int _i;
-			private Sr2CpuChunkPc m_root;
-			private Sr2CpuChunkPc m_parent;
+			private Sr2ChunkPc m_root;
+			private Sr2ChunkPc m_parent;
 			public ushort Type { get { return _type; } }
 			public ushort VertHeaderCount { get { return _vertHeaderCount; } }
-			public uint IndexCount { get { return _indexCount; } }
+			public uint NumIndices { get { return _numIndices; } }
 			public byte[] Unnamed_3 { get { return __unnamed3; } }
 			public byte[] Unnamed_4 { get { return __unnamed4; } }
 			public byte[] Unnamed_5 { get { return __unnamed5; } }
 			public int I { get { return _i; } }
-			public Sr2CpuChunkPc M_Root { get { return m_root; } }
-			public Sr2CpuChunkPc M_Parent { get { return m_parent; } }
+			public Sr2ChunkPc M_Root { get { return m_root; } }
+			public Sr2ChunkPc M_Parent { get { return m_parent; } }
 		}
-		private byte[] __unnamed0;
+		private byte[] _magic;
 		private byte[] _version;
-		private uint _header0x8;
+		private byte[] __unnamed2;
 		private byte[] _meshlibrary;
 		private uint _header0x10;
 		private byte[] _header0x14;
-		private uint _cityobjectCount;
-		private uint _unknown23Count;
+		private byte[] __unnamed6;
+		private byte[] _headerXx;
+		private byte[] __unnamed8;
+		private byte[] _headerXxx;
+		private byte[] __unnamed10;
+		private byte[] _headerXxxx;
+		private uint _lenGChunk1;
+		private uint _lenGChunk2;
+		private uint _numCityobjects;
+		private uint _numUnknown23;
 		private uint _header0x9c;
 		private uint _header0xa0;
-		private byte[] _header0xa4;
-		private uint _meshMoverCount;
-		private uint _unknown27Count;
-		private uint _unknown28Count;
-		private uint _unknown29Count;
-		private uint _unknown30Count;
-		private uint _unknown31Count;
+		private byte[] __unnamed18;
+		private uint _numMeshMovers;
+		private uint _numUnknown27;
+		private uint _numUnknown28;
+		private uint _numUnknown29;
+		private uint _numUnknown30;
+		private uint _numUnknown31;
 		private uint _header0xcc;
 		private uint _numUnknown26;
-		private float _headerWorldpos0X;
-		private float _headerWorldpos0Y;
-		private float _headerWorldpos0Z;
-		private float _header0xe0;
-		private float _header0xe4;
-		private float _header0xe8;
+		private float _worldMinX;
+		private float _worldMinY;
+		private float _worldMinZ;
+		private float _worldMaxX;
+		private float _worldMaxY;
+		private float _worldMaxZ;
 		private float _header0xec;
-		private uint _header0xf0;
-		private byte[] __unnamed27;
+		private uint _numUnknown32;
+		private byte[] __unnamed35;
 		private uint _numTextureNames;
-		private byte[] __unnamed29;
+		private byte[] __unnamed37;
 		private List<string> _textureNames;
-		private Align __unnamed31;
+		private Align __unnamed39;
 		private uint _numRendermodels;
 		private uint _numCityobjectParts;
 		private uint _modelCount;
 		private uint _numUnknown3s;
 		private uint _numUnknown4s;
-		private Align __unnamed37;
+		private Align __unnamed45;
 		private List<RendermodelUnk0> _rendermodelUnk0s;
-		private Align __unnamed39;
+		private Align __unnamed47;
 		private Offset _cityobjectPartsOffset;
 		private List<CityobjectPart> _cityobjectParts;
-		private Align __unnamed42;
+		private Align __unnamed50;
 		private List<Unknown3> _unknown3s;
-		private Align __unnamed44;
+		private Align __unnamed52;
 		private List<Unknown4> _unknown4s;
-		private Align __unnamed46;
+		private Align __unnamed54;
 		private uint _numUnkWorldpositions;
 		private List<Vec3> _unkWorldpositions;
 		private uint _numUnknown6s;
@@ -1791,28 +2051,28 @@ namespace Kaitai
 		private List<uint> _unknown7s;
 		private uint _numUnknown8s;
 		private List<byte[]> _unknown8s;
-		private Align __unnamed55;
+		private Align __unnamed63;
 		private uint _lenHavokMopp;
-		private Align __unnamed57;
+		private Align __unnamed65;
 		private byte[] _havokMopp;
-		private Align __unnamed59;
+		private Align __unnamed67;
 		private Vec3 _unknown10min;
 		private Vec3 _unknown10max;
-		private Align __unnamed62;
+		private Align __unnamed70;
 		private List<ModelHeader> _modelHeaders;
 		private List<VertHeaderCont> _vertHeaders;
-		private Align __unnamed65;
+		private Align __unnamed73;
 		private List<PhysModelBuffer> _physModels;
 		private uint _numMaterials;
-		private Align __unnamed68;
-		private uint _matShaderParamCount;
+		private Align __unnamed76;
+		private uint _numMatShaderParams;
 		private byte[] _padMat;
-		private uint _matUnknown3Count;
+		private uint _numMatUnknown3s;
 		private uint _matUnknown1;
 		private List<Material> _materials;
 		private List<MatBitflag> _matFlags;
 		private List<byte[]> _matUnknown2;
-		private Align __unnamed76;
+		private Align __unnamed84;
 		private List<float> _matShaderParams;
 		private List<MatTexCont> _matTextures;
 		private List<MatUnknown3> _matUnknown3s;
@@ -1820,43 +2080,43 @@ namespace Kaitai
 		private List<Rendermodel> _rendermodels;
 		private List<Cityobject> _cityobjects;
 		private List<string> _cityobjectNames;
-		private Align __unnamed84;
-		private uint _unknownNamesLen;
+		private Align __unnamed92;
+		private uint _lenUnknownNames;
 		private byte[] _unknownNames;
-		private Align __unnamed87;
-		private uint _unknown13Count;
+		private Align __unnamed95;
+		private uint _numUnknown13;
 		private List<uint> _unknown13;
-		private Align __unnamed90;
-		private uint _cdPad17Size;
-		private byte[] __unnamed92;
-		private Align __unnamed93;
-		private uint _unknown18Count;
+		private Align __unnamed98;
+		private uint _lenPad17;
+		private byte[] __unnamed100;
+		private Align __unnamed101;
+		private uint _numUnknown18s;
 		private List<Unknown18> _unknown18s;
-		private Align __unnamed96;
-		private uint _unknown19Count;
-		private byte[] __unnamed98;
+		private Align __unnamed104;
+		private uint _numUnknown19;
+		private byte[] __unnamed106;
 		private List<float> _unknown19;
-		private uint _unknown20Count;
-		private byte[] __unnamed101;
+		private uint _numUnknown20;
+		private byte[] __unnamed109;
 		private List<byte[]> _unknown20;
-		private Align __unnamed103;
-		private uint _unknown21Count;
+		private Align __unnamed111;
+		private uint _numUnknown21;
 		private byte[] _unknown21Pad;
 		private List<uint> _unknown21;
-		private Align __unnamed107;
-		private uint _unknown22Count;
+		private Align __unnamed115;
+		private uint _numUnknown22;
 		private List<uint> _unknown22;
-		private Align __unnamed110;
-		private List<float> _unknown23;
-		private uint _unknown24Count;
-		private byte[] __unnamed113;
-		private uint _unknown25Count;
-		private byte[] __unnamed115;
-		private List<byte[]> _unknown24;
-		private List<byte[]> _unknown25;
 		private Align __unnamed118;
+		private List<float> _unknown23;
+		private uint _numUnknown24s;
+		private byte[] __unnamed121;
+		private uint _numUnknown25;
+		private byte[] __unnamed123;
+		private List<Unknown24> _unknown24s;
+		private List<byte[]> _unknown25;
+		private Align __unnamed126;
 		private List<byte[]> _unknown26;
-		private Align __unnamed120;
+		private Align __unnamed128;
 		private List<MeshMover> _meshMovers;
 		private List<byte[]> _unknown27;
 		private List<byte[]> _unknown28;
@@ -1865,59 +2125,72 @@ namespace Kaitai
 		private List<byte[]> _unknown31;
 		private List<byte[]> _unknown32;
 		private List<MeshMoverName> _meshMoverNames;
-		private Align __unnamed129;
-		private uint _lightCount;
+		private Align __unnamed137;
+		private NumLightsType _numLights;
 		private Offset _lightsOffset;
-		private LightSection _lightSections;
-		private Sr2CpuChunkPc m_root;
+		private uint? _lightUnknown;
+		private List<LightDataType> _lightData;
+		private List<string> _lightNames;
+		private Align __unnamed143;
+		private List<LightUnkfloatsType> _lightUnkfloats;
+		private Align __unnamed145;
+		private Sr2ChunkPc m_root;
 		private KaitaiStruct m_parent;
-		public byte[] Unnamed_0 { get { return __unnamed0; } }
+		public byte[] Magic { get { return _magic; } }
 		public byte[] Version { get { return _version; } }
-		public uint Header0x8 { get { return _header0x8; } }
+		public byte[] Unnamed_2 { get { return __unnamed2; } }
 		public byte[] Meshlibrary { get { return _meshlibrary; } }
 		public uint Header0x10 { get { return _header0x10; } }
 		public byte[] Header0x14 { get { return _header0x14; } }
-		public uint CityobjectCount { get { return _cityobjectCount; } }
-		public uint Unknown23Count { get { return _unknown23Count; } }
+		public byte[] Unnamed_6 { get { return __unnamed6; } }
+		public byte[] HeaderXx { get { return _headerXx; } }
+		public byte[] Unnamed_8 { get { return __unnamed8; } }
+		public byte[] HeaderXxx { get { return _headerXxx; } }
+		public byte[] Unnamed_10 { get { return __unnamed10; } }
+		public byte[] HeaderXxxx { get { return _headerXxxx; } }
+		public uint LenGChunk1 { get { return _lenGChunk1; } }
+		public uint LenGChunk2 { get { return _lenGChunk2; } }
+		public uint NumCityobjects { get { return _numCityobjects; } }
+		public uint NumUnknown23 { get { return _numUnknown23; } }
 		public uint Header0x9c { get { return _header0x9c; } }
 		public uint Header0xa0 { get { return _header0xa0; } }
-		public byte[] Header0xa4 { get { return _header0xa4; } }
-		public uint MeshMoverCount { get { return _meshMoverCount; } }
-		public uint Unknown27Count { get { return _unknown27Count; } }
-		public uint Unknown28Count { get { return _unknown28Count; } }
-		public uint Unknown29Count { get { return _unknown29Count; } }
-		public uint Unknown30Count { get { return _unknown30Count; } }
-		public uint Unknown31Count { get { return _unknown31Count; } }
+		public byte[] Unnamed_18 { get { return __unnamed18; } }
+		public uint NumMeshMovers { get { return _numMeshMovers; } }
+		public uint NumUnknown27 { get { return _numUnknown27; } }
+		public uint NumUnknown28 { get { return _numUnknown28; } }
+		public uint NumUnknown29 { get { return _numUnknown29; } }
+		public uint NumUnknown30 { get { return _numUnknown30; } }
+		public uint NumUnknown31 { get { return _numUnknown31; } }
 		public uint Header0xcc { get { return _header0xcc; } }
 		public uint NumUnknown26 { get { return _numUnknown26; } }
-		public float HeaderWorldpos0X { get { return _headerWorldpos0X; } }
-		public float HeaderWorldpos0Y { get { return _headerWorldpos0Y; } }
-		public float HeaderWorldpos0Z { get { return _headerWorldpos0Z; } }
-		public float Header0xe0 { get { return _header0xe0; } }
-		public float Header0xe4 { get { return _header0xe4; } }
-		public float Header0xe8 { get { return _header0xe8; } }
+		public float WorldMinX { get { return _worldMinX; } }
+		public float WorldMinY { get { return _worldMinY; } }
+		public float WorldMinZ { get { return _worldMinZ; } }
+		public float WorldMaxX { get { return _worldMaxX; } }
+		public float WorldMaxY { get { return _worldMaxY; } }
+		public float WorldMaxZ { get { return _worldMaxZ; } }
 		public float Header0xec { get { return _header0xec; } }
-		public uint Header0xf0 { get { return _header0xf0; } }
-		public byte[] Unnamed_27 { get { return __unnamed27; } }
+		public uint NumUnknown32 { get { return _numUnknown32; } }
+		public byte[] Unnamed_35 { get { return __unnamed35; } }
 		public uint NumTextureNames { get { return _numTextureNames; } }
-		public byte[] Unnamed_29 { get { return __unnamed29; } }
+		public byte[] Unnamed_37 { get { return __unnamed37; } }
 		public List<string> TextureNames { get { return _textureNames; } }
-		public Align Unnamed_31 { get { return __unnamed31; } }
+		public Align Unnamed_39 { get { return __unnamed39; } }
 		public uint NumRendermodels { get { return _numRendermodels; } }
 		public uint NumCityobjectParts { get { return _numCityobjectParts; } }
 		public uint ModelCount { get { return _modelCount; } }
 		public uint NumUnknown3s { get { return _numUnknown3s; } }
 		public uint NumUnknown4s { get { return _numUnknown4s; } }
-		public Align Unnamed_37 { get { return __unnamed37; } }
+		public Align Unnamed_45 { get { return __unnamed45; } }
 		public List<RendermodelUnk0> RendermodelUnk0s { get { return _rendermodelUnk0s; } }
-		public Align Unnamed_39 { get { return __unnamed39; } }
+		public Align Unnamed_47 { get { return __unnamed47; } }
 		public Offset CityobjectPartsOffset { get { return _cityobjectPartsOffset; } }
 		public List<CityobjectPart> CityobjectParts { get { return _cityobjectParts; } }
-		public Align Unnamed_42 { get { return __unnamed42; } }
+		public Align Unnamed_50 { get { return __unnamed50; } }
 		public List<Unknown3> Unknown3s { get { return _unknown3s; } }
-		public Align Unnamed_44 { get { return __unnamed44; } }
+		public Align Unnamed_52 { get { return __unnamed52; } }
 		public List<Unknown4> Unknown4s { get { return _unknown4s; } }
-		public Align Unnamed_46 { get { return __unnamed46; } }
+		public Align Unnamed_54 { get { return __unnamed54; } }
 		public uint NumUnkWorldpositions { get { return _numUnkWorldpositions; } }
 		public List<Vec3> UnkWorldpositions { get { return _unkWorldpositions; } }
 		public uint NumUnknown6s { get { return _numUnknown6s; } }
@@ -1926,28 +2199,28 @@ namespace Kaitai
 		public List<uint> Unknown7s { get { return _unknown7s; } }
 		public uint NumUnknown8s { get { return _numUnknown8s; } }
 		public List<byte[]> Unknown8s { get { return _unknown8s; } }
-		public Align Unnamed_55 { get { return __unnamed55; } }
+		public Align Unnamed_63 { get { return __unnamed63; } }
 		public uint LenHavokMopp { get { return _lenHavokMopp; } }
-		public Align Unnamed_57 { get { return __unnamed57; } }
+		public Align Unnamed_65 { get { return __unnamed65; } }
 		public byte[] HavokMopp { get { return _havokMopp; } }
-		public Align Unnamed_59 { get { return __unnamed59; } }
+		public Align Unnamed_67 { get { return __unnamed67; } }
 		public Vec3 Unknown10min { get { return _unknown10min; } }
 		public Vec3 Unknown10max { get { return _unknown10max; } }
-		public Align Unnamed_62 { get { return __unnamed62; } }
+		public Align Unnamed_70 { get { return __unnamed70; } }
 		public List<ModelHeader> ModelHeaders { get { return _modelHeaders; } }
 		public List<VertHeaderCont> VertHeaders { get { return _vertHeaders; } }
-		public Align Unnamed_65 { get { return __unnamed65; } }
+		public Align Unnamed_73 { get { return __unnamed73; } }
 		public List<PhysModelBuffer> PhysModels { get { return _physModels; } }
 		public uint NumMaterials { get { return _numMaterials; } }
-		public Align Unnamed_68 { get { return __unnamed68; } }
-		public uint MatShaderParamCount { get { return _matShaderParamCount; } }
+		public Align Unnamed_76 { get { return __unnamed76; } }
+		public uint NumMatShaderParams { get { return _numMatShaderParams; } }
 		public byte[] PadMat { get { return _padMat; } }
-		public uint MatUnknown3Count { get { return _matUnknown3Count; } }
+		public uint NumMatUnknown3s { get { return _numMatUnknown3s; } }
 		public uint MatUnknown1 { get { return _matUnknown1; } }
 		public List<Material> Materials { get { return _materials; } }
 		public List<MatBitflag> MatFlags { get { return _matFlags; } }
 		public List<byte[]> MatUnknown2 { get { return _matUnknown2; } }
-		public Align Unnamed_76 { get { return __unnamed76; } }
+		public Align Unnamed_84 { get { return __unnamed84; } }
 		public List<float> MatShaderParams { get { return _matShaderParams; } }
 		public List<MatTexCont> MatTextures { get { return _matTextures; } }
 		public List<MatUnknown3> MatUnknown3s { get { return _matUnknown3s; } }
@@ -1955,43 +2228,43 @@ namespace Kaitai
 		public List<Rendermodel> Rendermodels { get { return _rendermodels; } }
 		public List<Cityobject> Cityobjects { get { return _cityobjects; } }
 		public List<string> CityobjectNames { get { return _cityobjectNames; } }
-		public Align Unnamed_84 { get { return __unnamed84; } }
-		public uint UnknownNamesLen { get { return _unknownNamesLen; } }
+		public Align Unnamed_92 { get { return __unnamed92; } }
+		public uint LenUnknownNames { get { return _lenUnknownNames; } }
 		public byte[] UnknownNames { get { return _unknownNames; } }
-		public Align Unnamed_87 { get { return __unnamed87; } }
-		public uint Unknown13Count { get { return _unknown13Count; } }
+		public Align Unnamed_95 { get { return __unnamed95; } }
+		public uint NumUnknown13 { get { return _numUnknown13; } }
 		public List<uint> Unknown13 { get { return _unknown13; } }
-		public Align Unnamed_90 { get { return __unnamed90; } }
-		public uint CdPad17Size { get { return _cdPad17Size; } }
-		public byte[] Unnamed_92 { get { return __unnamed92; } }
-		public Align Unnamed_93 { get { return __unnamed93; } }
-		public uint Unknown18Count { get { return _unknown18Count; } }
+		public Align Unnamed_98 { get { return __unnamed98; } }
+		public uint LenPad17 { get { return _lenPad17; } }
+		public byte[] Unnamed_100 { get { return __unnamed100; } }
+		public Align Unnamed_101 { get { return __unnamed101; } }
+		public uint NumUnknown18s { get { return _numUnknown18s; } }
 		public List<Unknown18> Unknown18s { get { return _unknown18s; } }
-		public Align Unnamed_96 { get { return __unnamed96; } }
-		public uint Unknown19Count { get { return _unknown19Count; } }
-		public byte[] Unnamed_98 { get { return __unnamed98; } }
+		public Align Unnamed_104 { get { return __unnamed104; } }
+		public uint NumUnknown19 { get { return _numUnknown19; } }
+		public byte[] Unnamed_106 { get { return __unnamed106; } }
 		public List<float> Unknown19 { get { return _unknown19; } }
-		public uint Unknown20Count { get { return _unknown20Count; } }
-		public byte[] Unnamed_101 { get { return __unnamed101; } }
+		public uint NumUnknown20 { get { return _numUnknown20; } }
+		public byte[] Unnamed_109 { get { return __unnamed109; } }
 		public List<byte[]> Unknown20 { get { return _unknown20; } }
-		public Align Unnamed_103 { get { return __unnamed103; } }
-		public uint Unknown21Count { get { return _unknown21Count; } }
+		public Align Unnamed_111 { get { return __unnamed111; } }
+		public uint NumUnknown21 { get { return _numUnknown21; } }
 		public byte[] Unknown21Pad { get { return _unknown21Pad; } }
 		public List<uint> Unknown21 { get { return _unknown21; } }
-		public Align Unnamed_107 { get { return __unnamed107; } }
-		public uint Unknown22Count { get { return _unknown22Count; } }
+		public Align Unnamed_115 { get { return __unnamed115; } }
+		public uint NumUnknown22 { get { return _numUnknown22; } }
 		public List<uint> Unknown22 { get { return _unknown22; } }
-		public Align Unnamed_110 { get { return __unnamed110; } }
-		public List<float> Unknown23 { get { return _unknown23; } }
-		public uint Unknown24Count { get { return _unknown24Count; } }
-		public byte[] Unnamed_113 { get { return __unnamed113; } }
-		public uint Unknown25Count { get { return _unknown25Count; } }
-		public byte[] Unnamed_115 { get { return __unnamed115; } }
-		public List<byte[]> Unknown24 { get { return _unknown24; } }
-		public List<byte[]> Unknown25 { get { return _unknown25; } }
 		public Align Unnamed_118 { get { return __unnamed118; } }
+		public List<float> Unknown23 { get { return _unknown23; } }
+		public uint NumUnknown24s { get { return _numUnknown24s; } }
+		public byte[] Unnamed_121 { get { return __unnamed121; } }
+		public uint NumUnknown25 { get { return _numUnknown25; } }
+		public byte[] Unnamed_123 { get { return __unnamed123; } }
+		public List<Unknown24> Unknown24s { get { return _unknown24s; } }
+		public List<byte[]> Unknown25 { get { return _unknown25; } }
+		public Align Unnamed_126 { get { return __unnamed126; } }
 		public List<byte[]> Unknown26 { get { return _unknown26; } }
-		public Align Unnamed_120 { get { return __unnamed120; } }
+		public Align Unnamed_128 { get { return __unnamed128; } }
 		public List<MeshMover> MeshMovers { get { return _meshMovers; } }
 		public List<byte[]> Unknown27 { get { return _unknown27; } }
 		public List<byte[]> Unknown28 { get { return _unknown28; } }
@@ -2000,11 +2273,16 @@ namespace Kaitai
 		public List<byte[]> Unknown31 { get { return _unknown31; } }
 		public List<byte[]> Unknown32 { get { return _unknown32; } }
 		public List<MeshMoverName> MeshMoverNames { get { return _meshMoverNames; } }
-		public Align Unnamed_129 { get { return __unnamed129; } }
-		public uint LightCount { get { return _lightCount; } }
+		public Align Unnamed_137 { get { return __unnamed137; } }
+		public NumLightsType NumLights { get { return _numLights; } }
 		public Offset LightsOffset { get { return _lightsOffset; } }
-		public LightSection LightSections { get { return _lightSections; } }
-		public Sr2CpuChunkPc M_Root { get { return m_root; } }
+		public uint? LightUnknown { get { return _lightUnknown; } }
+		public List<LightDataType> LightData { get { return _lightData; } }
+		public List<string> LightNames { get { return _lightNames; } }
+		public Align Unnamed_143 { get { return __unnamed143; } }
+		public List<LightUnkfloatsType> LightUnkfloats { get { return _lightUnkfloats; } }
+		public Align Unnamed_145 { get { return __unnamed145; } }
+		public Sr2ChunkPc M_Root { get { return m_root; } }
 		public KaitaiStruct M_Parent { get { return m_parent; } }
 	}
 }

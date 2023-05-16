@@ -9,7 +9,7 @@ export_presets.cfg
 # Mono-specific ignores
 .mono/
 data_*/
-
+mono_crash*.json
 # Volition
 *.chunk_pc
 *.g_chunk_pc

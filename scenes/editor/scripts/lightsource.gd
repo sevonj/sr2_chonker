@@ -1,47 +1,33 @@
 extends Spatial
-
+var uid = ""
 var icon = preload("res://ui/icon_lightbulb.png")
 var icon_scale = 16
 
+var highlight_model
+
+const MDL_ARROW = preload("res://scenes/editor/mdl_arrow.tscn")
+
 var flags = [
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	true,
-	true,
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	true,
-	true,
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	true,
-	true,
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	true,
-	true,
+	true, #flag_0
+	true, #flag_1
+	true, #flag_2
+	true, #flag_3
+	true, #flag_4
+	true, #flag_8
+	true, #flag_10
+	true, #shadow_character
+	true, #shadow_level
+	true, #light_character
+	true, #light_level
+	true, #flag_22
 ]
 var color: Color
 var unk10: int
+var type: int
 var radius_inner: float
 var radius_outer: float
 var render_dist: float
+var parent: int
 
 var child_light: OmniLight
 var child_icon: Sprite3D
@@ -76,6 +62,13 @@ func _ready():
 	
 	_update()
 	
+	highlight_model = Spatial.new()
+	add_child(highlight_model)
+	highlight_model.add_child(MDL_ARROW.instance())
+	
+func _set_basis(basis: Basis):
+	global_transform.basis = basis# Basis(Vector3(0,1,0),Vector3(0,0,1),Vector3(1,0,0))
+
 func _set_highlight(_temp):
 	pass
 
@@ -92,4 +85,4 @@ func _input_event(_camera, event, _click_position, _click_normal, _shape_idx):
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_LEFT and event.is_pressed():
 			print("clicked ", name)
-			ChunkEditor._select(self)
+			ChunkEditor._select(uid)

@@ -48,11 +48,21 @@ func _on_files_dropped(files, _screen):
 func _on_main_ready():
 	ui = get_tree().root.get_node("main").get_node("ui")
 	if Globals.on_clear_chunkfile_to_load:
-		ChunkHandler.LoadChunk(Globals.on_clear_chunkfile_to_load)
+		_load_chunk(Globals.on_clear_chunkfile_to_load)
 		Globals.on_clear_chunkfile_to_load = null
 
+# Load should always go through this
+func _load_chunk(file):
+	ChunkHandler.LoadChunk(file)
+	for obj in Globals.loaded_cityobjects:
+		Globals.objects_by_uid[obj.uid] = obj
+	for obj in Globals.loaded_lights:
+		Globals.objects_by_uid[obj.uid] = obj
+	
+	
 # Select object.
-func _select(target: Spatial):
+func _select(uid: String):
+	var target = Globals.objects_by_uid[uid]
 	_unselect()
 	gizmo.translation = target.translation
 	
@@ -64,23 +74,21 @@ func _select(target: Spatial):
 				menu_selected_light._select(target)
 				menu_selected_light.show()
 				menu_selected_light._update_color(target.color)
-		
 		"cityobjects":
 			if menu_selected_title:
 				menu_selected_title.text = "Selected type: cityobject"
 			if menu_selected_cityobj:
 				menu_selected_cityobj._select(target)
 				menu_selected_cityobj.show()
-		
 		_:
 			push_error("unknown selected")
 			return
-	
 	currently_selected = target
 	currently_selected._set_highlight(true)
-	menu_selector._on_select(target)
+	menu_selector._select(target.uid)
 
 func _unselect():
+	menu_selector._unselect()
 	if currently_selected:
 		currently_selected._set_highlight(false)
 		currently_selected = null
@@ -90,6 +98,7 @@ func _unselect():
 		menu_selected_cityobj.hide()
 	if menu_selected_light:
 		menu_selected_light.hide()
+	
 
 func _focus():
 	if currently_selected:
@@ -99,6 +108,7 @@ func _save():
 	ChunkHandler.SaveChunk()
 	
 func _clear():
+	Globals._clear()
 	ChunkHandler.OnClearChunk()
 	is_chunk_loaded = false
 	cam = null

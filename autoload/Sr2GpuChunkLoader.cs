@@ -5,7 +5,7 @@ using Kaitai;
 
 public class Sr2GpuChunkLoader
 {
-	public Mesh[] LoadMeshesFromChunk(Sr2CpuChunkPc chunk, string filepath)
+	public Mesh[] LoadMeshesFromChunk(Sr2ChunkPc chunk, string filepath)
 	{
 		if (!System.IO.File.Exists(filepath))
 		{
@@ -21,7 +21,7 @@ public class Sr2GpuChunkLoader
 
 			for (int i = 0; i < chunk.NumRendermodels; i++)
 			{
-				Sr2CpuChunkPc.Rendermodel model = chunk.Rendermodels[i];
+				Sr2ChunkPc.Rendermodel model = chunk.Rendermodels[i];
 				SurfaceTool st = new SurfaceTool();
 				st.Begin(Mesh.PrimitiveType.Triangles);
 
@@ -31,7 +31,7 @@ public class Sr2GpuChunkLoader
 				for (int ii = 0; ii < chunk.ModelHeaders[0].VertHeaderCount; ii++)
 				{
 					vBufOffsets[ii] = iBufOffset;
-					uint vertCount = chunk.VertHeaders[0].VertHeader[ii].VertCount;
+					uint vertCount = chunk.VertHeaders[0].VertHeader[ii].NumVertices;
 					uint vertSize = chunk.VertHeaders[0].VertHeader[ii].VertSize;
 					iBufOffset += vertCount * vertSize;
 					// byte align
@@ -48,14 +48,14 @@ public class Sr2GpuChunkLoader
 					int vertBufID = (int)model.Submeshes[ii].VertBufferId;
 					uint vertSize = chunk.VertHeaders[0].VertHeader[vertBufID].VertSize;
 
-					int indexOffset = (int)(iBufOffset + model.Submeshes[ii].IndexOffset * 2);
-					uint vertexOffset = vBufOffsets[vertBufID] + model.Submeshes[ii].VertOffset * vertSize;
+					int indexOffset = (int)(iBufOffset + model.Submeshes[ii].OffIndices * 2);
+					uint vertexOffset = vBufOffsets[vertBufID] + model.Submeshes[ii].OffVertices * vertSize;
 
 
 					// Get VertCount (it isn't stored explicitly so gotta pull it if from indices)
 					fs.Seek(indexOffset, SeekOrigin.Begin);
 					uint tempVertCount = 0;
-					for (int iii = 0; iii < model.Submeshes[ii].IndexCount; iii++)
+					for (int iii = 0; iii < model.Submeshes[ii].NumIndices; iii++)
 					{
 						tempVertCount = (uint)Math.Max(br.ReadInt16() + 1, tempVertCount);
 					}
@@ -73,7 +73,7 @@ public class Sr2GpuChunkLoader
 
 					// Get Indices
 					fs.Seek(indexOffset, SeekOrigin.Begin);
-					for (int iii = 0; iii < model.Submeshes[ii].IndexCount - 2; iii++)
+					for (int iii = 0; iii < model.Submeshes[ii].NumIndices - 2; iii++)
 					{
 						uint i0 = totalVertCount + br.ReadUInt16();
 						uint i1 = totalVertCount + br.ReadUInt16();

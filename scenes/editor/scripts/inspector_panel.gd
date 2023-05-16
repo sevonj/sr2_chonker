@@ -35,3 +35,47 @@ func toggle_expand(yes):
 		input_togglehide.icon = ui_icon_expanded
 	else:
 		input_togglehide.icon = ui_icon_contracted
+
+func create_option_title(title: String):
+	var label = Label.new()
+	label.rect_min_size.y = Globals.UI_INSPECTOR_TEXT_MINHEIGHT
+	label.text = title
+	return label
+
+func create_option_tooltip(text: String):
+	var label = Label.new()
+	label.rect_min_size.y = Globals.UI_INSPECTOR_TEXT_MINHEIGHT
+	label.autowrap = true
+	label.text = text
+	return label
+
+func create_option_lineedit():
+	var ledit = LineEdit.new()
+	ledit.size_flags_horizontal = 3
+	ledit.rect_min_size.y = Globals.UI_INSPECTOR_TEXT_MINHEIGHT
+	return ledit
+
+func create_option_optionbut():
+	var optio = OptionButton.new()
+	optio.size_flags_horizontal = 3
+	optio.rect_min_size.y = Globals.UI_INSPECTOR_TEXT_MINHEIGHT
+	return optio
+
+func create_option_vec3():
+	var hbox = HBoxContainer.new()
+	var editx = create_option_lineedit()
+	var edity = create_option_lineedit()
+	var editz = create_option_lineedit()
+	editx.name = "editx"
+	edity.name = "edity"
+	editz.name = "editz"
+	hbox.add_child(create_option_title("X"))
+	hbox.add_child(editx)
+	hbox.add_child(create_option_title("Y"))
+	hbox.add_child(edity)
+	hbox.add_child(create_option_title("Z"))
+	hbox.add_child(editz)
+	
+	hbox.size_flags_horizontal = 3
+	hbox.rect_min_size.y = Globals.UI_INSPECTOR_TEXT_MINHEIGHT
+	return hbox

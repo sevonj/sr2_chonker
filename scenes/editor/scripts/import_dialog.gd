@@ -79,5 +79,5 @@ func _ok():
 	if fext == "chunk_pc" or fext == "g_chunk_pc" or fext == "g_peg_pc":
 		ChunkEditor.opt_cityobjects = opt_cityobjects
 		ChunkEditor.opt_lights = opt_lights
-		ChunkHandler.LoadChunk(file_input.text)
+		ChunkEditor._load_chunk(file_input.text)
 		queue_free()

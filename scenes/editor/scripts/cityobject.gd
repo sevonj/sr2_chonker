@@ -3,6 +3,7 @@
 
 extends Spatial
 
+var uid = ""
 var is_rendermodel_bad = false
 
 var rendermodel_id: int = -1
@@ -14,6 +15,10 @@ const TEX_PLACEHOLDER = preload("res://scenes/editor/tex_model_placeholder.png")
 
 func _ready():
 	load_model()
+
+func _set_basis(basis: Basis):
+	global_transform.basis = basis# Basis(Vector3(0,1,0),Vector3(0,0,1),Vector3(1,0,0))
+
 
 func change_model(id: int):
 	rendermodel_id = id
@@ -65,7 +70,7 @@ func _input_event(_camera, event, _click_position, _click_normal, _shape_idx):
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_LEFT and event.is_pressed():
 			print("clicked ", name)
-			ChunkEditor._select(self)
+			ChunkEditor._select(uid)
 
 func _set_highlight(highlight: bool):
 	if get_child_count() == 0:
