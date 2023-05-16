@@ -19,24 +19,39 @@ public class Sr2GpuChunkLoader
 		{
 			BinaryReader br = new BinaryReader(fs);
 
+
+			// Find correct Modelheader. Usually index zero, but sometimes not.
+			// Never more than one of them.
+			int mhidx = 0;
+			for (int i = 0; i < chunk.ModelCount; i++)
+			{	
+				if (chunk.ModelHeaders[i].Type == 0)
+				{
+					mhidx = i;
+					break;
+				}
+			}
+
+			// Find Buffer Offsets
+			uint iBufOffset = 0;
+			uint[] vBufOffsets = new uint[chunk.ModelHeaders[mhidx].VertHeaderCount];
+			for (int i = 0; i < chunk.ModelHeaders[mhidx].VertHeaderCount; i++)
+			{
+				vBufOffsets[i] = iBufOffset;
+				uint vertCount = chunk.VertHeaders[mhidx].VertHeader[i].NumVertices;
+				uint vertSize = chunk.VertHeaders[mhidx].VertHeader[i].VertSize;
+				iBufOffset += vertCount * vertSize;
+				// byte align
+				while ((iBufOffset & 0xf) != 0) { iBufOffset += 1; }
+				GD.Print("Buffer Offset: ", iBufOffset);
+			}
+
 			for (int i = 0; i < chunk.NumRendermodels; i++)
 			{
+				GD.Print("Made it to mesh ", i);
 				Sr2ChunkPc.Rendermodel model = chunk.Rendermodels[i];
 				SurfaceTool st = new SurfaceTool();
 				st.Begin(Mesh.PrimitiveType.Triangles);
-
-				// Buffer Offsets
-				uint iBufOffset = 0;
-				uint[] vBufOffsets = new uint[chunk.ModelHeaders[0].VertHeaderCount];
-				for (int ii = 0; ii < chunk.ModelHeaders[0].VertHeaderCount; ii++)
-				{
-					vBufOffsets[ii] = iBufOffset;
-					uint vertCount = chunk.VertHeaders[0].VertHeader[ii].NumVertices;
-					uint vertSize = chunk.VertHeaders[0].VertHeader[ii].VertSize;
-					iBufOffset += vertCount * vertSize;
-					// byte align
-					while ((iBufOffset & 0xf) != 0) { iBufOffset += 1; }
-				}
 
 				// Buffers
 				uint totalVertCount = 0;
@@ -46,7 +61,7 @@ public class Sr2GpuChunkLoader
 					if (model.NumSubmesh2s != null) continue;
 
 					int vertBufID = (int)model.Submeshes[ii].VertBufferId;
-					uint vertSize = chunk.VertHeaders[0].VertHeader[vertBufID].VertSize;
+					uint vertSize = chunk.VertHeaders[mhidx].VertHeader[vertBufID].VertSize;
 
 					int indexOffset = (int)(iBufOffset + model.Submeshes[ii].OffIndices * 2);
 					uint vertexOffset = vBufOffsets[vertBufID] + model.Submeshes[ii].OffVertices * vertSize;

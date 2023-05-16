@@ -69,88 +69,99 @@ public class ChunkHandler : Node
 		Node globals = GetNode("/root/Globals");
 		Node world = GetNode("/root/main/chunk/cityobjects");
 		Node lights = GetNode("/root/main/chunk/lights");
-
 		chunkEditor.Set("is_chunk_loaded", true);
-		if ((bool)chunkEditor.Get("opt_cityobjects"))
+		Mesh[] chunk_rendermodels;
+		// Load Rendermodels
+		if ((bool)chunkEditor.Get("opt_rendermodels"))
 		{
 			Sr2GpuChunkLoader gLoader = new Sr2GpuChunkLoader();
-			Mesh[] chunk_rendermodels = gLoader.LoadMeshesFromChunk(chunk, gpu_chunk_filepath);
-			GD.Print("meshes len: ", chunk_rendermodels.Length);
+			chunk_rendermodels = gLoader.LoadMeshesFromChunk(chunk, gpu_chunk_filepath);
+			//GD.Print("meshes len: ", chunk_rendermodels.Length);
 			for (int i = 0; i < chunk.NumRendermodels; i++)
 			{
 				Mesh mesh = chunk_rendermodels[i];
 				chunkEditor.Call("_add_chunk_rendermodel", mesh);
 			}
-			var loaded_cobjs = new Godot.Collections.Array<Node>();
-			for (int i = 0; i < chunk.NumCityobjects; i++)
-			{
-				Sr2ChunkPc.Cityobject cobj = chunk.Cityobjects[i];
-				int partId = (int)cobj.CityobjectPartId;
-				Sr2ChunkPc.CityobjectPart temp = chunk.CityobjectParts[partId];
-				Spatial cityObjectNode = new Spatial();
-				cityObjectNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/cityobject.gd"));
-				cityObjectNode.Set("uid", "cobj_" + i);
-				cityObjectNode.Translation = new Vector3(-temp.Pos.X, temp.Pos.Y, temp.Pos.Z);
-				cityObjectNode.Name = chunk.CityobjectNames[i];
-				cityObjectNode.Set("rendermodel_id", temp.RendermodelId);
-				cityObjectNode.Set("cityobjpart_id", partId);
-				world.AddChild(cityObjectNode);
-				loaded_cobjs.Add(cityObjectNode);
-				// Has to be done in this roundabout way, cannot set transform via csharp?
-				cityObjectNode.Call("_set_basis", new Basis(
-					new Vector3(temp.BasisX.X, -temp.BasisX.Y, -temp.BasisX.Z),
-					new Vector3(-temp.BasisY.X, temp.BasisY.Y, -temp.BasisY.Z),
-					new Vector3(-temp.BasisZ.X, -temp.BasisZ.Y, temp.BasisZ.Z)));
-			}
-			globals.Set("loaded_cityobjects", loaded_cobjs);
 		}
-		if ((bool)chunkEditor.Get("opt_lights"))
+		// No Rendermodels, empty meshes instead.
+		else
 		{
-			var loaded_lights = new Godot.Collections.Array<Node>();
-			for (int i = 0; i < chunk.NumLights.Result; i++)
+			chunk_rendermodels = new Mesh[chunk.NumRendermodels];
+			SurfaceTool st = new SurfaceTool();
+			st.Begin(Mesh.PrimitiveType.Triangles);
+			for (int i = 0; i < chunk.NumRendermodels; i++)
 			{
-				Sr2ChunkPc.LightDataType light = chunk.LightData[i];
-				string name = chunk.LightNames[i];
-				Vector3 pos = new Vector3(-light.Position.X, light.Position.Y, light.Position.Z);
-				Color col = new Color(light.R, light.G, light.B);
-
-				Spatial lightNode = new Spatial();
-				lightNode.Name = name;
-				lightNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/lightsource.gd"));
-				lightNode.Set("uid", "light_" + i);
-				Godot.Collections.Array flags = new Godot.Collections.Array();
-				flags.Add(light.Bitflag0);
-				flags.Add(light.Bitflag1);
-				flags.Add(light.Bitflag2);
-				flags.Add(light.Bitflag3);
-				flags.Add(light.Bitflag4);
-				flags.Add(light.Bitflag8);
-				flags.Add(light.Bitflag10);
-				flags.Add(light.ShadowCharacter);
-				flags.Add(light.ShadowLevel);
-				flags.Add(light.LightCharacter);
-				flags.Add(light.LightLevel);
-				flags.Add(light.Bitflag22);
-				lightNode.Set("flags", flags);
-				lightNode.Set("color", col);
-				lightNode.Set("unk10", light.Unk10);
-				lightNode.Translation = pos;
-				lightNode.Set("type", light.Type);
-				lightNode.Set("radius_inner", light.RadiusInner);
-				lightNode.Set("radius_outer", light.RadiusOuter);
-				lightNode.Set("render_dist", light.RenderDist);
-				lightNode.Set("parent", light.ParentCityobject);
-				lights.AddChild(lightNode);
-				loaded_lights.Add(lightNode);
-				// Has to be done in this roundabout way, cannot set transform via csharp?
-				lightNode.Call("_set_basis", new Basis(
-					new Vector3(light.BasisX.X, -light.BasisX.Y, -light.BasisX.Z),
-					new Vector3(-light.BasisY.X, light.BasisY.Y, -light.BasisY.Z),
-					new Vector3(-light.BasisZ.X, -light.BasisZ.Y, light.BasisZ.Z)));
-
+				chunkEditor.Call("_add_chunk_rendermodel", st.Commit());
 			}
-			globals.Set("loaded_lights", loaded_lights);
 		}
+		var loaded_cobjs = new Godot.Collections.Array<Node>();
+		for (int i = 0; i < chunk.NumCityobjects; i++)
+		{
+			Sr2ChunkPc.Cityobject cobj = chunk.Cityobjects[i];
+			int partId = (int)cobj.CityobjectPartId;
+			Sr2ChunkPc.CityobjectPart temp = chunk.CityobjectParts[partId];
+			Spatial cityObjectNode = new Spatial();
+			cityObjectNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/cityobject.gd"));
+			cityObjectNode.Set("uid", "cobj_" + i);
+			cityObjectNode.Translation = new Vector3(-temp.Pos.X, temp.Pos.Y, temp.Pos.Z);
+			cityObjectNode.Name = chunk.CityobjectNames[i];
+			cityObjectNode.Set("rendermodel_id", temp.RendermodelId);
+			cityObjectNode.Set("cityobjpart_id", partId);
+			world.AddChild(cityObjectNode);
+			loaded_cobjs.Add(cityObjectNode);
+			// Has to be done in this roundabout way, cannot set transform via csharp?
+			cityObjectNode.Call("_set_basis", new Basis(
+				new Vector3(temp.BasisX.X, -temp.BasisX.Y, -temp.BasisX.Z),
+				new Vector3(-temp.BasisY.X, temp.BasisY.Y, -temp.BasisY.Z),
+				new Vector3(-temp.BasisZ.X, -temp.BasisZ.Y, temp.BasisZ.Z)));
+		}
+		globals.Set("loaded_cityobjects", loaded_cobjs);
+
+		var loaded_lights = new Godot.Collections.Array<Node>();
+		for (int i = 0; i < chunk.NumLights.Result; i++)
+		{
+			Sr2ChunkPc.LightDataType light = chunk.LightData[i];
+			string name = chunk.LightNames[i];
+			Vector3 pos = new Vector3(-light.Position.X, light.Position.Y, light.Position.Z);
+			Color col = new Color(light.R, light.G, light.B);
+
+			Spatial lightNode = new Spatial();
+			lightNode.Name = name;
+			lightNode.SetScript(ResourceLoader.Load("res://scenes/editor/scripts/lightsource.gd"));
+			lightNode.Set("uid", "light_" + i);
+			Godot.Collections.Array flags = new Godot.Collections.Array();
+			flags.Add(light.Bitflag0);
+			flags.Add(light.Bitflag1);
+			flags.Add(light.Bitflag2);
+			flags.Add(light.Bitflag3);
+			flags.Add(light.Bitflag4);
+			flags.Add(light.Bitflag8);
+			flags.Add(light.Bitflag10);
+			flags.Add(light.ShadowCharacter);
+			flags.Add(light.ShadowLevel);
+			flags.Add(light.LightCharacter);
+			flags.Add(light.LightLevel);
+			flags.Add(light.Bitflag22);
+			lightNode.Set("flags", flags);
+			lightNode.Set("color", col);
+			lightNode.Set("unk10", light.Unk10);
+			lightNode.Translation = pos;
+			lightNode.Set("type", light.Type);
+			lightNode.Set("radius_inner", light.RadiusInner);
+			lightNode.Set("radius_outer", light.RadiusOuter);
+			lightNode.Set("render_dist", light.RenderDist);
+			lightNode.Set("parent", light.ParentCityobject);
+			lights.AddChild(lightNode);
+			loaded_lights.Add(lightNode);
+			// Has to be done in this roundabout way, cannot set transform via csharp?
+			lightNode.Call("_set_basis", new Basis(
+				new Vector3(light.BasisX.X, -light.BasisX.Y, -light.BasisX.Z),
+				new Vector3(-light.BasisY.X, light.BasisY.Y, -light.BasisY.Z),
+				new Vector3(-light.BasisZ.X, -light.BasisZ.Y, light.BasisZ.Z)));
+
+		}
+		globals.Set("loaded_lights", loaded_lights);
+
 		Spatial camera = (Spatial)GetNode("/root/main/editor/cameraman");
 		camera.Translation = new Vector3(
 			-loadedChunk.CityobjectParts[0].Pos.X,

@@ -6,6 +6,7 @@ extends Node
 
 var is_chunk_loaded = false
 var opt_cityobjects = true
+var opt_rendermodels = true
 var opt_lights = true
 
 var cam

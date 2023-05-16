@@ -2,8 +2,7 @@ extends WindowDialog
 
 
 var file_input
-onready var opt_cityobjects = ChunkEditor.opt_cityobjects
-onready var opt_lights = ChunkEditor.opt_lights
+onready var opt_rendermodels = ChunkEditor.opt_rendermodels
 
 
 func _ready():
@@ -33,17 +32,13 @@ func _ready():
 	vbox.add_child(file_open)
 	file_input = LineEdit.new()
 	vbox.add_child(file_input)
+
+	var input_opt_rendermodels = CheckBox.new()
+	input_opt_rendermodels.pressed = opt_rendermodels
+	input_opt_rendermodels.connect("toggled", self, "_input_opt_rendermodels")
+	input_opt_rendermodels.text = "import rendermodels"
+	vbox.add_child(input_opt_rendermodels)
 	
-	var input_opt_cityobjects = CheckBox.new()
-	input_opt_cityobjects.pressed = opt_cityobjects
-	input_opt_cityobjects.connect("toggled", self, "_input_opt_cityobjects")
-	input_opt_cityobjects.text = "import cityobjects"
-	vbox.add_child(input_opt_cityobjects)
-	var input_opt_lights = CheckBox.new()
-	input_opt_lights.pressed = opt_lights
-	input_opt_lights.connect("toggled", self, "_input_opt_lights")
-	input_opt_lights.text = "import lights"
-	vbox.add_child(input_opt_lights)
 	var ok = Button.new()
 	ok.text = "Ok"
 	ok.connect("pressed", self, "_ok")
@@ -68,16 +63,13 @@ func _open_file():
 	
 func _set_file(f):
 	file_input.text = f
-	
-func _input_opt_cityobjects(yes):
-	opt_cityobjects = yes
-func _input_opt_lights(yes):
-	opt_lights = yes
+
+func _input_opt_rendermodels(yes):
+	opt_rendermodels = yes
 
 func _ok():
 	var fext = file_input.text.get_extension()
 	if fext == "chunk_pc" or fext == "g_chunk_pc" or fext == "g_peg_pc":
-		ChunkEditor.opt_cityobjects = opt_cityobjects
-		ChunkEditor.opt_lights = opt_lights
+		ChunkEditor.opt_rendermodels = opt_rendermodels
 		ChunkEditor._load_chunk(file_input.text)
 		queue_free()
