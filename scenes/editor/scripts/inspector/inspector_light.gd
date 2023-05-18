@@ -80,7 +80,7 @@ func _update_properties(unk10:int, radius_inner:float, radius_outer:float, rende
 	target.radius_outer = radius_outer
 	target.render_dist = render_dist
 	target.parent = parent
-	target._update_parent()
+	target._update()
 	target.type = type
 	
 

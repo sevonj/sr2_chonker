@@ -17,4 +17,4 @@ func _update_color(col: Color):
 	input_color.color = col
 
 func _color_changed(col: Color):
-	emit_signal("color_changed", col)
+	emit_signal("changed", col)
