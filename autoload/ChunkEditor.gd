@@ -5,21 +5,20 @@
 extends Node
 
 var is_chunk_loaded = false
-var opt_cityobjects = true
 var opt_rendermodels = true
-var opt_lights = true
+var opt_unpack = false
 
 var cam
 var gizmo
-var menu_selected_title
-var menu_selected_cityobj
-var menu_selected_light
-var menu_selector
+var inspector_title
+var inspector_cityobj
+var inspector_light
+var selector
 
 var currently_selected: Spatial
-var chunk_rendermodels = []
 
-var file_import_dialog = preload("res://scenes/editor/scripts/import_dialog.gd")
+const FILE_IMPORT_DIALOG = preload("res://scenes/editor/scripts/import_dialog.gd")
+const CHUNK = preload("res://scenes/editor/scripts/chunk.gd")
 var ui
 
 func _ready():
@@ -36,7 +35,7 @@ func _on_files_dropped(files, _screen):
 	if len(files) != 1:
 		print("One file at a time!")
 		return
-	var dialog = file_import_dialog.new()
+	var dialog = FILE_IMPORT_DIALOG.new()
 	ui.add_child(dialog)
 	dialog._set_file(files[0])
 #	var fext = files[0].get_extension()
@@ -54,56 +53,61 @@ func _on_main_ready():
 
 # Load should always go through this
 func _load_chunk(file):
+	Globals.chunk = CHUNK.new()
+	get_tree().root.get_node("main").add_child(Globals.chunk)
 	ChunkHandler.LoadChunk(file)
-	for obj in Globals.loaded_cityobjects:
-		Globals.objects_by_uid[obj.uid] = obj
-	for obj in Globals.loaded_lights:
-		Globals.objects_by_uid[obj.uid] = obj
+	Globals.chunk._load()
+	
+	
+	#var obj_parent = get_tree().root.get_node("main").get_node("chunk") #.get_node("objects")
+	#for pos in Globals.unkposses:
+	#	var posnode = CSGBox.new()
+	#	posnode.transform.origin = pos
+	#	obj_parent.add_child(posnode)
 	
 	
 # Select object.
 func _select(uid: String):
-	var target = Globals.objects_by_uid[uid]
+	var target = Globals.chunk.objects_by_uid[uid]
 	_unselect()
-	gizmo.translation = target.translation
+	gizmo.transform.origin = target.global_transform.origin
 	
-	match target.get_parent().name:
-		"lights":
-			if menu_selected_title:
-				menu_selected_title.text = "Selected type: lightsource"
-			if menu_selected_light:
-				menu_selected_light._select(target)
-				menu_selected_light.show()
-				menu_selected_light._update_color(target.color)
-		"cityobjects":
-			if menu_selected_title:
-				menu_selected_title.text = "Selected type: cityobject"
-			if menu_selected_cityobj:
-				menu_selected_cityobj._select(target)
-				menu_selected_cityobj.show()
-		_:
-			push_error("unknown selected")
-			return
+	if target.uid.begins_with("cobj_"):
+		if inspector_title:
+			inspector_title.text = "Selected type: cityobject"
+		if inspector_cityobj:
+			inspector_cityobj._select(target)
+			inspector_cityobj.show()
+	elif target.uid.begins_with("light_"):
+		if inspector_title:
+			inspector_title.text = "Selected type: lightsource"
+		if inspector_light:
+			inspector_light._select(target)
+			inspector_light.show()
+			inspector_light._update_color(target.color)
+	else:
+		push_error("unknown selected")
+		return
 	currently_selected = target
 	currently_selected._set_highlight(true)
-	menu_selector._select(target.uid)
+	selector._select(target.uid)
 
 func _unselect():
-	menu_selector._unselect()
+	selector._unselect()
 	if currently_selected:
 		currently_selected._set_highlight(false)
 		currently_selected = null
-	if menu_selected_title:
-		menu_selected_title.text = "Nothing selected."
-	if menu_selected_cityobj:
-		menu_selected_cityobj.hide()
-	if menu_selected_light:
-		menu_selected_light.hide()
+	if inspector_title:
+		inspector_title.text = "Nothing selected."
+	if inspector_cityobj:
+		inspector_cityobj.hide()
+	if inspector_light:
+		inspector_light.hide()
 	
 
 func _focus():
 	if currently_selected:
-		cam.translation = currently_selected.translation
+		cam.transform.origin = currently_selected.global_transform.origin
 
 func _save():
 	ChunkHandler.SaveChunk()
@@ -114,29 +118,35 @@ func _clear():
 	is_chunk_loaded = false
 	cam = null
 	gizmo = null
-	menu_selector = null
-	menu_selected_title = null
-	menu_selected_cityobj = null
-	menu_selected_light = null
+	selector = null
+	inspector_title = null
+	inspector_cityobj = null
+	inspector_light = null
 	currently_selected = null
-	chunk_rendermodels.clear()
 	
 	get_tree().reload_current_scene()
 
 func _update():
-	if menu_selector: menu_selector._update()
-
-func _add_chunk_rendermodel(mesh: Mesh):
-	chunk_rendermodels.append(mesh)
+	if selector: selector._update()
 
 func _process(_delta):
 	if gizmo:
 		if currently_selected:
 			gizmo.show()
 			gizmo.scale = Vector3.ONE * cam.get_node("pivot").get_node("cam").transform.origin.z * .2
-			gizmo.translation = currently_selected.translation
+			gizmo.transform.origin = currently_selected.global_transform.origin
 		else:
 			gizmo.hide()
 		# Focus on selected
 		if Input.is_key_pressed(KEY_F):
 			_focus()
+
+func _baked_collision_visible(vis: bool):
+	if Globals.chunk != null:
+		Globals.chunk._baked_collision_visible(vis)
+func _rendermodels_visible(vis: bool):
+	if Globals.chunk != null:
+		Globals.chunk._rendermodel_visible(vis)
+func _lights_visible(vis: bool):
+	if Globals.chunk != null:
+		Globals.chunk._light_visible(vis)

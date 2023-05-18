@@ -1,20 +1,22 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://ui/icon_help.png" type="Texture" id=1]
 [ext_resource path="res://scenes/common/scripts/camera.gd" type="Script" id=2]
-[ext_resource path="res://scenes/editor/scripts/help_toggle.gd" type="Script" id=3]
-[ext_resource path="res://scenes/editor/scripts/menu_selected_cityobj.gd" type="Script" id=4]
-[ext_resource path="res://scenes/editor/scripts/menu_file.gd" type="Script" id=5]
+[ext_resource path="res://scenes/editor/scripts/toolbar/help_toggle.gd" type="Script" id=3]
+[ext_resource path="res://scenes/editor/scripts/inspector/inspector_cityobj.gd" type="Script" id=4]
+[ext_resource path="res://scenes/editor/scripts/toolbar/menu_file.gd" type="Script" id=5]
 [ext_resource path="res://scenes/editor/scripts/gizmo.gd" type="Script" id=6]
 [ext_resource path="res://ui/icon_lightbulb.png" type="Texture" id=7]
-[ext_resource path="res://scenes/editor/scripts/menu_selected_title.gd" type="Script" id=8]
-[ext_resource path="res://scenes/editor/scripts/menu_selected_light.gd" type="Script" id=9]
-[ext_resource path="res://scenes/editor/scripts/menu_selector.gd" type="Script" id=10]
+[ext_resource path="res://scenes/editor/scripts/inspector/inspector_title.gd" type="Script" id=8]
+[ext_resource path="res://scenes/editor/scripts/inspector/inspector_light.gd" type="Script" id=9]
+[ext_resource path="res://scenes/editor/scripts/selector/selector.gd" type="Script" id=10]
 [ext_resource path="res://ui/icon_rendermodels.png" type="Texture" id=11]
 [ext_resource path="res://ui/theme_2008.tres" type="Theme" id=12]
 [ext_resource path="res://ui/stylebox_2008_bluebar.tres" type="StyleBox" id=13]
-[ext_resource path="res://scenes/editor/scripts/menu_toolbar.gd" type="Script" id=14]
+[ext_resource path="res://scenes/editor/scripts/toolbar/toolbar.gd" type="Script" id=14]
 [ext_resource path="res://scenes/editor/scripts/main.gd" type="Script" id=15]
+[ext_resource path="res://ui/icon_bakedcollision.png" type="Texture" id=16]
+[ext_resource path="res://ui/icon_physmodels.png" type="Texture" id=17]
 
 [sub_resource type="QuadMesh" id=3]
 size = Vector2( 2, 2 )
@@ -212,17 +214,32 @@ margin_left = 148.0
 margin_right = 148.0
 margin_bottom = 32.0
 
-[node name="input_toggle_cityobjs" type="Button" parent="ui/toolbar/hbox"]
+[node name="input_toggle_baked_collision" type="Button" parent="ui/toolbar/hbox"]
 margin_left = 152.0
 margin_right = 192.0
+margin_bottom = 32.0
+toggle_mode = true
+icon = ExtResource( 16 )
+
+[node name="input_toggle_physmodels" type="Button" parent="ui/toolbar/hbox"]
+visible = false
+margin_left = 196.0
+margin_right = 236.0
+margin_bottom = 32.0
+toggle_mode = true
+icon = ExtResource( 17 )
+
+[node name="input_toggle_rendermodels" type="Button" parent="ui/toolbar/hbox"]
+margin_left = 196.0
+margin_right = 236.0
 margin_bottom = 32.0
 toggle_mode = true
 pressed = true
 icon = ExtResource( 11 )
 
 [node name="input_toggle_lights" type="Button" parent="ui/toolbar/hbox"]
-margin_left = 196.0
-margin_right = 236.0
+margin_left = 240.0
+margin_right = 280.0
 margin_bottom = 32.0
 toggle_mode = true
 pressed = true
@@ -463,3 +480,5 @@ shape = SubResource( 13 )
 [node name="cityobjects" type="Spatial" parent="chunk"]
 
 [node name="lights" type="Spatial" parent="chunk"]
+
+[node name="objects" type="Spatial" parent="chunk"]

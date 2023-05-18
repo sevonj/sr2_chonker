@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=10 format=2]
+[gd_resource type="Theme" load_steps=12 format=2]
 
 [ext_resource path="res://ui/stylebox_2008_button_pressed.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/stylebox_2008_button_normal.tres" type="StyleBox" id=2]
@@ -9,6 +9,8 @@
 [ext_resource path="res://ui/stylebox_tab_fg.tres" type="StyleBox" id=7]
 [ext_resource path="res://ui/stylebox_panel2.tres" type="StyleBox" id=8]
 [ext_resource path="res://ui/stylebox_tab_disabled.tres" type="StyleBox" id=9]
+[ext_resource path="res://ui/stylebox_tooltip.tres" type="StyleBox" id=10]
+[ext_resource path="res://ui/font_tooltip.tres" type="DynamicFont" id=11]
 
 [resource]
 default_font = ExtResource( 4 )
@@ -21,4 +23,6 @@ TabContainer/styles/panel = ExtResource( 8 )
 TabContainer/styles/tab_bg = ExtResource( 5 )
 TabContainer/styles/tab_disabled = ExtResource( 9 )
 TabContainer/styles/tab_fg = ExtResource( 7 )
+TooltipLabel/fonts/font = ExtResource( 11 )
+TooltipPanel/styles/panel = ExtResource( 10 )
 Tree/styles/bg = ExtResource( 8 )

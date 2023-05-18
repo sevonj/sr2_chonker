@@ -23,8 +23,7 @@
 		- 2: ChunkEditor calls selector._select() to update status of this menu
 	
 	Dependencies:
-		- Globals.loaded_cityobjectso
-		- Globals.loaded_lights
+		- Globals.chunk (and chunk.gd)
 		- uid in object scripts
 		- ChunkEditor._select(uid)
 """
@@ -42,7 +41,7 @@ var selected
 const STYLE_SELECTED = preload("res://ui/stylebox_selected_text.tres")
 
 func _ready():
-	ChunkEditor.menu_selector = self
+	ChunkEditor.selector = self
 	tabs = TabContainer.new()
 	var cobj_scroll = ScrollContainer.new()
 	cobj_container = GridContainer.new()
@@ -94,25 +93,29 @@ func _update():
 		child.queue_free()
 	for child in light_container.get_children():
 		child.queue_free()
+		
+	var chunk = Globals.chunk
+	if chunk == null:
+		return
 	
-	for i in Globals.loaded_cityobjects.size():
-		var cobj = Globals.loaded_cityobjects[i]
+	for i in chunk.cityobjects.size():
+		var cobj = chunk.cityobjects[i]
 		var button = create_objectbutton(cobj)
 		if cobj.is_rendermodel_bad:
 			button.add_color_override("font_color", Color.maroon)
 		cobj_container.add_child(create_lineno(i))
 		cobj_container.add_child(button)
 	
-	for i in Globals.loaded_lights.size():
-		var light = Globals.loaded_lights[i]
+	for i in chunk.lights.size():
+		var light = chunk.lights[i]
 		light_container.add_child(create_lineno(i))
 		light_container.add_child(create_objectbutton(light))
 	
 	
 	# Labels for if category is empty
-	if Globals.loaded_cityobjects.size() == 0:
+	if chunk.cityobjects.size() == 0:
 		cobj_container.add_child(create_nonelabel())
-	if Globals.loaded_lights.size() == 0:
+	if chunk.lights.size() == 0:
 		light_container.add_child(create_nonelabel())
 
 # Returns a Button that selects an an object

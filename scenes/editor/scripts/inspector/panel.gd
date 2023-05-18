@@ -1,5 +1,15 @@
 extends PanelContainer
+"""
+Base class for Inspector Panels
 
+Panel structure:
+
+PanelContainer
+	top_vbox
+		title / togglehide (Button)
+		Panel contents (Panel creates its own container)
+
+"""
 var ui_icon_expanded = preload("res://ui/ui_icon_expanded.png")
 var ui_icon_contracted = preload("res://ui/ui_icon_contracted.png")
 var ui_stylebox = preload("res://ui/stylebox_inspector_panel.tres")
@@ -29,7 +39,10 @@ func _ready():
 	
 	add_stylebox_override("panel", ui_stylebox)
 
-func toggle_expand(yes):
+func set_title(title: String):
+	input_togglehide.text = title
+
+func toggle_expand(yes: bool):
 	vbox_contents.visible = yes
 	if yes:
 		input_togglehide.icon = ui_icon_expanded

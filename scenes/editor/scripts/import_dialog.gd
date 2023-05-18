@@ -2,7 +2,9 @@ extends WindowDialog
 
 
 var file_input
-onready var opt_rendermodels = ChunkEditor.opt_rendermodels
+
+onready var input_opt_rendermodels = CheckBox.new()
+onready var input_opt_unpack = CheckBox.new()
 
 
 func _ready():
@@ -33,11 +35,13 @@ func _ready():
 	file_input = LineEdit.new()
 	vbox.add_child(file_input)
 
-	var input_opt_rendermodels = CheckBox.new()
-	input_opt_rendermodels.pressed = opt_rendermodels
-	input_opt_rendermodels.connect("toggled", self, "_input_opt_rendermodels")
+	input_opt_rendermodels.pressed = ChunkEditor.opt_rendermodels
 	input_opt_rendermodels.text = "import rendermodels"
 	vbox.add_child(input_opt_rendermodels)
+	
+	input_opt_unpack.pressed = ChunkEditor.opt_unpack
+	input_opt_unpack.text = "unpack chunk"
+	vbox.add_child(input_opt_unpack)
 	
 	var ok = Button.new()
 	ok.text = "Ok"
@@ -64,12 +68,10 @@ func _open_file():
 func _set_file(f):
 	file_input.text = f
 
-func _input_opt_rendermodels(yes):
-	opt_rendermodels = yes
-
 func _ok():
 	var fext = file_input.text.get_extension()
 	if fext == "chunk_pc" or fext == "g_chunk_pc" or fext == "g_peg_pc":
-		ChunkEditor.opt_rendermodels = opt_rendermodels
+		ChunkEditor.opt_rendermodels = input_opt_rendermodels.pressed
+		ChunkEditor.opt_unpack = input_opt_unpack.pressed
 		ChunkEditor._load_chunk(file_input.text)
 		queue_free()

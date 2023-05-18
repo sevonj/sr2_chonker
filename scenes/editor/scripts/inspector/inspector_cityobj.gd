@@ -9,15 +9,14 @@ var panel_transform
 var namelabel
 
 func _ready():
-	ChunkEditor.menu_selected_cityobj = self
+	ChunkEditor.inspector_cityobj = self
 	hide()
 	input_mdl_ok.connect("pressed", self, "_update_mdl")
 	namelabel = Label.new()
 	add_child(namelabel)
 	
 	panel_transform = PanelContainer.new()
-	panel_transform.set_script(load("res://scenes/editor/scripts/inspector_panel_transform.gd"))
-	panel_transform.name = "Transform"
+	panel_transform.set_script(load("res://scenes/editor/scripts/inspector/panel_transform.gd"))
 	add_child(panel_transform)
 	panel_transform._create_menu()
 	panel_transform.connect("changed", self, "_update_transform")

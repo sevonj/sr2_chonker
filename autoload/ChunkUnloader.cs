@@ -36,7 +36,6 @@ public class ChunkUnloader : Node
 					bw.Write(-(Single)cobjNode.Transform.origin.x);
 					bw.Write((Single)cobjNode.Transform.origin.y);
 					bw.Write((Single)cobjNode.Transform.origin.z);
-					//fs.Seek(76, SeekOrigin.Current);
 					bw.Write((Single)cobjNode.Transform.basis.x.x);
 					bw.Write(-(Single)cobjNode.Transform.basis.x.y);
 					bw.Write(-(Single)cobjNode.Transform.basis.x.z);

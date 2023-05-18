@@ -10,11 +10,9 @@ const PATH_LIGHTS = "/root/main/chunk/cityobjects"
 
 var on_clear_chunkfile_to_load = null
 
-var objects_by_uid = {}
-var loaded_cityobjects = []
-var loaded_lights = []
+var chunk
 
 func _clear():
-	loaded_cityobjects.clear()
-	loaded_lights.clear()
-	objects_by_uid.clear()
+	if chunk != null:
+		chunk.queue_free()
+		chunk = null

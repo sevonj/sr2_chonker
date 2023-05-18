@@ -1,12 +1,25 @@
-extends "res://scenes/editor/scripts/inspector_panel.gd"
+extends "res://scenes/editor/scripts/inspector/panel.gd"
+"""
+Inspector Panel: Transform
+Common panel for anything with a position or a transform.
+
+Inputs:
+	- Position
+	- Rotation
+	- Scale
+
+disable_basis hides rotation & scale inputs
+
+"""
+signal changed(origin, rotation, scale)
 
 var input_position
 var input_rotation
 var input_scale
 
-signal changed(origin, rotation, scale)
 
 func _create_menu(disable_basis:bool=false):
+	set_title("Transform")
 	var hbox = GridContainer.new()
 	hbox.columns = 2
 	vbox_contents.add_child(hbox)
