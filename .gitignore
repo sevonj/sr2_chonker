@@ -15,6 +15,10 @@ mono_crash*.json
 *.g_chunk_pc
 *.g_peg
 *.vpp_pc
+*.cmesh_pc
+*.smesh_pc
+*.g_cmesh_pc
+*.g_smesh_pc
 
 # Project
 build*/
