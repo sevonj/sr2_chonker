@@ -1,22 +1,78 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=43 format=2]
 
 [ext_resource path="res://ui/icon_help.png" type="Texture" id=1]
-[ext_resource path="res://scenes/common/scripts/camera.gd" type="Script" id=2]
+[ext_resource path="res://scenes/editor/scripts/camera.gd" type="Script" id=2]
 [ext_resource path="res://scenes/editor/scripts/toolbar/help_toggle.gd" type="Script" id=3]
 [ext_resource path="res://scenes/editor/scripts/inspector/inspector_cityobj.gd" type="Script" id=4]
 [ext_resource path="res://scenes/editor/scripts/toolbar/menu_file.gd" type="Script" id=5]
-[ext_resource path="res://scenes/editor/scripts/gizmo.gd" type="Script" id=6]
-[ext_resource path="res://ui/icon_lightbulb.png" type="Texture" id=7]
+[ext_resource path="res://scenes/editor/gizmo/gizmo.gd" type="Script" id=6]
+[ext_resource path="res://scenes/editor/editor_world/world_viewer.gd" type="Script" id=7]
 [ext_resource path="res://scenes/editor/scripts/inspector/inspector_title.gd" type="Script" id=8]
 [ext_resource path="res://scenes/editor/scripts/inspector/inspector_light.gd" type="Script" id=9]
-[ext_resource path="res://scenes/editor/scripts/selector/selector.gd" type="Script" id=10]
-[ext_resource path="res://ui/icon_rendermodels.png" type="Texture" id=11]
+[ext_resource path="res://scenes/editor/scripts/selector/selector_world.gd" type="Script" id=10]
+[ext_resource path="res://scenes/editor/gizmo/mat_z.tres" type="Material" id=11]
 [ext_resource path="res://ui/theme_2008.tres" type="Theme" id=12]
 [ext_resource path="res://ui/stylebox_2008_bluebar.tres" type="StyleBox" id=13]
 [ext_resource path="res://scenes/editor/scripts/toolbar/toolbar.gd" type="Script" id=14]
 [ext_resource path="res://scenes/editor/scripts/main.gd" type="Script" id=15]
-[ext_resource path="res://ui/icon_bakedcollision.png" type="Texture" id=16]
-[ext_resource path="res://ui/icon_physmodels.png" type="Texture" id=17]
+[ext_resource path="res://scenes/editor/gizmo/mat_y.tres" type="Material" id=16]
+[ext_resource path="res://scenes/editor/gizmo/mat_x.tres" type="Material" id=17]
+[ext_resource path="res://scenes/editor/gizmo/gizmocam.gd" type="Script" id=18]
+[ext_resource path="res://scenes/editor/gizmo/gizmocontainer.gd" type="Script" id=19]
+[ext_resource path="res://ui/hud_3dcursor.png" type="Texture" id=20]
+[ext_resource path="res://ui/font_lores_outline.tres" type="DynamicFont" id=21]
+[ext_resource path="res://scenes/editor/scripts/3d_cursor.gd" type="Script" id=22]
+[ext_resource path="res://scenes/editor/editor_materials/editor_materials.gd" type="Script" id=23]
+[ext_resource path="res://ui/icon_mainmenu2.png" type="Texture" id=24]
+[ext_resource path="res://scenes/editor/editor_world/editor_world.gd" type="Script" id=25]
+[ext_resource path="res://ui/ui_2008_light_bar.png" type="Texture" id=26]
+[ext_resource path="res://scenes/appmenu.gd" type="Script" id=27]
+[ext_resource path="res://ui/stylebox_window.tres" type="StyleBox" id=28]
+[ext_resource path="res://ui/tex_checkmark_checked.png" type="Texture" id=29]
+[ext_resource path="res://ui/icon_mainmenu2_pressed.png" type="Texture" id=30]
+[ext_resource path="res://ui/icon_mainmenu2_hover.png" type="Texture" id=31]
+
+[sub_resource type="CylinderMesh" id=6]
+top_radius = 0.01
+bottom_radius = 0.01
+height = 1.0
+radial_segments = 4
+rings = 0
+
+[sub_resource type="CylinderMesh" id=11]
+top_radius = 0.0
+bottom_radius = 0.06
+height = 0.25
+
+[sub_resource type="CubeMesh" id=12]
+size = Vector3( 0.2, 0.01, 0.2 )
+
+[sub_resource type="CylinderShape" id=13]
+height = 1.2
+radius = 0.1
+
+[sub_resource type="BoxShape" id=14]
+extents = Vector3( 0.2, 0.2, 0.01 )
+
+[sub_resource type="StyleBoxTexture" id=16]
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+texture = ExtResource( 26 )
+region_rect = Rect2( 0, 0, 32, 32 )
+margin_left = 2.0
+margin_right = 2.0
+margin_top = 2.0
+margin_bottom = 2.0
+
+[sub_resource type="Theme" id=17]
+Label/styles/normal = SubResource( 16 )
+
+[sub_resource type="Environment" id=15]
+background_mode = 1
+background_color = Color( 0.239216, 0.239216, 0.239216, 1 )
+ambient_light_color = Color( 1, 1, 1, 1 )
 
 [sub_resource type="QuadMesh" id=3]
 size = Vector2( 2, 2 )
@@ -91,42 +147,6 @@ shader_param/_round = false
 shader_param/outline_bias = 0.0
 shader_param/outline_color = Color( 0, 0, 0, 1 )
 
-[sub_resource type="CylinderMesh" id=6]
-top_radius = 0.01
-bottom_radius = 0.01
-height = 1.0
-radial_segments = 4
-rings = 0
-
-[sub_resource type="SpatialMaterial" id=7]
-render_priority = 127
-flags_unshaded = true
-flags_no_depth_test = true
-albedo_color = Color( 0.917647, 0.196078, 0.309804, 1 )
-
-[sub_resource type="SpatialMaterial" id=8]
-render_priority = 127
-flags_unshaded = true
-flags_no_depth_test = true
-albedo_color = Color( 0.505882, 0.803922, 0.054902, 1 )
-
-[sub_resource type="SpatialMaterial" id=9]
-flags_unshaded = true
-flags_no_depth_test = true
-albedo_color = Color( 0.156863, 0.52549, 0.917647, 1 )
-
-[sub_resource type="CylinderMesh" id=11]
-top_radius = 0.0
-bottom_radius = 0.06
-height = 0.25
-
-[sub_resource type="CubeMesh" id=12]
-size = Vector3( 0.1, 0.01, 0.1 )
-
-[sub_resource type="CylinderShape" id=13]
-height = 1.2
-radius = 0.05
-
 [node name="main" type="Spatial"]
 script = ExtResource( 15 )
 
@@ -138,36 +158,48 @@ theme = ExtResource( 12 )
 custom_constants/separation = 0
 
 [node name="toolbar" type="PanelContainer" parent="ui"]
-margin_right = 1920.0
+margin_right = 640.0
 margin_bottom = 40.0
 grow_vertical = 0
+rect_min_size = Vector2( 0, 40 )
 custom_styles/panel = ExtResource( 13 )
 script = ExtResource( 14 )
 
 [node name="hbox" type="HBoxContainer" parent="ui/toolbar"]
 margin_left = 4.0
 margin_top = 4.0
-margin_right = 1916.0
+margin_right = 636.0
 margin_bottom = 36.0
 
 [node name="menu_file" type="HBoxContainer" parent="ui/toolbar/hbox"]
-margin_right = 144.0
+margin_right = 76.0
 margin_bottom = 32.0
 mouse_filter = 2
 script = ExtResource( 5 )
 
-[node name="menu_file" type="MenuButton" parent="ui/toolbar/hbox/menu_file"]
-margin_right = 27.0
+[node name="menu_file_cont" type="Control" parent="ui/toolbar/hbox/menu_file"]
+margin_right = 40.0
 margin_bottom = 32.0
-text = "File"
-flat = false
+rect_min_size = Vector2( 40, 0 )
+
+[node name="menu_file" type="MenuButton" parent="ui/toolbar/hbox/menu_file/menu_file_cont"]
+visible = false
+margin_left = -8.0
+margin_top = -4.0
+margin_right = 40.0
+margin_bottom = 36.0
+rect_min_size = Vector2( 40, 40 )
+icon = ExtResource( 24 )
+clip_text = true
 
 [node name="input_help" type="Button" parent="ui/toolbar/hbox/menu_file"]
-margin_left = 31.0
-margin_right = 63.0
+margin_left = 44.0
+margin_right = 76.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 32, 24 )
+focus_mode = 0
 toggle_mode = true
+enabled_focus_mode = 0
 icon = ExtResource( 1 )
 icon_align = 1
 expand_icon = true
@@ -194,173 +226,359 @@ Hold MMB + shift to move.
 Scroll to zoom.
 Press F to focus on selected.
 
-To get started, drag a chunkfile to this window.
-(open only one at a time)"
+To get started, drag a chunkfile to this window."
 
 [node name="input_clear" type="Button" parent="ui/toolbar/hbox/menu_file"]
-margin_left = 67.0
-margin_right = 105.0
+visible = false
+margin_left = 80.0
+margin_right = 118.0
 margin_bottom = 32.0
 text = "Clear"
 
 [node name="input_save" type="Button" parent="ui/toolbar/hbox/menu_file"]
-margin_left = 109.0
-margin_right = 144.0
+visible = false
+margin_left = 122.0
+margin_right = 157.0
 margin_bottom = 32.0
 text = "Save"
 
 [node name="spacer" type="Control" parent="ui/toolbar/hbox"]
-margin_left = 148.0
-margin_right = 148.0
+margin_left = 80.0
+margin_right = 80.0
 margin_bottom = 32.0
 
-[node name="input_toggle_baked_collision" type="Button" parent="ui/toolbar/hbox"]
-margin_left = 152.0
-margin_right = 192.0
-margin_bottom = 32.0
-toggle_mode = true
-icon = ExtResource( 16 )
-
-[node name="input_toggle_physmodels" type="Button" parent="ui/toolbar/hbox"]
-visible = false
-margin_left = 196.0
-margin_right = 236.0
-margin_bottom = 32.0
-toggle_mode = true
-icon = ExtResource( 17 )
-
-[node name="input_toggle_rendermodels" type="Button" parent="ui/toolbar/hbox"]
-margin_left = 196.0
-margin_right = 236.0
-margin_bottom = 32.0
-toggle_mode = true
-pressed = true
-icon = ExtResource( 11 )
-
-[node name="input_toggle_lights" type="Button" parent="ui/toolbar/hbox"]
-margin_left = 240.0
-margin_right = 280.0
-margin_bottom = 32.0
-toggle_mode = true
-pressed = true
-icon = ExtResource( 7 )
-
-[node name="hbox" type="HBoxContainer" parent="ui"]
+[node name="editor_world" type="HBoxContainer" parent="ui"]
 margin_top = 40.0
-margin_right = 1920.0
-margin_bottom = 1080.0
+margin_right = 640.0
+margin_bottom = 480.0
 mouse_filter = 2
 size_flags_vertical = 3
+script = ExtResource( 25 )
 
-[node name="selector" type="PanelContainer" parent="ui/hbox"]
+[node name="selector" type="PanelContainer" parent="ui/editor_world"]
 margin_right = 256.0
-margin_bottom = 1040.0
+margin_bottom = 440.0
 rect_min_size = Vector2( 256, 0 )
 script = ExtResource( 10 )
 
-[node name="spacer" type="Control" parent="ui/hbox"]
+[node name="viewport_area" type="Control" parent="ui/editor_world"]
 margin_left = 260.0
-margin_right = 1564.0
-margin_bottom = 1040.0
+margin_right = 284.0
+margin_bottom = 440.0
 mouse_filter = 2
 size_flags_horizontal = 3
+script = ExtResource( 7 )
 
-[node name="Label" type="Label" parent="ui/hbox/spacer"]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -152.0
-margin_top = -19.0
-margin_bottom = -1.0
-text = "Press F to focus on selected"
-
-[node name="spacer" type="Control" parent="ui/hbox/spacer"]
-margin_left = 260.0
-margin_right = 1564.0
-margin_bottom = 1040.0
+[node name="gizmocontainer" type="ViewportContainer" parent="ui/editor_world/viewport_area"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = -128.0
+margin_right = 128.0
+margin_bottom = 128.0
 mouse_filter = 2
-size_flags_horizontal = 3
+mouse_default_cursor_shape = 3
+script = ExtResource( 19 )
 
-[node name="Label" type="Label" parent="ui/hbox/spacer/spacer"]
+[node name="viewport" type="Viewport" parent="ui/editor_world/viewport_area/gizmocontainer"]
+size = Vector2( 256, 256 )
+own_world = true
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="gizmo_translation" type="Spatial" parent="ui/editor_world/viewport_area/gizmocontainer/viewport"]
+script = ExtResource( 6 )
+
+[node name="rod_x" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.5, 0, 0 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 6 )
+material = ExtResource( 17 )
+
+[node name="rod_y" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 6 )
+material = ExtResource( 16 )
+
+[node name="rod_z" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 0.5 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 6 )
+material = ExtResource( 11 )
+
+[node name="tip_x" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 1.1, 0, 0 )
+layers = 255
+cast_shadow = 0
+calculate_tangents = false
+mesh = SubResource( 11 )
+material = ExtResource( 17 )
+
+[node name="tip_y" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0 )
+layers = 255
+cast_shadow = 0
+calculate_tangents = false
+mesh = SubResource( 11 )
+material = ExtResource( 16 )
+
+[node name="tip_z" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 1.1 )
+layers = 255
+cast_shadow = 0
+calculate_tangents = false
+mesh = SubResource( 11 )
+material = ExtResource( 11 )
+
+[node name="plane_yz" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0.25, 0.25 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 12 )
+material = ExtResource( 17 )
+
+[node name="plane_xz" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.25 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 12 )
+material = ExtResource( 16 )
+
+[node name="plane_xy" type="CSGMesh" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0.25, 0.25, 0 )
+layers = 255
+cast_shadow = 0
+mesh = SubResource( 12 )
+material = ExtResource( 11 )
+
+[node name="body_rod_x" type="StaticBody" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation/body_rod_x"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+shape = SubResource( 13 )
+
+[node name="body_rod_y" type="StaticBody" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+
+[node name="CollisionShape" type="CollisionShape" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation/body_rod_y"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+shape = SubResource( 13 )
+
+[node name="body_rod_z" type="StaticBody" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation/body_rod_z"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
+shape = SubResource( 13 )
+
+[node name="body_plane_yz" type="StaticBody" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation/body_plane_yz"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.15, 0 )
+shape = SubResource( 14 )
+
+[node name="body_plane_xz" type="StaticBody" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation/body_plane_xz"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.15, 0 )
+shape = SubResource( 14 )
+
+[node name="body_plane_xy" type="StaticBody" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation"]
+
+[node name="CollisionShape" type="CollisionShape" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmo_translation/body_plane_xy"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.15, 0 )
+shape = SubResource( 14 )
+
+[node name="gizmocam" type="Spatial" parent="ui/editor_world/viewport_area/gizmocontainer/viewport"]
+script = ExtResource( 18 )
+
+[node name="cam" type="Camera" parent="ui/editor_world/viewport_area/gizmocontainer/viewport/gizmocam"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4 )
+fov = 50.0
+
+[node name="3d_cursor" type="TextureRect" parent="ui/editor_world/viewport_area"]
+margin_right = 40.0
+margin_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource( 20 )
+script = ExtResource( 22 )
+
+[node name="rect" type="ColorRect" parent="ui/editor_world/viewport_area/3d_cursor"]
+margin_right = 40.0
+margin_bottom = 40.0
+mouse_filter = 2
+color = Color( 0, 0, 0, 0.501961 )
+
+[node name="title" type="Label" parent="ui/editor_world/viewport_area/3d_cursor"]
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -152.0
-margin_top = -19.0
-margin_bottom = -1.0
-text = "Press F to focus on selected"
+margin_right = 40.0
+margin_bottom = 18.0
+custom_fonts/font = ExtResource( 21 )
+text = "Label"
 
-[node name="inspector" type="PanelContainer" parent="ui/hbox"]
-margin_left = 1568.0
-margin_right = 1920.0
-margin_bottom = 1040.0
+[node name="inspector" type="PanelContainer" parent="ui/editor_world"]
+margin_left = 288.0
+margin_right = 640.0
+margin_bottom = 440.0
 rect_min_size = Vector2( 352, 0 )
 
-[node name="ScrollContainer" type="ScrollContainer" parent="ui/hbox/inspector"]
+[node name="ScrollContainer" type="ScrollContainer" parent="ui/editor_world/inspector"]
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 348.0
-margin_bottom = 1036.0
+margin_bottom = 436.0
 
-[node name="vbox" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer"]
+[node name="vbox" type="VBoxContainer" parent="ui/editor_world/inspector/ScrollContainer"]
 margin_right = 344.0
 margin_bottom = 56.0
 size_flags_horizontal = 3
 
-[node name="menu_selected_title" type="PanelContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+[node name="menu_selected_title" type="PanelContainer" parent="ui/editor_world/inspector/ScrollContainer/vbox"]
 margin_right = 344.0
 margin_bottom = 26.0
 script = ExtResource( 8 )
 
-[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_title"]
+[node name="Label" type="Label" parent="ui/editor_world/inspector/ScrollContainer/vbox/menu_selected_title"]
 margin_left = 4.0
 margin_top = 4.0
 margin_right = 340.0
 margin_bottom = 22.0
 text = "Selected type: non"
 
-[node name="menu_selected_cityobj" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+[node name="menu_selected_cityobj" type="VBoxContainer" parent="ui/editor_world/inspector/ScrollContainer/vbox"]
 margin_top = 30.0
 margin_right = 344.0
 margin_bottom = 52.0
 script = ExtResource( 4 )
 
-[node name="mdl_inputs" type="HBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj"]
+[node name="mdl_inputs" type="HBoxContainer" parent="ui/editor_world/inspector/ScrollContainer/vbox/menu_selected_cityobj"]
 margin_right = 344.0
 margin_bottom = 22.0
 
-[node name="Label" type="Label" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/mdl_inputs"]
+[node name="Label" type="Label" parent="ui/editor_world/inspector/ScrollContainer/vbox/menu_selected_cityobj/mdl_inputs"]
 margin_top = 2.0
 margin_right = 141.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 text = "Model id:"
 
-[node name="input_mdl" type="TextEdit" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/mdl_inputs"]
+[node name="input_mdl" type="TextEdit" parent="ui/editor_world/inspector/ScrollContainer/vbox/menu_selected_cityobj/mdl_inputs"]
 margin_left = 145.0
 margin_right = 287.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 0, 22 )
 size_flags_horizontal = 3
 
-[node name="input_mdl_ok" type="Button" parent="ui/hbox/inspector/ScrollContainer/vbox/menu_selected_cityobj/mdl_inputs"]
+[node name="input_mdl_ok" type="Button" parent="ui/editor_world/inspector/ScrollContainer/vbox/menu_selected_cityobj/mdl_inputs"]
 margin_left = 291.0
 margin_right = 344.0
 margin_bottom = 22.0
 text = "Change"
 
-[node name="menu_selected_light" type="VBoxContainer" parent="ui/hbox/inspector/ScrollContainer/vbox"]
+[node name="menu_selected_light" type="VBoxContainer" parent="ui/editor_world/inspector/ScrollContainer/vbox"]
 margin_top = 56.0
 margin_right = 344.0
 margin_bottom = 56.0
 script = ExtResource( 9 )
 
+[node name="editor_materials" type="HBoxContainer" parent="ui"]
+visible = false
+margin_top = 32.0
+margin_right = 640.0
+margin_bottom = 480.0
+size_flags_vertical = 3
+script = ExtResource( 23 )
+
+[node name="appmenu" type="Control" parent="."]
+script = ExtResource( 27 )
+
+[node name="panel" type="PanelContainer" parent="appmenu"]
+margin_top = 40.0
+margin_right = 198.0
+margin_bottom = 198.0
+rect_clip_content = true
+custom_styles/panel = ExtResource( 28 )
+
+[node name="vbox" type="VBoxContainer" parent="appmenu/panel"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 190.0
+margin_bottom = 150.0
+
+[node name="title_project" type="Label" parent="appmenu/panel/vbox"]
+margin_right = 182.0
+margin_bottom = 22.0
+theme = SubResource( 17 )
+valign = 1
+
+[node name="but_open" type="Button" parent="appmenu/panel/vbox"]
+margin_top = 26.0
+margin_right = 182.0
+margin_bottom = 46.0
+text = "Open Project"
+flat = true
+align = 0
+
+[node name="but_close" type="Button" parent="appmenu/panel/vbox"]
+margin_top = 50.0
+margin_right = 182.0
+margin_bottom = 70.0
+text = "Close Project"
+icon = ExtResource( 29 )
+flat = true
+align = 0
+
+[node name="but_save" type="Button" parent="appmenu/panel/vbox"]
+margin_top = 74.0
+margin_right = 182.0
+margin_bottom = 94.0
+text = "Save Project"
+icon = ExtResource( 29 )
+flat = true
+align = 0
+
+[node name="but_import" type="Button" parent="appmenu/panel/vbox"]
+margin_top = 98.0
+margin_right = 182.0
+margin_bottom = 118.0
+text = "Import Chunk"
+icon = ExtResource( 29 )
+flat = true
+align = 0
+
+[node name="but_export" type="Button" parent="appmenu/panel/vbox"]
+margin_top = 122.0
+margin_right = 182.0
+margin_bottom = 142.0
+text = "Export Chunk"
+flat = true
+align = 0
+
+[node name="but_toggle" type="TextureButton" parent="appmenu"]
+margin_right = 40.0
+margin_bottom = 40.0
+toggle_mode = true
+texture_normal = ExtResource( 24 )
+texture_pressed = ExtResource( 30 )
+texture_hover = ExtResource( 31 )
+
 [node name="env" type="Spatial" parent="."]
 
 [node name="DirectionalLight" type="DirectionalLight" parent="env"]
 transform = Transform( 0.727497, -0.537737, 0.426129, 0, 0.621079, 0.783748, -0.68611, -0.570174, 0.451834, 0, 0, 0 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="env"]
+environment = SubResource( 15 )
 
 [node name="editor" type="Spatial" parent="."]
 
@@ -381,99 +599,6 @@ far = 10000.0
 transform = Transform( 1.08013, 0, 0, 0, 1.08013, 0, 0, 0, 1.08013, 0, 0, -1 )
 mesh = SubResource( 3 )
 material = SubResource( 5 )
-
-[node name="gizmos" type="Spatial" parent="editor"]
-
-[node name="gizmo_translation" type="Spatial" parent="editor/gizmos"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.230934, -0.541786, -3.39796 )
-visible = false
-script = ExtResource( 6 )
-
-[node name="rod_x" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.5, 0, 0 )
-layers = 255
-cast_shadow = 0
-mesh = SubResource( 6 )
-material = SubResource( 7 )
-
-[node name="rod_y" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0 )
-layers = 255
-cast_shadow = 0
-mesh = SubResource( 6 )
-material = SubResource( 8 )
-
-[node name="rod_z" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 0.5 )
-layers = 255
-cast_shadow = 0
-mesh = SubResource( 6 )
-material = SubResource( 9 )
-
-[node name="tip_x" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 1.1, 0, 0 )
-layers = 255
-cast_shadow = 0
-calculate_tangents = false
-mesh = SubResource( 11 )
-material = SubResource( 7 )
-
-[node name="tip_y" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0 )
-layers = 255
-cast_shadow = 0
-calculate_tangents = false
-mesh = SubResource( 11 )
-material = SubResource( 8 )
-
-[node name="tip_z" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0, 0, 1.1 )
-layers = 255
-cast_shadow = 0
-calculate_tangents = false
-mesh = SubResource( 11 )
-material = SubResource( 9 )
-
-[node name="plane_yz" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0.2, 0.2 )
-layers = 255
-cast_shadow = 0
-mesh = SubResource( 12 )
-material = SubResource( 7 )
-
-[node name="plane_xz" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, 0.2 )
-layers = 255
-cast_shadow = 0
-mesh = SubResource( 12 )
-material = SubResource( 8 )
-
-[node name="plane_xy" type="CSGMesh" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1.91069e-15, -4.37114e-08, -1, -1, -4.37114e-08, 0, -4.37114e-08, 1, -4.37114e-08, 0.2, 0.2, 1.19209e-07 )
-layers = 255
-cast_shadow = 0
-mesh = SubResource( 12 )
-material = SubResource( 9 )
-
-[node name="body_x" type="StaticBody" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
-
-[node name="CollisionShape" type="CollisionShape" parent="editor/gizmos/gizmo_translation/body_x"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
-shape = SubResource( 13 )
-
-[node name="body_y" type="StaticBody" parent="editor/gizmos/gizmo_translation"]
-
-[node name="CollisionShape" type="CollisionShape" parent="editor/gizmos/gizmo_translation/body_y"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
-shape = SubResource( 13 )
-
-[node name="body_z" type="StaticBody" parent="editor/gizmos/gizmo_translation"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
-
-[node name="CollisionShape" type="CollisionShape" parent="editor/gizmos/gizmo_translation/body_z"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )
-shape = SubResource( 13 )
 
 [node name="chunk" type="Spatial" parent="."]
 

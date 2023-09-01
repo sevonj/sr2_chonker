@@ -49,7 +49,7 @@ func _create_menu():
 	input_parent = create_option_optionbut()
 	input_parent.connect("item_selected", self, "_on_type_set")
 	
-	container.add_child(create_option_title("Unknown 10"))
+	container.add_child(create_option_title("Unknown 0x28"))
 	container.add_child(input_unk10)
 	container.add_child(create_option_title("Inner radius"))
 	container.add_child(input_radius_inner)
@@ -71,7 +71,7 @@ func _update_properties(unk10, radius_inner, radius_outer, render_dist, parent, 
 	input_parent.add_item("-1: None", 0)
 	for i in Globals.chunk.cityobjects.size():
 		var cobj = Globals.chunk.cityobjects[i]
-		var itemname = str(i) + ": " + cobj.name
+		var itemname = str(i) + ": " + cobj.displayname
 		input_parent.add_item(itemname)
 	input_parent.selected = parent + 1
 	input_type.selected = type

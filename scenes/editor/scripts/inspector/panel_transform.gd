@@ -46,7 +46,7 @@ func _create_menu(disable_basis:bool=false):
 	input_scale.get_node("edity").connect("text_changed", self, "_set_transform")
 	input_scale.get_node("editz").connect("text_changed", self, "_set_transform")
 	
-	vbox_contents.add_child(create_option_tooltip("I haven't bothered to make the gizmo work yet. You have to type the position manually."))	
+	vbox_contents.add_child(create_option_tooltip("I haven't bothered to make the rotation/scale gizmos yet. You have to type them manually."))
 
 func _set_transform(_t):
 	var origin = Vector3(

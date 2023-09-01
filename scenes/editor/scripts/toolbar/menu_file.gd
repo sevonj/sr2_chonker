@@ -1,14 +1,13 @@
 extends Control
 
 var target
-var file_import_dialog = preload("res://scenes/editor/scripts/import_dialog.gd")
 
-onready var input_filemenu = $menu_file
+onready var input_filemenu = $menu_file_cont/menu_file
 onready var input_clear = $input_clear
 onready var input_save = $input_save
 onready var ui = get_tree().root.get_node("main").get_node("ui")
 
-const ITEM_IMPORT = 0
+const ITEM_IMPORT = 1
 
 
 func _ready():
@@ -16,12 +15,14 @@ func _ready():
 	input_clear.connect("pressed", ChunkEditor, "_clear")
 	input_save.connect("pressed", ChunkEditor, "_save")
 	
+	input_filemenu.get_popup().add_item("This menu is work in progress.")
 	input_filemenu.get_popup().add_item("Import chunk", ITEM_IMPORT)
+	
 	
 
 func _file_pressed(id):
 	match id:
 		ITEM_IMPORT:
-			var dialog = file_import_dialog.new()
+			var dialog = UiModalImportChunk.new()
 			ui.add_child(dialog)
 			

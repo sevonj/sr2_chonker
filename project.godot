@@ -8,6 +8,28 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Spatial",
+"class": "Chunk",
+"language": "GDScript",
+"path": "res://scenes/editor/scripts/chunk.gd"
+}, {
+"base": "WindowDialog",
+"class": "UiModalExportChunk",
+"language": "GDScript",
+"path": "res://ui/windows/ui_modal_export_chunk.gd"
+}, {
+"base": "WindowDialog",
+"class": "UiModalImportChunk",
+"language": "GDScript",
+"path": "res://ui/windows/ui_modal_import_chunk.gd"
+} ]
+_global_script_class_icons={
+"Chunk": "",
+"UiModalExportChunk": "",
+"UiModalImportChunk": ""
+}
+
 [application]
 
 config/name="sr2_chonker"
@@ -22,13 +44,14 @@ config/windows_native_icon="res://icon.ico"
 Globals="*res://autoload/Globals.gd"
 ChunkHandler="*res://autoload/ChunkHandler.cs"
 ChunkEditor="*res://autoload/ChunkEditor.gd"
+MenuHelper="*res://autoload/MenuHelper.gd"
+ProjectMan="*res://autoload/projectman.gd"
 
 [display]
 
-window/size/width=1920
-window/size/height=1080
-window/size/test_width=1920
-window/size/test_height=1080
+window/size/width=640
+window/size/height=480
+window/size/borderless=true
 
 [editor_plugins]
 

@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=12 format=2]
+[gd_resource type="Theme" load_steps=19 format=2]
 
 [ext_resource path="res://ui/stylebox_2008_button_pressed.tres" type="StyleBox" id=1]
 [ext_resource path="res://ui/stylebox_2008_button_normal.tres" type="StyleBox" id=2]
@@ -10,19 +10,41 @@
 [ext_resource path="res://ui/stylebox_panel2.tres" type="StyleBox" id=8]
 [ext_resource path="res://ui/stylebox_tab_disabled.tres" type="StyleBox" id=9]
 [ext_resource path="res://ui/stylebox_tooltip.tres" type="StyleBox" id=10]
-[ext_resource path="res://ui/font_tooltip.tres" type="DynamicFont" id=11]
+[ext_resource path="res://ui/font_lores.tres" type="DynamicFont" id=11]
+[ext_resource path="res://ui/stylebox_empty.tres" type="StyleBox" id=12]
+[ext_resource path="res://ui/stylebox_label.tres" type="StyleBox" id=13]
+[ext_resource path="res://ui/stylebox_window.tres" type="StyleBox" id=14]
+[ext_resource path="res://ui/tex_checkmark_checked_greyed.png" type="Texture" id=15]
+[ext_resource path="res://ui/tex_checkmark_unchecked_greyed.png" type="Texture" id=16]
+[ext_resource path="res://ui/tex_checkmark_unchecked.png" type="Texture" id=17]
+[ext_resource path="res://ui/tex_checkmark_checked.png" type="Texture" id=18]
 
 [resource]
 default_font = ExtResource( 4 )
 Button/styles/hover = ExtResource( 3 )
 Button/styles/normal = ExtResource( 2 )
 Button/styles/pressed = ExtResource( 1 )
+CheckBox/colors/font_color_disabled = Color( 0.901961, 0.901961, 0.901961, 0.498039 )
+CheckBox/icons/checked = ExtResource( 18 )
+CheckBox/icons/checked_disabled = ExtResource( 15 )
+CheckBox/icons/unchecked = ExtResource( 17 )
+CheckBox/icons/unchecked_disabled = ExtResource( 16 )
+CheckBox/styles/disabled = ExtResource( 12 )
+CheckBox/styles/focus = ExtResource( 12 )
+CheckBox/styles/hover = ExtResource( 12 )
+CheckBox/styles/hover_pressed = ExtResource( 12 )
+CheckBox/styles/normal = ExtResource( 12 )
+CheckBox/styles/pressed = ExtResource( 12 )
+Label/styles/normal = ExtResource( 13 )
 Panel/styles/panel = ExtResource( 6 )
 PanelContainer/styles/panel = ExtResource( 6 )
 TabContainer/styles/panel = ExtResource( 8 )
 TabContainer/styles/tab_bg = ExtResource( 5 )
 TabContainer/styles/tab_disabled = ExtResource( 9 )
 TabContainer/styles/tab_fg = ExtResource( 7 )
+Tabs/styles/tab_fg = ExtResource( 7 )
 TooltipLabel/fonts/font = ExtResource( 11 )
 TooltipPanel/styles/panel = ExtResource( 10 )
 Tree/styles/bg = ExtResource( 8 )
+WindowDialog/colors/title_color = Color( 1, 1, 1, 1 )
+WindowDialog/styles/panel = ExtResource( 14 )

@@ -1,0 +1,6 @@
+The JSON counterparts of the structs are intended to be serialized and deserialized into/from JSON
+(you don't say). JSON files are used by the editor and converted to binary and repacked on export.
+
+Structure of these should the same as the normal type, with exception that instead of using "num_x"
+and delivering the "x" block separately, any obvious child data is nested into its parent.
+Uninitialized runtime only fields are also stripped.

@@ -1,0 +1,10 @@
+[gd_resource type="Theme" load_steps=4 format=2]
+
+[ext_resource path="res://ui/stylebox_2008_segbutton_r_normal.tres" type="StyleBox" id=1]
+[ext_resource path="res://ui/stylebox_2008_segbutton_r_pressed.tres" type="StyleBox" id=2]
+[ext_resource path="res://ui/stylebox_2008_segbutton_r_hover.tres" type="StyleBox" id=3]
+
+[resource]
+Button/styles/hover = ExtResource( 3 )
+Button/styles/normal = ExtResource( 1 )
+Button/styles/pressed = ExtResource( 2 )
