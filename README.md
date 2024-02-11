@@ -1,5 +1,5 @@
 > [!NOTE] 
-> The project is kind of in limbo due to lack of free time, motivation, and getting stuck reverse engineering the files.  
+> The project is kind of in limbo due to lack of free time, motivation, and getting stuck reverse engineering the files. 
 > If you're interested in what I've learned of the file format, check out the autoload/Chunk directory in [0.0.7](https://github.com/sevonj/sr2_chonker/tree/0.0.7) branch.
 
 # sr2_chonker
