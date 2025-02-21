@@ -4,6 +4,10 @@ Restart from scratch branch
 
 ## Development
 
+### Repository contents
+- `./project/` - Godot project
+- `./libgodotsr2` - The editor source code, a Rust GDExtension
+
 ### Building
 
 **Requirements:**  
@@ -14,7 +18,7 @@ Restart from scratch branch
 1. Build the Rust source by running `cargo build` in the libgodotsr2 directory.
 2. Export godot project like normal or run it in the editor.
 
-Read more about Rust extensions at [Godot Docs](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/what_is_gdextension.html)
+Read more about GDExtension at [Godot Docs](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/what_is_gdextension.html)
 
 <sub><sup>(Volition pls share documentation)</sup></sub>  
 <sub><sup>(rip)</sup></sub>
