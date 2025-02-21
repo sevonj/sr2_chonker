@@ -6,7 +6,7 @@ Restart from scratch branch
 
 ### Repository contents
 - `./project` - Godot project
-- `./libgodotsr2` - The editor source code, a Rust GDExtension
+- `./libgodotsr2` - Editor source code, a Rust GDExtension
 
 ### Building
 
