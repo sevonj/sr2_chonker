@@ -13,6 +13,7 @@ pub enum ChunkError {
     IOError { source: std::io::Error },
     InvalidMagic(u32),
     InvalidVersion(u32),
+    LostTrack { msg: String, pos: i64 },
 }
 
 impl Error for ChunkError {}
@@ -29,6 +30,9 @@ impl std::fmt::Display for ChunkError {
                 f,
                 "Chunk has unknown version‽ Where'd you get this from? (got '{value}')"
             ),
+            ChunkError::LostTrack { msg, pos } => {
+                write!(f, "Something's gone wrong, lost track of chunk. (pos: {pos:#X}, message: '{msg}')")
+            }
         }
     }
 }

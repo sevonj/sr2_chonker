@@ -127,3 +127,14 @@ impl Sr2ChunkHeader {
     pub const MAGIC: u32 = 0xBBCACA12;
     pub const VERION: u32 = 121;
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_sr2_chunk_header_size() {
+        assert_eq!(size_of::<Sr2ChunkHeader>(), 0x100);
+    }
+}
