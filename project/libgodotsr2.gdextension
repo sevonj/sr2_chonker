@@ -1,0 +1,16 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.3
+reloadable = true
+
+[libraries]
+linux.debug.x86_64 = "res://../libgodotsr2/target/debug/libgodotsr2.so"
+linux.release.x86_64 = "res://../libgodotsr2/target/release/libgodotsr2.so"
+windows.debug.x86_64 = "res://../libgodotsr2/target/debug/hot_reload.dll"
+windows.release.x86_64 = "res://../libgodotsr2/target/release/hot_reload.dll"
+macos.debug = "res://../libgodotsr2/target/debug/libgodotsr2.dylib"
+macos.release = "res://../libgodotsr2/target/release/libgodotsr2.dylib"
+macos.debug.arm64 = "res://../libgodotsr2/target/debug/libgodotsr2.dylib"
+macos.release.arm64 = "res://../libgodotsr2/target/release/libgodotsr2.dylib"
+web.debug.wasm32 = "res://../libgodotsr2/target/wasm32-unknown-emscripten/debug/hot_reload.wasm"
+web.release.wasm32 = "res://../libgodotsr2/target/wasm32-unknown-emscripten/release/hot_reload.wasm"

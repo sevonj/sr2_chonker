@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://bgo2ogo1luk6p"]
+
+[ext_resource type="FontVariation" uid="uid://b4yxgcga308wx" path="res://assets/ui/fonts/font_default.tres" id="1_f0l3v"]
+
+[resource]
+default_font = ExtResource("1_f0l3v")

@@ -1,13 +1,20 @@
-> [!NOTE] 
-> The project is kind of in limbo due to lack of free time, motivation, and getting stuck reverse engineering the files. 
-> If you're interested in what I've learned of the file format, check out the autoload/Chunk directory in [0.0.7](https://github.com/sevonj/sr2_chonker/tree/0.0.7) branch.
+# SR2 Chonker
+Saints Row 2 Chunk Editor  
+Restart from scratch branch
 
-# sr2_chonker
-Saints Row 2 Chunk Editor
+## Development
 
-Project uses Godot Mono 3.5.2
-![image](https://github.com/sevonj/sr2_chonker/assets/100710152/9009c604-ffee-42ba-ad33-748aea368309)
+### Building
 
-<sub><sup>(Volition pls share documentation)</sup></sub>
+**Requirements:**  
+- [Godot 4.3](https://godotengine.org/)
+- [Rust programming language](https://www.rust-lang.org/)
 
-<!--![image](https://user-images.githubusercontent.com/66796269/197340828-8198c79c-1a1c-4c98-af9a-a90c8a4c5284.png)-->
+**Steps:**  
+1. Build the Rust source by running `cargo build` in the libgodotsr2 directory.
+2. Export godot project like normal or run it in the editor.
+
+Read more about Rust extensions at [Godot Docs](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/what_is_gdextension.html)
+
+<sub><sup>(Volition pls share documentation)</sup></sub>  
+<sub><sup>(rip)</sup></sub>
