@@ -12,14 +12,14 @@
 
 mod aabb;
 mod chunk;
-mod chunk_error;
 mod city_object;
+mod error;
 mod transform;
 mod vector;
 
 pub use chunk::Chunk;
-pub use chunk_error::ChunkError;
 pub use city_object::CityObjectModel;
+pub use error::ChunkError;
 
 pub use aabb::{godot_aabb_to_sr2, sr2_aabb_to_godot};
 pub use transform::{godot_xform_to_sr2, sr2_xform_to_godot};
