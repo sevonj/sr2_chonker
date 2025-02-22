@@ -11,7 +11,7 @@ use godot::prelude::*;
 use std::io::{BufRead, BufReader, Read, Seek};
 use zerocopy::FromBytes;
 
-use godot::{classes::CsgBox3D, obj::WithBaseField};
+use godot::obj::WithBaseField;
 
 use crate::sr2_types::{
     Sr2ChunkHeader, Sr2CityObjectModel, Sr2GpuMeshUnk0, Sr2Unknown3, Sr2Unknown4, Sr2Vector,
