@@ -8,6 +8,7 @@
 
 use zerocopy_derive::{FromBytes, IntoBytes};
 
+/// Probably part of objects or their models somehow
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
 pub struct Sr2Unknown4 {
@@ -21,6 +22,6 @@ mod tests {
 
     #[test]
     fn test_sr2_unknown4_size() {
-        assert_eq!(size_of::<Sr2Unknown4>(), 0xd * 4);
+        assert_eq!(size_of::<Sr2Unknown4>(), 0x34);
     }
 }

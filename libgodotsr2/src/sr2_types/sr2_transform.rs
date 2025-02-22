@@ -26,6 +26,6 @@ mod tests {
 
     #[test]
     fn test_sr2_transform_size() {
-        assert_eq!(size_of::<Sr2Transform>(), 12 * 3);
+        assert_eq!(size_of::<Sr2Transform>(), 0x24);
     }
 }

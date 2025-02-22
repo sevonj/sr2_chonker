@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://n0qx8fti4787"]
+
+[ext_resource type="Shader" path="res://assets/materials/shad_wireframe.gdshader" id="1_72k40"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_72k40")
+shader_parameter/modelColor = Color(1, 1, 1, 1)
+shader_parameter/wireframeColor = null
+shader_parameter/width = 1.0
+shader_parameter/modelOpacity = 1.0
+shader_parameter/filtered = true

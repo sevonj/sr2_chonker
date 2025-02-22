@@ -15,11 +15,13 @@ mod chunk;
 mod city_object;
 mod error;
 mod transform;
+mod unk5;
 mod vector;
 
 pub use chunk::Chunk;
 pub use city_object::CityObjectModel;
 pub use error::ChunkError;
+pub use unk5::MaybeStaticCollision;
 
 pub use aabb::{godot_aabb_to_sr2, sr2_aabb_to_godot};
 pub use transform::{godot_xform_to_sr2, sr2_xform_to_godot};

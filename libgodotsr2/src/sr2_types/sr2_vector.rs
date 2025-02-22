@@ -24,6 +24,6 @@ mod tests {
 
     #[test]
     fn test_sr2_vector_size() {
-        assert_eq!(size_of::<Sr2Vector>(), 12);
+        assert_eq!(size_of::<Sr2Vector>(), 0x0c);
     }
 }

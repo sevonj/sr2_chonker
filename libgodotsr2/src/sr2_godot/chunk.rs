@@ -11,13 +11,11 @@ use godot::prelude::*;
 use std::io::{BufRead, BufReader, Read, Seek};
 use zerocopy::FromBytes;
 
-use godot::obj::WithBaseField;
-
 use crate::sr2_types::{
     Sr2ChunkHeader, Sr2CityObjectModel, Sr2GpuMeshUnk0, Sr2Unknown3, Sr2Unknown4, Sr2Vector,
 };
 
-use super::{sr2_vec_to_godot, ChunkError, CityObjectModel};
+use super::{sr2_vec_to_godot, ChunkError, CityObjectModel, MaybeStaticCollision};
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
 #[derive(Debug, GodotClass)]
@@ -34,6 +32,8 @@ pub struct Chunk {
     pub unk_bb_min: Vector3,
     /// Found next to collision mopp
     pub unk_bb_max: Vector3,
+
+    pub unknown5: Gd<MaybeStaticCollision>,
 
     pub city_object_models: Vec<Gd<CityObjectModel>>,
 
@@ -53,6 +53,8 @@ impl INode for Chunk {
         for cobj_model in self.city_object_models.clone() {
             self.base_mut().add_child(&cobj_model);
         }
+        let unknown5 = self.unknown5.clone();
+        self.base_mut().add_child(&unknown5);
     }
 }
 
@@ -81,9 +83,9 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
-        let num_rendermodels = reader.read_u32::<LittleEndian>()?;
+        let num_gpu_meshes = reader.read_u32::<LittleEndian>()?;
         let num_city_object_models = reader.read_u32::<LittleEndian>()?;
-        let num_models = reader.read_u32::<LittleEndian>()?;
+        let _num_models = reader.read_u32::<LittleEndian>()?;
         let num_unknown3 = reader.read_u32::<LittleEndian>()?;
         let num_unknown4 = reader.read_u32::<LittleEndian>()?;
 
@@ -94,7 +96,7 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
-        for _ in 0..num_rendermodels {
+        for _ in 0..num_gpu_meshes {
             let mut buf = vec![0; size_of::<Sr2GpuMeshUnk0>()];
             reader.read_exact(&mut buf)?;
             rendermodel_unk0s.push(Sr2GpuMeshUnk0::read_from_bytes(&buf).unwrap());
@@ -117,7 +119,6 @@ impl Chunk {
         }
 
         seek_align(reader, 16)?;
-        godot_print!("tell: {:#X}", reader.stream_position().unwrap());
 
         for _ in 0..num_unknown4 {
             let mut buf = vec![0; size_of::<Sr2Unknown4>()];
@@ -126,13 +127,16 @@ impl Chunk {
         }
 
         seek_align(reader, 16)?;
-        godot_print!("tell: {:#X}", reader.stream_position().unwrap());
 
-        // TODO: Unskip
         // maybe collision vertices.
-        // Type: vector3
-        let num_unk_worldpos = reader.read_u32::<LittleEndian>()?;
-        reader.seek_relative(num_unk_worldpos as i64 * 12)?;
+        let num_unknown5_vertices = reader.read_u32::<LittleEndian>()?;
+        let mut unknown5_vbuf = vec![];
+        for _ in 0..num_unknown5_vertices {
+            let mut buf = vec![0; size_of::<Sr2Vector>()];
+            reader.read_exact(&mut buf)?;
+            let vertex = sr2_vec_to_godot(&Sr2Vector::read_from_bytes(&buf).unwrap());
+            unknown5_vbuf.push(vertex);
+        }
 
         // Type: unknown 3B. triangle indices?
         let num_unknown6 = reader.read_u32::<LittleEndian>()?;
@@ -142,7 +146,7 @@ impl Chunk {
         let num_unknown7 = reader.read_u32::<LittleEndian>()?;
         reader.seek_relative(num_unknown7 as i64 * 4)?;
 
-        // Type: unknown 12B (recheck, were these floats or something?)
+        // Type: unknown 12B. Not vectors.
         let num_unknown8 = reader.read_u32::<LittleEndian>()?;
         reader.seek_relative(num_unknown8 as i64 * 12)?;
 
@@ -190,6 +194,8 @@ impl Chunk {
 
             unk_bb_min: sr2_vec_to_godot(&unk_bb_min),
             unk_bb_max: sr2_vec_to_godot(&unk_bb_max),
+
+            unknown5: MaybeStaticCollision::new(&unknown5_vbuf),
 
             city_object_models: city_object_models
                 .iter()
