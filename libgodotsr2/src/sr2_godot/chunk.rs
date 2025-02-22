@@ -19,8 +19,8 @@ use crate::sr2_types::{
 
 use super::{sr2_vec_to_godot, ChunkError, CityObjectModel};
 
+/// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
 #[derive(Debug, GodotClass)]
-#[allow(dead_code)]
 #[class(no_init, base=Node)]
 pub struct Chunk {
     /// Load zone???

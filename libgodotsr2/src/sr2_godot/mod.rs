@@ -5,7 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-//! This module contains Nodes and other Godot types that wrap the bare SR2 types.
+
+//! This module contains Godot-instanceable types that correspond to the bare SR2 types.
+//! Lossless conversion between the the two should eventually be implemented.
+//! This depends on [crate::sr2_types], but shouldn't depend on the editor.
 
 mod aabb;
 mod chunk;

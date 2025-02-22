@@ -9,6 +9,7 @@
 use godot::prelude::*;
 
 pub mod editor;
+pub mod sr2_godot;
 pub mod sr2_types;
 
 struct HotReload;

@@ -6,15 +6,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-//! Editor module
-//! Contains editor tools and other editor components, such as Godot-type wrappers for SR2 types.
+//! Contains editor components.
+//! Shouldn't depend on [crate::sr2_types] directly, but use [crate::sr2_godot] types instead.
 
 mod camera_cursor_gizmo;
 mod camera_rig_orbit;
 mod chonker_editor;
 mod gizmo3d;
 mod scene_grid;
-pub mod sr2;
 mod ui_browser_panel;
 mod ui_browser_textures;
 mod viewport_camera_panel;

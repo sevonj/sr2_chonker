@@ -6,17 +6,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use godot::prelude::*;
 use std::fs::File;
 use std::io::BufReader;
 
-use godot::classes::control::{LayoutPreset, MouseFilter, SizeFlags};
-use godot::prelude::*;
+use godot::classes::{
+    control::{LayoutPreset, MouseFilter, SizeFlags},
+    HBoxContainer, MarginContainer, SubViewport, SubViewportContainer,
+};
 
-use godot::classes::{HBoxContainer, MarginContainer, SubViewport, SubViewportContainer};
-
-use super::sr2::{Chunk, ChunkError};
 use super::UiBrowserPanel;
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
+use crate::sr2_godot::{Chunk, ChunkError};
 
 /// The root [Node] of an
 #[derive(Debug, GodotClass)]

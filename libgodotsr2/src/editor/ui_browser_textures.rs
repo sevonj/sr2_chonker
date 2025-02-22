@@ -10,7 +10,7 @@ use godot::prelude::*;
 
 use godot::classes::{IVBoxContainer, Label, VBoxContainer};
 
-use super::sr2::Chunk;
+use crate::sr2_godot::Chunk;
 
 #[derive(Debug, GodotClass)]
 #[class(no_init, base=VBoxContainer)]

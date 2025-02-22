@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-//! SR2 types module
+//! Raw SR2 types.
 //! The purpose of this module is to hold all SR2 types.
 //! No editor or Godot code allowed!
 
