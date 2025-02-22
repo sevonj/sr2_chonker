@@ -10,8 +10,8 @@ use godot::prelude::*;
 
 use godot::classes::{Control, IPanelContainer, PanelContainer, ScrollContainer, StyleBox};
 
-use crate::sr2_godot::Chunk;
 use super::UiBrowserTextures;
+use crate::sr2_godot::Chunk;
 
 /// The browser is the left side panel that lists chunk contents
 #[derive(Debug, GodotClass)]
