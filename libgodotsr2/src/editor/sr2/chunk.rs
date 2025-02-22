@@ -17,7 +17,7 @@ use crate::sr2_types::{
     Sr2ChunkHeader, Sr2CityObjectModel, Sr2GpuMeshUnk0, Sr2Unknown3, Sr2Unknown4, Sr2Vector,
 };
 
-use super::{sr2_vec_to_godot, ChunkError};
+use super::{sr2_vec_to_godot, ChunkError, CityObjectModel};
 
 #[derive(Debug, GodotClass)]
 #[allow(dead_code)]
@@ -35,19 +35,24 @@ pub struct Chunk {
     /// Found next to collision mopp
     pub unk_bb_max: Vector3,
 
+    pub city_object_models: Vec<Gd<CityObjectModel>>,
+
     base: Base<Node>,
 }
 
 #[godot_api]
 impl INode for Chunk {
     fn ready(&mut self) {
-        let mut bbox = CsgBox3D::new_alloc();
-        let bbox_size = self.bbox_max - self.bbox_min;
-        // Abs: temporary
-        bbox.set_size(bbox_size.abs());
-        bbox.set_global_position(self.bbox_min + bbox_size / 2.0);
+        // let mut bbox = CsgBox3D::new_alloc();
+        // let bbox_size = self.bbox_max - self.bbox_min;
+        // // Abs: temporary
+        // bbox.set_size(bbox_size.abs());
+        // bbox.set_global_position(self.bbox_min + bbox_size / 2.0);
+        // self.base_mut().add_child(&bbox);
 
-        self.base_mut().add_child(&bbox);
+        for cobj_model in self.city_object_models.clone() {
+            self.base_mut().add_child(&cobj_model);
+        }
     }
 }
 
@@ -175,16 +180,21 @@ impl Chunk {
             Sr2Vector::read_from_bytes(&buf).unwrap()
         };
 
-        // seek_align(reader, 16)?;
+        seek_align(reader, 16)?;
 
         Ok(Gd::from_init_fn(|base| Self {
-            bbox_min: sr2_vec_to_godot(header.bbox_min),
-            bbox_max: sr2_vec_to_godot(header.bbox_max),
+            bbox_min: sr2_vec_to_godot(&header.bbox_min),
+            bbox_max: sr2_vec_to_godot(&header.bbox_max),
 
             textures,
 
-            unk_bb_min: sr2_vec_to_godot(unk_bb_min),
-            unk_bb_max: sr2_vec_to_godot(unk_bb_max),
+            unk_bb_min: sr2_vec_to_godot(&unk_bb_min),
+            unk_bb_max: sr2_vec_to_godot(&unk_bb_max),
+
+            city_object_models: city_object_models
+                .iter()
+                .map(CityObjectModel::from_sr2)
+                .collect(),
 
             base,
         }))

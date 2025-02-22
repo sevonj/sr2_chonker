@@ -10,7 +10,7 @@ use godot::builtin::Vector3;
 
 use crate::sr2_types::Sr2Vector;
 
-pub fn sr2_aabb_to_godot(min: Sr2Vector, max: Sr2Vector) -> (Vector3, Vector3) {
+pub fn sr2_aabb_to_godot(min: &Sr2Vector, max: &Sr2Vector) -> (Vector3, Vector3) {
     let min = Vector3 {
         x: -max.x,
         y: min.y,
@@ -25,7 +25,7 @@ pub fn sr2_aabb_to_godot(min: Sr2Vector, max: Sr2Vector) -> (Vector3, Vector3) {
     (min, max)
 }
 
-pub fn godot_aabb_to_sr2(min: Sr2Vector, max: Sr2Vector) -> (Sr2Vector, Sr2Vector) {
+pub fn godot_aabb_to_sr2(min: &Sr2Vector, max: &Sr2Vector) -> (Sr2Vector, Sr2Vector) {
     let min = Sr2Vector {
         x: -max.x,
         y: min.y,
