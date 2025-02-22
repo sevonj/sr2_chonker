@@ -15,8 +15,8 @@ use godot::classes::{
     HBoxContainer, MarginContainer, SubViewport, SubViewportContainer,
 };
 
-use super::UiBrowserPanel;
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
+use super::{SceneAxisLines, UiBrowserPanel};
 use crate::sr2_godot::{Chunk, ChunkError};
 
 /// The root [Node] of an
@@ -27,6 +27,7 @@ pub struct ChonkerEditor {
 
     scn_camera: Gd<CameraRigOrbit>,
     scn_grid: Gd<SceneGrid>,
+    scn_axis: Gd<SceneAxisLines>,
 
     ui_hbox: Gd<HBoxContainer>,
     ui_browser: Gd<UiBrowserPanel>,
@@ -47,6 +48,7 @@ impl INode for ChonkerEditor {
 
             scn_camera: CameraRigOrbit::new_alloc(),
             scn_grid: SceneGrid::new_alloc(),
+            scn_axis: SceneAxisLines::new_alloc(),
 
             ui_hbox: HBoxContainer::new_alloc(),
             ui_browser: UiBrowserPanel::new_alloc(),
@@ -98,9 +100,13 @@ impl ChonkerEditor {
         scn_grid.bind_mut().follow_target = Some(scn_camera.clone().upcast());
         scn_grid.set_name("scn_grid");
 
+        let mut scn_axis = self.scn_axis.clone();
+        scn_axis.set_name("scn_axis");
+
         let mut viewport = self.viewport.clone();
         viewport.add_child(&scn_camera);
         viewport.add_child(&scn_grid);
+        viewport.add_child(&scn_axis);
         viewport.set_name("viewport");
     }
 
