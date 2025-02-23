@@ -162,7 +162,7 @@ impl Chunk {
     pub const VERION: u32 = 121;
 
     /// Open a .chunk_pc file
-    pub fn open(path: String) -> Result<Self, ChunkError> {
+    pub fn open(path: &str) -> Result<Self, ChunkError> {
         let mut reader = BufReader::new(File::open(path)?);
         Self::read(&mut reader)
     }

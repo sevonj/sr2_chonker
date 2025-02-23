@@ -8,6 +8,7 @@ Restart from scratch branch
 - `./project` - Godot project
 - `./libgodotsr2` - A GDExtension that contains the actual source code for the editor
 - `./sr2_types` - SR2 types crate
+- `./types_validator` - A development tool for testing `sr2_types`
 
 ### Building
 
