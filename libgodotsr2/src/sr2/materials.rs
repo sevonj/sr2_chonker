@@ -9,8 +9,43 @@
 //! SR2 Materials and related types.
 //! It at least resembles materials from later games which are documented here:
 //! <https://www.saintsrowmods.com/forum/threads/crunched-mesh-formats.15962/>
+//!
+//!
+//! Layout:
+//! - [MaterialHeader]
+//! - [MaterialData]
+//! - unknown_2B buffer
+//! - unknown 16B struct * num_materials
+//! - Align(16)
+//! - [f32] * num_shader_constants
+//! - [MaterialTextureCont] * num_materials
+//! - [MaterialUnknown3] * num_mat_unknown3
+//! - Buffer belonging to [MaterialUnknown3]. size = (mat_unknown3s[_index].unk2_count * 4) for each
 
 use zerocopy_derive::{FromBytes, IntoBytes};
+
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct MaterialHeader {
+    /// Number of [MaterialData] immediately after this header.
+    pub num_materials: u32,
+    /// Runtime only? Always Zero.
+    pub runtime_0x04: u32,
+    /// Runtime only? Always Zero.
+    pub runtime_0x08: u32,
+    /// Runtime only? Always Zero.
+    pub runtime_0x0c: u32,
+    /// Shader constants are just standard floats
+    pub num_shader_constants: u32,
+    /// Runtime only? Always Zero.
+    pub runtime_0x14: u32,
+    /// Runtime only? Always Zero.
+    pub runtime_0x18: u32,
+    /// Unknown 16B struct
+    pub num_mat_unknown3: u32,
+    /// Runtime only? Always Zero maybe?
+    pub runtime_0x20: u32,
+}
 
 /// Material from chunk files
 #[derive(Debug, FromBytes, IntoBytes)]
@@ -37,13 +72,62 @@ pub struct MaterialData {
     pub runtime_0x14: i32,
 }
 
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct MaterialTexCont {
+    /// 16 textures are always allocated, even if some or all are unused.
+    pub textures: [MaterialTexEntry; 16],
+}
+
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct MaterialTexEntry {
+    /// Texture index. -1 if entry is unused
+    pub index: i16,
+    /// Texture flags? -1 if entry is unused
+    pub flags: i16,
+}
+
+/// Unknown 16B struct
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct MaterialUnknown3 {
+    pub unk_0x00: u32,
+    pub unk_0x04: u32,
+    /// Number of entries in following buffer
+    pub num_unk: u16,
+    pub unk_0x06: u16,
+    /// Always -1. Runtime pointer?
+    pub runtime_0x08: u32,
+}
+
 #[cfg(test)]
 mod tests {
 
     use super::*;
 
     #[test]
+    fn test_material_header_size() {
+        assert_eq!(size_of::<MaterialHeader>(), 0x24);
+    }
+
+    #[test]
     fn test_material_data_size() {
         assert_eq!(size_of::<MaterialData>(), 0x18);
+    }
+
+    #[test]
+    fn test_material_texture_cont_size() {
+        assert_eq!(size_of::<MaterialTexCont>(), 0x40);
+    }
+
+    #[test]
+    fn test_material_texture_entry_size() {
+        assert_eq!(size_of::<MaterialTexEntry>(), 0x04);
+    }
+
+    #[test]
+    fn test_material_unknown3_size() {
+        assert_eq!(size_of::<MaterialUnknown3>(), 0x10);
     }
 }
