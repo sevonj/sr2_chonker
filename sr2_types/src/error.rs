@@ -9,36 +9,38 @@
 use std::error::Error;
 
 #[derive(Debug)]
-pub enum ChunkError {
+pub enum Sr2TypeError {
     IOError { source: std::io::Error },
-    InvalidMagic(u32),
-    InvalidVersion(u32),
-    LostTrack { msg: String, pos: i64 },
+    ChunkInvalidMagic(u32),
+    ChunkInvalidVersion(u32),
+    ChunkLostTrack { msg: String, pos: i64 },
+    UnexpectedData,
 }
 
-impl Error for ChunkError {}
+impl Error for Sr2TypeError {}
 
-impl std::fmt::Display for ChunkError {
+impl std::fmt::Display for Sr2TypeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ChunkError::IOError { source } => source.fmt(f),
-            ChunkError::InvalidMagic(value) => write!(
+            Sr2TypeError::IOError { source } => source.fmt(f),
+            Sr2TypeError::ChunkInvalidMagic(value) => write!(
                 f,
                 "Chunk has invalid signature. It this really a chunkfile? (got '{value:#10X}')"
             ),
-            ChunkError::InvalidVersion(value) => write!(
+            Sr2TypeError::ChunkInvalidVersion(value) => write!(
                 f,
                 "Chunk has unknown version‽ Where'd you get this from? (got '{value}')"
             ),
-            ChunkError::LostTrack { msg, pos } => {
+            Sr2TypeError::ChunkLostTrack { msg, pos } => {
                 write!(f, "Something's gone wrong, lost track of chunk. (pos: {pos:#X}, message: '{msg}')")
             }
+            Sr2TypeError::UnexpectedData => write!(f, "Unexpected data"),
         }
     }
 }
 
-impl From<std::io::Error> for ChunkError {
+impl From<std::io::Error> for Sr2TypeError {
     fn from(source: std::io::Error) -> Self {
-        ChunkError::IOError { source }
+        Sr2TypeError::IOError { source }
     }
 }

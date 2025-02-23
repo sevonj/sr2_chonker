@@ -20,17 +20,41 @@
 //! - align(16)
 //! - [ModelUnknownB] * num_model_unknown_b
 //!
+//! ... other stuff ...
+//!
+//! - [MeshHeader] * num_meshes
+//! - [VertexBufHeader] * mesh_header.num_vertex_buffers for mesh_header
+//! - ([Vector] * mesh_header.num_indices, [u16] * vert_header for mesh_header.num_vertex_buffers) for mesh_header
 
 use zerocopy_derive::{FromBytes, IntoBytes};
 
 use super::{Transform, Vector};
+
+/// An instance of SR2 mesh buffer used in chunks.
+/// Covers both CPU and GPU data.
+/// Corresponds to [MeshHeader]
+pub struct MeshBufferInstance {
+    /// see [MeshHeader::mesh_type]
+    pub mesh_type: u16,
+    pub vertex_buffers: Vec<VertexBufferInstance>,
+    pub indices: Vec<u16>,
+}
+
+/// An instance of SR2 vertex buffer used in chunks.
+/// Covers both CPU and GPU data.
+/// Corresponds to [VertexBufHeader]
+pub struct VertexBufferInstance {
+    pub num_vertex_a: u8,
+    pub num_uvs: u8,
+    pub data: Vec<u8>,
+}
 
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
 pub struct ModelHeader {
     pub num_gpu_meshes: u32,
     pub num_obj_models: u32,
-    pub num_cpu_meshes: u32,
+    pub num_meshes: u32,
     pub num_model_unknown_a: u32,
     pub num_model_unknown_b: u32,
 }
@@ -96,6 +120,120 @@ pub struct ModelUnknownB {
     pub lotsa_floats: [f32; 0xd],
 }
 
+/// Describes buffers both in cpu and gpu chunk file.
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct MeshHeader {
+    /// Either 7 or 0? 7 is cpu, 0 gpu
+    pub mesh_type: u16,
+    pub num_vertex_buffers: u16,
+    pub num_indices: u32,
+    /// Always -1, probably runtime-only.
+    runtime_0x08: i32,
+    /// Always -1, probably runtime-only.
+    runtime_0x0c: i32,
+    /// Always 0, probably runtime-only.
+    runtime_0x10: u32,
+}
+
+impl Default for MeshHeader {
+    fn default() -> Self {
+        Self {
+            mesh_type: 0,
+            num_vertex_buffers: 0,
+            num_indices: 0,
+            runtime_0x08: -1,
+            runtime_0x0c: -1,
+            runtime_0x10: 0,
+        }
+    }
+}
+
+impl MeshHeader {
+    pub fn is_valid(&self) -> bool {
+        (self.mesh_type == 0 || self.mesh_type == 7)
+            && self.runtime_0x08 == -1
+            && self.runtime_0x0c == -1
+            && self.runtime_0x10 == 0
+    }
+}
+
+/// Describes vertex format and count
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct VertexBufHeader {
+    /// Number of unknown data in vertex. Each adds 2B to vert size.
+    pub num_vertex_a: u8,
+    /// Number of uv sets. Each adds 4B to vert size.
+    pub num_uvs: u8,
+    /// Size of one vert. Value is size of [Vector] + the two above fields:
+    /// 12B + 4B * num_vertex_a + 4B * num_uvs
+    pub len_vertex: u16,
+    pub num_vertices: u32,
+    /// Always -1, probably runtime-only.
+    runtime_0x08: i32,
+    /// Always 0, probably runtime-only.
+    runtime_0x0c: u32,
+}
+
+impl Default for VertexBufHeader {
+    fn default() -> Self {
+        Self {
+            num_vertex_a: 0,
+            num_uvs: 0,
+            len_vertex: 12,
+            num_vertices: 0,
+            runtime_0x08: -1,
+            runtime_0x0c: 0,
+        }
+    }
+}
+
+impl VertexBufHeader {
+    pub fn is_valid(&self) -> bool {
+        self.runtime_0x08 == -1 && self.runtime_0x0c == 0
+    }
+}
+
+/// A mesh that gets its data from the GPU chunk
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct GpuMesh {
+    pub unknown_0x00: u16,
+    pub num_surfaces: u16,
+    pub unknown_0x04: u32,
+    pub unknown_0x08: u32,
+    /// Always 0
+    runtime_0x0c: u32,
+}
+
+#[allow(clippy::derivable_impls)]
+impl Default for GpuMesh {
+    fn default() -> Self {
+        Self {
+            unknown_0x00: 0,
+            num_surfaces: 0,
+            unknown_0x04: 0,
+            unknown_0x08: 0,
+            runtime_0x0c: 0,
+        }
+    }
+}
+
+/// One surface of a [GpuMesh]
+#[derive(Debug, FromBytes, IntoBytes)]
+#[repr(C)]
+pub struct GpuSurface {
+    /// Which vertex buffer to use
+    pub idx_vertex_buffer: u32,
+    /// Index index is zeroed to this value
+    pub start_index: u32,
+    /// Vertex index is zeroed to this value
+    pub start_vertex: u32,
+    pub num_indices: u16,
+    pub idx_material: u16,
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -124,5 +262,25 @@ mod tests {
     #[test]
     fn test_model_unknown_b_size() {
         assert_eq!(size_of::<ModelUnknownB>(), 0x34);
+    }
+
+    #[test]
+    fn test_mesh_header_size() {
+        assert_eq!(size_of::<MeshHeader>(), 0x14);
+    }
+
+    #[test]
+    fn test_vertex_buf_header_size() {
+        assert_eq!(size_of::<VertexBufHeader>(), 0x10);
+    }
+
+    #[test]
+    fn test_gpu_mesh_size() {
+        assert_eq!(size_of::<GpuMesh>(), 0x10);
+    }
+
+    #[test]
+    fn test_gpu_surface_size() {
+        assert_eq!(size_of::<GpuSurface>(), 0x10);
     }
 }

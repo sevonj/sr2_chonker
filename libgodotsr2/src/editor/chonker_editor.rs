@@ -160,7 +160,7 @@ impl ChonkerEditor {
         self.ui_browser.bind_mut().clear_chunk();
     }
 
-    fn load_chunk(&mut self, filepath: String) -> Result<(), sr2::ChunkError> {
+    fn load_chunk(&mut self, filepath: String) -> Result<(), sr2::Sr2TypeError> {
         self.unload_chunk();
 
         let mut reader = BufReader::new(File::open(filepath)?);

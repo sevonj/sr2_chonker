@@ -14,9 +14,247 @@ use std::{
 use zerocopy::FromBytes;
 use zerocopy_derive::{FromBytes, IntoBytes};
 
+use crate::{MeshBufferInstance, MeshHeader, VertexBufHeader, VertexBufferInstance};
+
 use super::{
-    ChunkError, GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Vector,
+    GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Sr2TypeError, Vector,
 };
+
+/// An instance of SR2 CPU chunk (.chunk_pc) file.
+pub struct Chunk {
+    pub header: ChunkHeader,
+
+    pub textures: Vec<String>,
+
+    pub model_header: ModelHeader,
+    pub gpu_mesh_unk_as: Vec<GpuMeshUnkA>,
+    pub obj_models: Vec<ObjectModel>,
+    pub model_unk_as: Vec<ModelUnknownA>,
+    pub model_unk_bs: Vec<ModelUnknownB>,
+
+    /// maybe collision vertices.
+    pub unknown5_vbuf: Vec<Vector>,
+    /// Unknown buffer, may or may not relate to unknown5
+    pub unknown6: Vec<u8>,
+    /// Type: unknown 4B
+    pub unknown7: Vec<u8>,
+    /// Type: unknown 12B. Not floats.
+    pub unknown8: Vec<u8>,
+    /// Havok collisions stuff
+    pub mopp_buf: Vec<u8>,
+    pub unk_bb_min: Vector,
+    pub unk_bb_max: Vector,
+
+    pub mesh_buffers: Vec<MeshBufferInstance>,
+}
+
+impl Chunk {
+    pub const MAGIC: u32 = 0xBBCACA12;
+    pub const VERION: u32 = 121;
+
+    /// Open a .chunk_pc file
+    pub fn open(path: &str) -> Result<Self, Sr2TypeError> {
+        let mut reader = BufReader::new(File::open(path)?);
+        Self::read(&mut reader)
+    }
+
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let header = {
+            let mut buf = vec![0_u8; size_of::<ChunkHeader>()];
+            reader.read_exact(&mut buf)?;
+            ChunkHeader::read_from_bytes(&buf).unwrap()
+        };
+        if header.magic != Self::MAGIC {
+            return Err(Sr2TypeError::ChunkInvalidMagic(header.magic));
+        }
+        if header.version != Self::VERION {
+            return Err(Sr2TypeError::ChunkInvalidVersion(header.version));
+        }
+
+        let num_textures = reader.read_u32::<LittleEndian>()?;
+        reader.seek_relative(num_textures as i64 * 4)?;
+
+        let mut textures = vec![];
+        for _ in 0..num_textures {
+            let mut buf = vec![];
+            reader.read_until(0x00, &mut buf)?;
+            textures.push(String::from_utf8_lossy(&buf).to_string());
+        }
+
+        seek_align(reader, 16)?;
+
+        let model_header = {
+            let mut buf = vec![0_u8; size_of::<ModelHeader>()];
+            reader.read_exact(&mut buf)?;
+            ModelHeader::read_from_bytes(&buf).unwrap()
+        };
+
+        let mut gpu_mesh_unk_as = vec![];
+        let mut obj_models = vec![];
+        let mut model_unk_as = vec![];
+        let mut model_unk_bs = vec![];
+
+        seek_align(reader, 16)?;
+
+        for _ in 0..model_header.num_gpu_meshes {
+            let mut buf = vec![0_u8; size_of::<GpuMeshUnkA>()];
+            reader.read_exact(&mut buf)?;
+            gpu_mesh_unk_as.push(GpuMeshUnkA::read_from_bytes(&buf).unwrap());
+        }
+
+        seek_align(reader, 16)?;
+
+        for _ in 0..model_header.num_obj_models {
+            let mut buf = vec![0_u8; size_of::<ObjectModel>()];
+            reader.read_exact(&mut buf)?;
+            obj_models.push(ObjectModel::read_from_bytes(&buf).unwrap());
+        }
+
+        seek_align(reader, 16)?;
+
+        for _ in 0..model_header.num_model_unknown_a {
+            let mut buf = vec![0_u8; size_of::<ModelUnknownA>()];
+            reader.read_exact(&mut buf)?;
+            model_unk_as.push(ModelUnknownA::read_from_bytes(&buf).unwrap());
+        }
+
+        seek_align(reader, 16)?;
+
+        for _ in 0..model_header.num_model_unknown_b {
+            let mut buf = vec![0_u8; size_of::<ModelUnknownB>()];
+            reader.read_exact(&mut buf)?;
+            model_unk_bs.push(ModelUnknownB::read_from_bytes(&buf).unwrap());
+        }
+
+        seek_align(reader, 16)?;
+
+        let num_unknown5_vertices = reader.read_u32::<LittleEndian>()?;
+        let mut unknown5_vbuf = vec![];
+        for _ in 0..num_unknown5_vertices {
+            let mut buf = vec![0_u8; size_of::<Vector>()];
+            reader.read_exact(&mut buf)?;
+            unknown5_vbuf.push(Vector::read_from_bytes(&buf).unwrap());
+        }
+
+        let num_unknown6 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown6 = vec![0_u8; num_unknown6 as usize * 3];
+        reader.read_exact(&mut unknown6)?;
+
+        let num_unknown7 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown7 = vec![0_u8; num_unknown7 as usize * 4];
+        reader.read_exact(&mut unknown7)?;
+
+        let num_unknown8 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown8 = vec![0_u8; num_unknown8 as usize * 12];
+        reader.read_exact(&mut unknown8)?;
+
+        seek_align(reader, 16)?;
+
+        let len_mopp = reader.read_u32::<LittleEndian>()?;
+        seek_align(reader, 16)?;
+        if len_mopp != 0 {
+            // Using MOPP signature as a landmark.
+            let mut buf = vec![0_u8; 4];
+            reader.read_exact(&mut buf)?;
+            if String::from_utf8_lossy(&buf).to_string().as_str() != "MOPP" {
+                return Err(Sr2TypeError::ChunkLostTrack {
+                    msg: "First MOPP signature didn't appear where expected.".into(),
+                    pos: reader.stream_position().unwrap() as i64,
+                });
+            }
+            reader.seek_relative(-4)?;
+        }
+        let mut mopp_buf = vec![0_u8; len_mopp as usize];
+        reader.read_exact(&mut mopp_buf)?;
+
+        seek_align(reader, 4)?;
+
+        // Collision area AABB?
+        let unk_bb_min = {
+            let mut buf = vec![0_u8; size_of::<Vector>()];
+            reader.read_exact(&mut buf)?;
+            Vector::read_from_bytes(&buf).unwrap()
+        };
+        let unk_bb_max = {
+            let mut buf = vec![0_u8; size_of::<Vector>()];
+            reader.read_exact(&mut buf)?;
+            Vector::read_from_bytes(&buf).unwrap()
+        };
+
+        seek_align(reader, 16)?;
+
+        let mut mesh_headers = vec![];
+        let mut mesh_buffers: Vec<MeshBufferInstance> = vec![];
+        for _ in 0..model_header.num_meshes {
+            let mut buf = vec![0_u8; size_of::<MeshHeader>()];
+            reader.read_exact(&mut buf)?;
+            mesh_headers.push(MeshHeader::read_from_bytes(&buf).unwrap());
+        }
+
+        for mesh_header in mesh_headers {
+            let mut vbuf_headers = vec![];
+            for _ in 0..mesh_header.num_vertex_buffers {
+                let mut buf = vec![0_u8; size_of::<VertexBufHeader>()];
+                reader.read_exact(&mut buf)?;
+                vbuf_headers.push(VertexBufHeader::read_from_bytes(&buf).unwrap());
+            }
+
+            let mut vertex_buffers = vec![];
+            for vbuf_header in vbuf_headers {
+                let len_buf = vbuf_header.len_vertex as usize * vbuf_header.num_vertices as usize;
+                vertex_buffers.push(VertexBufferInstance {
+                    num_vertex_a: vbuf_header.num_vertex_a,
+                    num_uvs: vbuf_header.num_uvs,
+                    data: vec![0_u8; len_buf],
+                });
+            }
+
+            mesh_buffers.push(MeshBufferInstance {
+                mesh_type: mesh_header.mesh_type,
+                vertex_buffers,
+                indices: vec![0_u16; mesh_header.num_indices as usize],
+            });
+        }
+
+        for mesh_buffer in &mut mesh_buffers {
+            if mesh_buffer.mesh_type != 7 {
+                continue;
+            }
+            seek_align(reader, 16)?;
+            for vbuf in &mut mesh_buffer.vertex_buffers {
+                reader.read_exact(&mut vbuf.data)?;
+            }
+            seek_align(reader, 16)?;
+            for indy in &mut mesh_buffer.indices {
+                *indy = reader.read_u16::<LittleEndian>()?;
+            }
+        }
+
+        Ok(Self {
+            header,
+            textures,
+            model_header,
+            gpu_mesh_unk_as,
+            obj_models,
+            model_unk_as,
+            model_unk_bs,
+            unknown5_vbuf,
+            unknown6,
+            unknown7,
+            unknown8,
+            mopp_buf,
+            unk_bb_min,
+            unk_bb_max,
+            mesh_buffers,
+        })
+    }
+}
+
+fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
+    let pos = reader.stream_position().unwrap() as i64;
+    reader.seek_relative((size - (pos % size)) % size)
+}
 
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
@@ -129,192 +367,6 @@ pub struct ChunkHeader {
     pub header0xf4: i32,
     pub header0xf8: i32,
     pub header0xfc: i32,
-}
-
-/// An instance of SR2 chunk_pc file.
-pub struct Chunk {
-    pub header: ChunkHeader,
-
-    pub textures: Vec<String>,
-
-    pub model_header: ModelHeader,
-    pub gpu_mesh_unk_as: Vec<GpuMeshUnkA>,
-    pub obj_models: Vec<ObjectModel>,
-    pub model_unk_as: Vec<ModelUnknownA>,
-    pub model_unk_bs: Vec<ModelUnknownB>,
-
-    /// maybe collision vertices.
-    pub unknown5_vbuf: Vec<Vector>,
-    /// Unknown buffer, may or may not relate to unknown5
-    pub unknown6: Vec<u8>,
-    /// Type: unknown 4B
-    pub unknown7: Vec<u8>,
-    /// Type: unknown 12B. Not floats.
-    pub unknown8: Vec<u8>,
-    /// Havok collisions stuff
-    pub mopp_buf: Vec<u8>,
-    pub unk_bb_min: Vector,
-    pub unk_bb_max: Vector,
-}
-
-impl Chunk {
-    pub const MAGIC: u32 = 0xBBCACA12;
-    pub const VERION: u32 = 121;
-
-    /// Open a .chunk_pc file
-    pub fn open(path: &str) -> Result<Self, ChunkError> {
-        let mut reader = BufReader::new(File::open(path)?);
-        Self::read(&mut reader)
-    }
-
-    /// Read from stream
-    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, ChunkError> {
-        let header = {
-            let mut buf = vec![0_u8; size_of::<ChunkHeader>()];
-            reader.read_exact(&mut buf)?;
-            ChunkHeader::read_from_bytes(&buf).unwrap()
-        };
-        if header.magic != Self::MAGIC {
-            return Err(ChunkError::InvalidMagic(header.magic));
-        }
-        if header.version != Self::VERION {
-            return Err(ChunkError::InvalidVersion(header.version));
-        }
-
-        let num_textures = reader.read_u32::<LittleEndian>()?;
-        reader.seek_relative(num_textures as i64 * 4)?;
-
-        let mut textures = vec![];
-        for _ in 0..num_textures {
-            let mut buf = vec![];
-            reader.read_until(0x00, &mut buf)?;
-            textures.push(String::from_utf8_lossy(&buf).to_string());
-        }
-
-        seek_align(reader, 16)?;
-
-        let model_header = {
-            let mut buf = vec![0_u8; size_of::<ModelHeader>()];
-            reader.read_exact(&mut buf)?;
-            ModelHeader::read_from_bytes(&buf).unwrap()
-        };
-
-        let mut gpu_mesh_unk_as = vec![];
-        let mut obj_models = vec![];
-        let mut model_unk_as = vec![];
-        let mut model_unk_bs = vec![];
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_gpu_meshes {
-            let mut buf = vec![0_u8; size_of::<GpuMeshUnkA>()];
-            reader.read_exact(&mut buf)?;
-            gpu_mesh_unk_as.push(GpuMeshUnkA::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_obj_models {
-            let mut buf = vec![0_u8; size_of::<ObjectModel>()];
-            reader.read_exact(&mut buf)?;
-            obj_models.push(ObjectModel::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_model_unknown_a {
-            let mut buf = vec![0_u8; size_of::<ModelUnknownA>()];
-            reader.read_exact(&mut buf)?;
-            model_unk_as.push(ModelUnknownA::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_model_unknown_b {
-            let mut buf = vec![0_u8; size_of::<ModelUnknownB>()];
-            reader.read_exact(&mut buf)?;
-            model_unk_bs.push(ModelUnknownB::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        let num_unknown5_vertices = reader.read_u32::<LittleEndian>()?;
-        let mut unknown5_vbuf = vec![];
-        for _ in 0..num_unknown5_vertices {
-            let mut buf = vec![0_u8; size_of::<Vector>()];
-            reader.read_exact(&mut buf)?;
-            unknown5_vbuf.push(Vector::read_from_bytes(&buf).unwrap());
-        }
-
-        let num_unknown6 = reader.read_u32::<LittleEndian>()?;
-        let mut unknown6 = vec![0_u8; num_unknown6 as usize * 3];
-        reader.read_exact(&mut unknown6)?;
-
-        let num_unknown7 = reader.read_u32::<LittleEndian>()?;
-        let mut unknown7 = vec![0_u8; num_unknown7 as usize * 4];
-        reader.read_exact(&mut unknown7)?;
-
-        let num_unknown8 = reader.read_u32::<LittleEndian>()?;
-        let mut unknown8 = vec![0_u8; num_unknown8 as usize * 12];
-        reader.read_exact(&mut unknown8)?;
-
-        seek_align(reader, 16)?;
-
-        let len_mopp = reader.read_u32::<LittleEndian>()?;
-        seek_align(reader, 16)?;
-        if len_mopp != 0 {
-            // Using MOPP signature as a landmark.
-            let mut buf = vec![0_u8; 4];
-            reader.read_exact(&mut buf)?;
-            if String::from_utf8_lossy(&buf).to_string().as_str() != "MOPP" {
-                return Err(ChunkError::LostTrack {
-                    msg: "First MOPP signature didn't appear where expected.".into(),
-                    pos: reader.stream_position().unwrap() as i64,
-                });
-            }
-            reader.seek_relative(-4)?;
-        }
-        let mopp_buf = vec![0_u8; len_mopp as usize];
-        reader.read_exact(&mut unknown8)?;
-
-        seek_align(reader, 4)?;
-
-        // Collision area AABB?
-        let unk_bb_min = {
-            let mut buf = vec![0_u8; size_of::<Vector>()];
-            reader.read_exact(&mut buf)?;
-            Vector::read_from_bytes(&buf).unwrap()
-        };
-        let unk_bb_max = {
-            let mut buf = vec![0_u8; size_of::<Vector>()];
-            reader.read_exact(&mut buf)?;
-            Vector::read_from_bytes(&buf).unwrap()
-        };
-
-        seek_align(reader, 16)?;
-
-        Ok(Self {
-            header,
-            textures,
-            model_header,
-            gpu_mesh_unk_as,
-            obj_models,
-            model_unk_as,
-            model_unk_bs,
-            unknown5_vbuf,
-            unknown6,
-            unknown7,
-            unknown8,
-            mopp_buf,
-            unk_bb_min,
-            unk_bb_max,
-        })
-    }
-}
-
-fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
-    let pos = reader.stream_position().unwrap() as i64;
-    reader.seek_relative((size - (pos % size)) % size)
 }
 
 #[cfg(test)]

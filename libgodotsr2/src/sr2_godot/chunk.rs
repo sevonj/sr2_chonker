@@ -53,7 +53,7 @@ impl INode for Chunk {
 }
 
 impl Chunk {
-    pub fn new<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Gd<Self>, sr2::ChunkError> {
+    pub fn new<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Gd<Self>, sr2::Sr2TypeError> {
         let chunk = sr2::Chunk::read(reader)?;
 
         Ok(Gd::from_init_fn(|base| Self {
