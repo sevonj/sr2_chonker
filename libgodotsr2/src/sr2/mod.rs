@@ -19,10 +19,11 @@ mod unknown3;
 mod unknown4;
 mod vector;
 
-pub use chunk_header::Sr2ChunkHeader;
-pub use city_object::Sr2CityObjectModel;
-pub use gpu_mesh::Sr2GpuMeshUnk0;
-pub use transform::Sr2Transform;
-pub use unknown3::Sr2Unknown3;
-pub use unknown4::Sr2Unknown4;
-pub use vector::Sr2Vector;
+pub use chunk_header::*;
+pub use city_object::*;
+pub use gpu_mesh::*;
+pub use materials::*;
+pub use transform::*;
+pub use unknown3::*;
+pub use unknown4::*;
+pub use vector::*;
