@@ -115,7 +115,7 @@ fn get_files(path: &str) -> Vec<String> {
 /// true if ok
 fn check_intense(path: &str, chunk: &Chunk) -> Result<(), String> {
     let serialized = chunk.to_bytes();
-    let mut original = vec![0_u8; serialized.len()];
+    let mut original = vec![];
     let file = match File::open(path) {
         Ok(f) => f,
         Err(e) => {
@@ -123,7 +123,7 @@ fn check_intense(path: &str, chunk: &Chunk) -> Result<(), String> {
         }
     };
     let mut reader = BufReader::new(file);
-    if let Err(e) = reader.read_exact(&mut original) {
+    if let Err(e) = reader.read_to_end(&mut original) {
         return Err(e.to_string());
     }
 

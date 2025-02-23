@@ -46,6 +46,8 @@ pub struct Chunk {
     pub unk_bb_max: Vector,
 
     pub mesh_buffers: Vec<MeshBufferInstance>,
+
+    pub remaining_data: Vec<u8>,
 }
 
 impl Chunk {
@@ -231,6 +233,9 @@ impl Chunk {
             }
         }
 
+        let mut remaining_data = vec![];
+        reader.read_to_end(&mut remaining_data)?;
+
         Ok(Self {
             header,
             textures,
@@ -247,6 +252,7 @@ impl Chunk {
             unk_bb_min,
             unk_bb_max,
             mesh_buffers,
+            remaining_data,
         })
     }
 
@@ -352,6 +358,8 @@ impl Chunk {
             }
             buf.extend_from_slice(mesh_buffer.indices.as_bytes());
         }
+
+        buf.extend_from_slice(&self.remaining_data);
 
         buf
     }
