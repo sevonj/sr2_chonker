@@ -8,7 +8,7 @@
 
 use godot::builtin::Vector3;
 
-use crate::sr2_types::Sr2Vector;
+use crate::sr2::Sr2Vector;
 
 pub fn sr2_vec_to_godot(vector: &Sr2Vector) -> Vector3 {
     Vector3 {

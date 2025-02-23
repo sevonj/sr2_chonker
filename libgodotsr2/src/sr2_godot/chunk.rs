@@ -11,7 +11,7 @@ use godot::prelude::*;
 use std::io::{BufRead, BufReader, Read, Seek};
 use zerocopy::FromBytes;
 
-use crate::sr2_types::{
+use crate::sr2::{
     Sr2ChunkHeader, Sr2CityObjectModel, Sr2GpuMeshUnk0, Sr2Unknown3, Sr2Unknown4, Sr2Vector,
 };
 

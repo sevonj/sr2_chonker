@@ -8,7 +8,7 @@
 
 use godot::builtin::{Basis, Vector3};
 
-use crate::sr2_types::{Sr2Transform, Sr2Vector};
+use crate::sr2::{Sr2Transform, Sr2Vector};
 
 pub fn sr2_xform_to_godot(xform: &Sr2Transform) -> Basis {
     Basis {

@@ -8,7 +8,7 @@
 
 //! This module contains Godot-instanceable types that correspond to the bare SR2 types.
 //! Lossless conversion between the the two should eventually be implemented.
-//! This depends on [crate::sr2_types], but shouldn't depend on the editor.
+//! This depends on [crate::sr2], but shouldn't depend on the editor.
 
 mod aabb;
 mod chunk;

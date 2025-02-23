@@ -7,7 +7,7 @@
  */
 
 //! Contains editor components.
-//! Shouldn't depend on [crate::sr2_types] directly, but use [crate::sr2_godot] types instead.
+//! Shouldn't depend on [crate::sr2] directly, but use [crate::sr2_godot] types instead.
 
 mod camera_cursor_gizmo;
 mod camera_rig_orbit;
