@@ -8,15 +8,15 @@
 
 use zerocopy_derive::{FromBytes, IntoBytes};
 
-use super::Sr2Vector;
+use super::Vector;
 
 /// Transform matrix
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2Transform {
-    pub basis_x: Sr2Vector,
-    pub basis_y: Sr2Vector,
-    pub basis_z: Sr2Vector,
+pub struct Transform {
+    pub basis_x: Vector,
+    pub basis_y: Vector,
+    pub basis_z: Vector,
 }
 
 #[cfg(test)]
@@ -25,7 +25,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sr2_transform_size() {
-        assert_eq!(size_of::<Sr2Transform>(), 0x24);
+    fn test_transform_size() {
+        assert_eq!(size_of::<Transform>(), 0x24);
     }
 }

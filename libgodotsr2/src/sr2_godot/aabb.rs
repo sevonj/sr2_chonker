@@ -8,9 +8,9 @@
 
 use godot::builtin::Vector3;
 
-use crate::sr2::Sr2Vector;
+use crate::sr2;
 
-pub fn sr2_aabb_to_godot(min: &Sr2Vector, max: &Sr2Vector) -> (Vector3, Vector3) {
+pub fn sr2_aabb_to_godot(min: &sr2::Vector, max: &sr2::Vector) -> (Vector3, Vector3) {
     let min = Vector3 {
         x: -max.x,
         y: min.y,
@@ -25,13 +25,13 @@ pub fn sr2_aabb_to_godot(min: &Sr2Vector, max: &Sr2Vector) -> (Vector3, Vector3)
     (min, max)
 }
 
-pub fn godot_aabb_to_sr2(min: &Sr2Vector, max: &Sr2Vector) -> (Sr2Vector, Sr2Vector) {
-    let min = Sr2Vector {
+pub fn godot_aabb_to_sr2(min: &sr2::Vector, max: &sr2::Vector) -> (sr2::Vector, sr2::Vector) {
+    let min = sr2::Vector {
         x: -max.x,
         y: min.y,
         z: min.z,
     };
-    let max = Sr2Vector {
+    let max = sr2::Vector {
         x: -min.x,
         y: max.y,
         z: max.z,

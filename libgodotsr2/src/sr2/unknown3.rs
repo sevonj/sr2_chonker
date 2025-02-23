@@ -11,7 +11,7 @@ use zerocopy_derive::{FromBytes, IntoBytes};
 /// Probably part of objects or their models somehow
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2Unknown3 {
+pub struct Unknown3 {
     pub lotsa_floats: [f32; 0x19],
 }
 
@@ -21,7 +21,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sr2_unknown3_size() {
-        assert_eq!(size_of::<Sr2Unknown3>(), 0x64);
+    fn test_unknown3_size() {
+        assert_eq!(size_of::<Unknown3>(), 0x64);
     }
 }

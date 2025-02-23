@@ -8,15 +8,15 @@
 
 use zerocopy_derive::{FromBytes, IntoBytes};
 
-use super::{Sr2Transform, Sr2Vector};
+use super::{Transform, Vector};
 
 /// Contains transform and rendermodel id.
 /// Every city object has one of these, but usually a few are left over.
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2CityObjectModel {
-    pub origin: Sr2Vector,
-    pub xform: Sr2Transform,
+pub struct CityObjectModel {
+    pub origin: Vector,
+    pub xform: Transform,
 
     /// Always null?
     pub unk_0x30: i32,
@@ -47,7 +47,7 @@ pub struct Sr2CityObjectModel {
 
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2CityObject {}
+pub struct CityObject {}
 
 #[cfg(test)]
 mod tests {
@@ -55,7 +55,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sr2_city_object_model_size() {
-        assert_eq!(size_of::<Sr2CityObjectModel>(), 0x60);
+    fn test_city_object_model_size() {
+        assert_eq!(size_of::<CityObjectModel>(), 0x60);
     }
 }

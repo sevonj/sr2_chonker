@@ -8,11 +8,11 @@
 
 use zerocopy_derive::{FromBytes, IntoBytes};
 
-use super::Sr2Vector;
+use super::Vector;
 
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2ChunkHeader {
+pub struct ChunkHeader {
     pub magic: u32,
     pub version: u32,
     pub header0x08: i32,
@@ -112,9 +112,9 @@ pub struct Sr2ChunkHeader {
     pub header0xd0: i32,
 
     /// Load zone???
-    pub bbox_min: Sr2Vector,
+    pub bbox_min: Vector,
     /// Load zone???
-    pub bbox_max: Sr2Vector,
+    pub bbox_max: Vector,
 
     pub header0xec: f32,
     pub header0xf0: i32,
@@ -123,7 +123,7 @@ pub struct Sr2ChunkHeader {
     pub header0xfc: i32,
 }
 
-impl Sr2ChunkHeader {
+impl ChunkHeader {
     pub const MAGIC: u32 = 0xBBCACA12;
     pub const VERION: u32 = 121;
 }
@@ -134,7 +134,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sr2_chunk_header_size() {
-        assert_eq!(size_of::<Sr2ChunkHeader>(), 0x100);
+    fn test_chunk_header_size() {
+        assert_eq!(size_of::<ChunkHeader>(), 0x100);
     }
 }

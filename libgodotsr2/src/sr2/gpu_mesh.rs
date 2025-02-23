@@ -10,7 +10,7 @@ use zerocopy_derive::{FromBytes, IntoBytes};
 
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2GpuMeshUnk0 {
+pub struct GpuMeshUnk0 {
     pub unk_0x00: i32,
     pub unk_0x04: i32,
     pub unk_0x08: i32,
@@ -25,7 +25,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sr2_gpu_mesh_unk0_size() {
-        assert_eq!(size_of::<Sr2GpuMeshUnk0>(), 0x18);
+    fn test_gpu_mesh_unk0_size() {
+        assert_eq!(size_of::<GpuMeshUnk0>(), 0x18);
     }
 }

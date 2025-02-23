@@ -11,9 +11,7 @@ use godot::prelude::*;
 use std::io::{BufRead, BufReader, Read, Seek};
 use zerocopy::FromBytes;
 
-use crate::sr2::{
-    Sr2ChunkHeader, Sr2CityObjectModel, Sr2GpuMeshUnk0, Sr2Unknown3, Sr2Unknown4, Sr2Vector,
-};
+use crate::sr2;
 
 use super::{sr2_vec_to_godot, ChunkError, CityObjectModel, MaybeStaticCollision};
 
@@ -61,14 +59,14 @@ impl INode for Chunk {
 impl Chunk {
     pub fn new<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Gd<Self>, ChunkError> {
         let header = {
-            let mut buf = vec![0; size_of::<Sr2ChunkHeader>()];
+            let mut buf = vec![0; size_of::<sr2::ChunkHeader>()];
             reader.read_exact(&mut buf)?;
-            Sr2ChunkHeader::read_from_bytes(&buf).unwrap()
+            sr2::ChunkHeader::read_from_bytes(&buf).unwrap()
         };
 
-        if header.magic != Sr2ChunkHeader::MAGIC {
+        if header.magic != sr2::ChunkHeader::MAGIC {
             return Err(ChunkError::InvalidMagic(header.magic));
-        } else if header.version != Sr2ChunkHeader::VERION {
+        } else if header.version != sr2::ChunkHeader::VERION {
             return Err(ChunkError::InvalidVersion(header.version));
         }
 
@@ -97,33 +95,33 @@ impl Chunk {
         seek_align(reader, 16)?;
 
         for _ in 0..num_gpu_meshes {
-            let mut buf = vec![0; size_of::<Sr2GpuMeshUnk0>()];
+            let mut buf = vec![0; size_of::<sr2::GpuMeshUnk0>()];
             reader.read_exact(&mut buf)?;
-            rendermodel_unk0s.push(Sr2GpuMeshUnk0::read_from_bytes(&buf).unwrap());
+            rendermodel_unk0s.push(sr2::GpuMeshUnk0::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
         for _ in 0..num_city_object_models {
-            let mut buf = vec![0; size_of::<Sr2CityObjectModel>()];
+            let mut buf = vec![0; size_of::<CityObjectModel>()];
             reader.read_exact(&mut buf)?;
-            city_object_models.push(Sr2CityObjectModel::read_from_bytes(&buf).unwrap());
+            city_object_models.push(sr2::CityObjectModel::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
         for _ in 0..num_unknown3 {
-            let mut buf = vec![0; size_of::<Sr2Unknown3>()];
+            let mut buf = vec![0; size_of::<sr2::Unknown3>()];
             reader.read_exact(&mut buf)?;
-            unknown3s.push(Sr2Unknown3::read_from_bytes(&buf).unwrap());
+            unknown3s.push(sr2::Unknown3::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
         for _ in 0..num_unknown4 {
-            let mut buf = vec![0; size_of::<Sr2Unknown4>()];
+            let mut buf = vec![0; size_of::<sr2::Unknown4>()];
             reader.read_exact(&mut buf)?;
-            unknown4s.push(Sr2Unknown4::read_from_bytes(&buf).unwrap());
+            unknown4s.push(sr2::Unknown4::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
@@ -132,9 +130,9 @@ impl Chunk {
         let num_unknown5_vertices = reader.read_u32::<LittleEndian>()?;
         let mut unknown5_vbuf = vec![];
         for _ in 0..num_unknown5_vertices {
-            let mut buf = vec![0; size_of::<Sr2Vector>()];
+            let mut buf = vec![0; size_of::<sr2::Vector>()];
             reader.read_exact(&mut buf)?;
-            let vertex = sr2_vec_to_godot(&Sr2Vector::read_from_bytes(&buf).unwrap());
+            let vertex = sr2_vec_to_godot(&sr2::Vector::read_from_bytes(&buf).unwrap());
             unknown5_vbuf.push(vertex);
         }
 
@@ -174,14 +172,14 @@ impl Chunk {
 
         // Collision area AABB?
         let unk_bb_min = {
-            let mut buf = vec![0; size_of::<Sr2Vector>()];
+            let mut buf = vec![0; size_of::<sr2::Vector>()];
             reader.read_exact(&mut buf)?;
-            Sr2Vector::read_from_bytes(&buf).unwrap()
+            sr2::Vector::read_from_bytes(&buf).unwrap()
         };
         let unk_bb_max = {
-            let mut buf = vec![0; size_of::<Sr2Vector>()];
+            let mut buf = vec![0; size_of::<sr2::Vector>()];
             reader.read_exact(&mut buf)?;
-            Sr2Vector::read_from_bytes(&buf).unwrap()
+            sr2::Vector::read_from_bytes(&buf).unwrap()
         };
 
         seek_align(reader, 16)?;

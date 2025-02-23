@@ -11,7 +11,7 @@ use zerocopy_derive::{FromBytes, IntoBytes};
 /// A 3D vector, for coords and whatnot
 #[derive(Debug, FromBytes, IntoBytes)]
 #[repr(C)]
-pub struct Sr2Vector {
+pub struct Vector {
     pub x: f32,
     pub y: f32,
     pub z: f32,
@@ -23,7 +23,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sr2_vector_size() {
-        assert_eq!(size_of::<Sr2Vector>(), 0x0c);
+    fn test_vector_size() {
+        assert_eq!(size_of::<Vector>(), 0x0c);
     }
 }

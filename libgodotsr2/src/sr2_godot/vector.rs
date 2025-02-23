@@ -8,9 +8,9 @@
 
 use godot::builtin::Vector3;
 
-use crate::sr2::Sr2Vector;
+use crate::sr2::Vector;
 
-pub fn sr2_vec_to_godot(vector: &Sr2Vector) -> Vector3 {
+pub fn sr2_vec_to_godot(vector: &Vector) -> Vector3 {
     Vector3 {
         x: -vector.x,
         y: vector.y,
@@ -18,8 +18,8 @@ pub fn sr2_vec_to_godot(vector: &Sr2Vector) -> Vector3 {
     }
 }
 
-pub fn godot_vec_to_sr2(vector: &Vector3) -> Sr2Vector {
-    Sr2Vector {
+pub fn godot_vec_to_sr2(vector: &Vector3) -> Vector {
+    Vector {
         x: -vector.x,
         y: vector.y,
         z: vector.z,

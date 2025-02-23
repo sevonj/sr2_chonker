@@ -10,7 +10,7 @@ use godot::prelude::*;
 
 use godot::classes::{BoxMesh, IMeshInstance3D, MeshInstance3D};
 
-use crate::sr2::Sr2CityObjectModel;
+use crate::sr2;
 
 use super::sr2_vec_to_godot;
 use super::sr2_xform_to_godot;
@@ -55,7 +55,7 @@ impl IMeshInstance3D for CityObjectModel {
 }
 
 impl CityObjectModel {
-    pub fn from_sr2(data: &Sr2CityObjectModel) -> Gd<Self> {
+    pub fn from_sr2(data: &sr2::CityObjectModel) -> Gd<Self> {
         let mut this = Gd::from_init_fn(|base| Self {
             unk_0x30: data.unk_0x30,
             unk_0x34: data.unk_0x34,
