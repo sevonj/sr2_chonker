@@ -6,12 +6,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use zerocopy_derive::{FromBytes, IntoBytes};
+use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use super::Vector;
 
 /// Transform matrix
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct Transform {
     pub basis_x: Vector,

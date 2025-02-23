@@ -26,7 +26,7 @@
 //! - [VertexBufHeader] * mesh_header.num_vertex_buffers for mesh_header
 //! - ([Vector] * mesh_header.num_indices, [u16] * vert_header for mesh_header.num_vertex_buffers) for mesh_header
 
-use zerocopy_derive::{FromBytes, IntoBytes};
+use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use super::{Transform, Vector};
 
@@ -40,6 +40,19 @@ pub struct MeshBufferInstance {
     pub indices: Vec<u16>,
 }
 
+impl MeshBufferInstance {
+    /// Serialize instance to SR2 type
+    pub fn header(&self) -> MeshHeader {
+        let mut header = MeshHeader::new();
+
+        header.mesh_type = self.mesh_type;
+        header.num_indices = self.indices.len() as u32;
+        header.num_vertex_buffers = self.vertex_buffers.len() as u16;
+
+        header
+    }
+}
+
 /// An instance of SR2 vertex buffer used in chunks.
 /// Covers both CPU and GPU data.
 /// Corresponds to [VertexBufHeader]
@@ -49,7 +62,26 @@ pub struct VertexBufferInstance {
     pub data: Vec<u8>,
 }
 
-#[derive(Debug, FromBytes, IntoBytes)]
+impl VertexBufferInstance {
+    /// Serialize instance to SR2 type
+    pub fn header(&self) -> VertexBufHeader {
+        let mut header = VertexBufHeader::default();
+
+        let len_vertex = self.len_vertex();
+        header.num_vertex_a = self.num_vertex_a;
+        header.num_uvs = self.num_uvs;
+        header.len_vertex = len_vertex;
+        header.num_vertices = self.data.len() as u32 / len_vertex as u32;
+
+        header
+    }
+
+    pub fn len_vertex(&self) -> u16 {
+        (12 + 2 * self.num_vertex_a + 4 * self.num_uvs) as u16
+    }
+}
+
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct ModelHeader {
     pub num_gpu_meshes: u32,
@@ -60,7 +92,7 @@ pub struct ModelHeader {
 }
 
 /// Always same count as GPU meshes. Purpose unknown.
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct GpuMeshUnkA {
     pub unk_0x00: i32,
@@ -73,7 +105,7 @@ pub struct GpuMeshUnkA {
 
 /// Contains transform and rendermodel id.
 /// Every object has one of these, but usually a few are left over.
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct ObjectModel {
     pub origin: Vector,
@@ -107,21 +139,21 @@ pub struct ObjectModel {
 }
 
 /// Probably part of objects or their models somehow
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct ModelUnknownA {
     pub lotsa_floats: [f32; 0x19],
 }
 
 /// Probably part of objects or their models somehow
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct ModelUnknownB {
     pub lotsa_floats: [f32; 0xd],
 }
 
 /// Describes buffers both in cpu and gpu chunk file.
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct MeshHeader {
     /// Either 7 or 0? 7 is cpu, 0 gpu
@@ -136,8 +168,8 @@ pub struct MeshHeader {
     runtime_0x10: u32,
 }
 
-impl Default for MeshHeader {
-    fn default() -> Self {
+impl MeshHeader {
+    fn new() -> Self {
         Self {
             mesh_type: 0,
             num_vertex_buffers: 0,
@@ -147,10 +179,9 @@ impl Default for MeshHeader {
             runtime_0x10: 0,
         }
     }
-}
 
-impl MeshHeader {
     pub fn is_valid(&self) -> bool {
+        
         (self.mesh_type == 0 || self.mesh_type == 7)
             && self.runtime_0x08 == -1
             && self.runtime_0x0c == -1
@@ -159,7 +190,7 @@ impl MeshHeader {
 }
 
 /// Describes vertex format and count
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct VertexBufHeader {
     /// Number of unknown data in vertex. Each adds 2B to vert size.
@@ -196,7 +227,7 @@ impl VertexBufHeader {
 }
 
 /// A mesh that gets its data from the GPU chunk
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct GpuMesh {
     pub unknown_0x00: u16,
@@ -221,7 +252,7 @@ impl Default for GpuMesh {
 }
 
 /// One surface of a [GpuMesh]
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct GpuSurface {
     /// Which vertex buffer to use

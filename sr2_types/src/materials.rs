@@ -22,9 +22,9 @@
 //! - [MaterialUnknown3] * num_mat_unknown3
 //! - Buffer belonging to [MaterialUnknown3]. size = (mat_unknown3s[_index].unk2_count * 4) for each
 
-use zerocopy_derive::{FromBytes, IntoBytes};
+use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct MaterialHeader {
     /// Number of [MaterialData] immediately after this header.
@@ -48,7 +48,7 @@ pub struct MaterialHeader {
 }
 
 /// Material from chunk files
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct MaterialData {
     /// A guess, not confirmed.
@@ -72,14 +72,14 @@ pub struct MaterialData {
     pub runtime_0x14: i32,
 }
 
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct MaterialTexCont {
     /// 16 textures are always allocated, even if some or all are unused.
     pub textures: [MaterialTexEntry; 16],
 }
 
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct MaterialTexEntry {
     /// Texture index. -1 if entry is unused
@@ -89,7 +89,7 @@ pub struct MaterialTexEntry {
 }
 
 /// Unknown 16B struct
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct MaterialUnknown3 {
     pub unk_0x00: u32,

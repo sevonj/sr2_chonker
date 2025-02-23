@@ -11,8 +11,8 @@ use std::{
     fs::File,
     io::{BufRead, BufReader, Read, Seek},
 };
-use zerocopy::FromBytes;
-use zerocopy_derive::{FromBytes, IntoBytes};
+use zerocopy::{FromBytes, IntoBytes};
+use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{MeshBufferInstance, MeshHeader, VertexBufHeader, VertexBufferInstance};
 
@@ -249,6 +249,112 @@ impl Chunk {
             mesh_buffers,
         })
     }
+
+    /// Serialize back to a .chunk_pc file
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut buf = vec![];
+
+        buf.extend_from_slice(self.header.as_bytes());
+
+        buf.extend_from_slice(&(self.textures.len() as u32).to_le_bytes());
+        for _ in &self.textures {
+            buf.extend_from_slice(&[0, 0, 0, 0]);
+        }
+        for texture in &self.textures {
+            buf.extend_from_slice(texture.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        buf.extend_from_slice(self.model_header.as_bytes());
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        for gpu_mesh_unk_a in &self.gpu_mesh_unk_as {
+            buf.extend_from_slice(gpu_mesh_unk_a.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        for obj_model in &self.obj_models {
+            buf.extend_from_slice(obj_model.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        for model_unk_a in &self.model_unk_as {
+            buf.extend_from_slice(model_unk_a.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        for model_unk_b in &self.model_unk_bs {
+            buf.extend_from_slice(model_unk_b.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        buf.extend_from_slice(&(self.unknown5_vbuf.len() as u32).to_le_bytes());
+        for v in &self.unknown5_vbuf {
+            buf.extend_from_slice(v.as_bytes());
+        }
+        buf.extend_from_slice(&(self.unknown6.len() as u32 / 3).to_le_bytes());
+        buf.extend_from_slice(&self.unknown6);
+        buf.extend_from_slice(&(self.unknown7.len() as u32 / 4).to_le_bytes());
+        buf.extend_from_slice(&self.unknown7);
+        buf.extend_from_slice(&(self.unknown8.len() as u32 / 12).to_le_bytes());
+        buf.extend_from_slice(&self.unknown8);
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        buf.extend_from_slice(&(self.mopp_buf.len() as u32).to_le_bytes());
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        buf.extend_from_slice(&self.mopp_buf);
+
+        while buf.len() % 4 != 0 {
+            buf.push(0);
+        }
+        buf.extend_from_slice(self.unk_bb_min.as_bytes());
+        buf.extend_from_slice(self.unk_bb_max.as_bytes());
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        for mesh_buffer in &self.mesh_buffers {
+            buf.extend_from_slice(mesh_buffer.header().as_bytes());
+        }
+        for mesh_buffer in &self.mesh_buffers {
+            for vbuf in &mesh_buffer.vertex_buffers {
+                buf.extend_from_slice(vbuf.header().as_bytes());
+            }
+        }
+        for mesh_buffer in &self.mesh_buffers {
+            if mesh_buffer.mesh_type != 7 {
+                continue;
+            }
+            while buf.len() % 16 != 0 {
+                buf.push(0);
+            }
+            for vbuf in &mesh_buffer.vertex_buffers {
+                buf.extend_from_slice(&vbuf.data);
+            }
+            while buf.len() % 16 != 0 {
+                buf.push(0);
+            }
+            buf.extend_from_slice(mesh_buffer.indices.as_bytes());
+        }
+
+        buf
+    }
 }
 
 fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
@@ -256,7 +362,7 @@ fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> 
     reader.seek_relative((size - (pos % size)) % size)
 }
 
-#[derive(Debug, FromBytes, IntoBytes)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable)]
 #[repr(C)]
 pub struct ChunkHeader {
     pub magic: u32,
