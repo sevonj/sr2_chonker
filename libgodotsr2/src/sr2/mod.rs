@@ -10,15 +10,17 @@
 //! The purpose of this module is to hold all SR2 types.
 //! No editor or Godot code allowed!
 
-mod chunk_header;
+mod chunk;
 mod city_object;
+mod error;
 mod materials;
 mod mesh;
 mod transform;
 mod vector;
 
-pub use chunk_header::*;
+pub use chunk::*;
 pub use city_object::*;
+pub use error::*;
 pub use materials::*;
 pub use mesh::*;
 pub use transform::*;

@@ -17,7 +17,7 @@ use godot::classes::{
 
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
 use super::{SceneAxisLines, UiBrowserPanel};
-use crate::sr2_godot::{Chunk, ChunkError};
+use crate::{sr2, sr2_godot::Chunk};
 
 /// The root [Node] of an
 #[derive(Debug, GodotClass)]
@@ -160,7 +160,7 @@ impl ChonkerEditor {
         self.ui_browser.bind_mut().clear_chunk();
     }
 
-    fn load_chunk(&mut self, filepath: String) -> Result<(), ChunkError> {
+    fn load_chunk(&mut self, filepath: String) -> Result<(), sr2::ChunkError> {
         self.unload_chunk();
 
         let mut reader = BufReader::new(File::open(filepath)?);

@@ -6,10 +6,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use godot::classes::mesh::PrimitiveType;
 use godot::prelude::*;
 
-use godot::classes::{ArrayMesh, IMeshInstance3D, Material, MeshInstance3D, SurfaceTool};
+use godot::classes::{
+    mesh::PrimitiveType, ArrayMesh, IMeshInstance3D, Material, MeshInstance3D, SurfaceTool,
+};
+
+use crate::sr2;
+
+use super::sr2_vec_to_godot;
 
 /// Potentially world collisions
 #[derive(Debug, GodotClass)]
@@ -22,10 +27,12 @@ pub struct MaybeStaticCollision {
 impl IMeshInstance3D for MaybeStaticCollision {}
 
 impl MaybeStaticCollision {
-    pub fn new(vertex_buffer: &[Vector3]) -> Gd<Self> {
+    pub fn from_sr2(vertex_buffer: &[sr2::Vector]) -> Gd<Self> {
+        let vertex_buffer: Vec<Vector3> = vertex_buffer.iter().map(sr2_vec_to_godot).collect();
+
         let mut this = Gd::from_init_fn(|base| Self { base });
 
-        let mesh = this.bind().build_mesh(vertex_buffer);
+        let mesh = this.bind().build_mesh(&vertex_buffer);
         this.set_mesh(&mesh);
 
         this

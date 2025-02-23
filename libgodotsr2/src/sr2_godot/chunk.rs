@@ -6,14 +6,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use byteorder::{LittleEndian, ReadBytesExt};
 use godot::prelude::*;
-use std::io::{BufRead, BufReader, Read, Seek};
-use zerocopy::FromBytes;
+use std::io::{BufReader, Read, Seek};
 
 use crate::sr2;
 
-use super::{sr2_vec_to_godot, ChunkError, CityObjectModel, MaybeStaticCollision};
+use super::{sr2_vec_to_godot, CityObjectModel, MaybeStaticCollision};
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
 #[derive(Debug, GodotClass)]
@@ -57,158 +55,27 @@ impl INode for Chunk {
 }
 
 impl Chunk {
-    pub fn new<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Gd<Self>, ChunkError> {
-        let header = {
-            let mut buf = vec![0; size_of::<sr2::ChunkHeader>()];
-            reader.read_exact(&mut buf)?;
-            sr2::ChunkHeader::read_from_bytes(&buf).unwrap()
-        };
-
-        if header.magic != sr2::ChunkHeader::MAGIC {
-            return Err(ChunkError::InvalidMagic(header.magic));
-        } else if header.version != sr2::ChunkHeader::VERION {
-            return Err(ChunkError::InvalidVersion(header.version));
-        }
-
-        let num_textures = reader.read_u32::<LittleEndian>()?;
-        reader.seek_relative(num_textures as i64 * 4)?;
-        let mut textures = vec![];
-        for _ in 0..num_textures {
-            let mut buf = vec![];
-            reader.read_until(0x00, &mut buf)?;
-            textures.push(String::from_utf8_lossy(&buf).to_string());
-        }
-
-        seek_align(reader, 16)?;
-
-        let model_header = {
-            let mut buf = vec![0; size_of::<sr2::ModelHeader>()];
-            reader.read_exact(&mut buf)?;
-            sr2::ModelHeader::read_from_bytes(&buf).unwrap()
-        };
-
-        //let num_gpu_meshes = reader.read_u32::<LittleEndian>()?;
-        //let num_city_object_models = reader.read_u32::<LittleEndian>()?;
-        //let _num_models = reader.read_u32::<LittleEndian>()?;
-        //let num_unknown3 = reader.read_u32::<LittleEndian>()?;
-        //let num_unknown4 = reader.read_u32::<LittleEndian>()?;
-
-        let mut gpu_mesh_unk_as = vec![];
-        let mut obj_models = vec![];
-        let mut model_unk_as = vec![];
-        let mut model_unk_bs = vec![];
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_gpu_meshes {
-            let mut buf = vec![0; size_of::<sr2::GpuMeshUnkA>()];
-            reader.read_exact(&mut buf)?;
-            gpu_mesh_unk_as.push(sr2::GpuMeshUnkA::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_obj_models {
-            let mut buf = vec![0; size_of::<sr2::ObjectModel>()];
-            reader.read_exact(&mut buf)?;
-            obj_models.push(sr2::ObjectModel::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_model_unknown_a {
-            let mut buf = vec![0; size_of::<sr2::ModelUnknownA>()];
-            reader.read_exact(&mut buf)?;
-            model_unk_as.push(sr2::ModelUnknownA::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        for _ in 0..model_header.num_model_unknown_b {
-            let mut buf = vec![0; size_of::<sr2::ModelUnknownB>()];
-            reader.read_exact(&mut buf)?;
-            model_unk_bs.push(sr2::ModelUnknownB::read_from_bytes(&buf).unwrap());
-        }
-
-        seek_align(reader, 16)?;
-
-        // maybe collision vertices.
-        let num_unknown5_vertices = reader.read_u32::<LittleEndian>()?;
-        let mut unknown5_vbuf = vec![];
-        for _ in 0..num_unknown5_vertices {
-            let mut buf = vec![0; size_of::<sr2::Vector>()];
-            reader.read_exact(&mut buf)?;
-            let vertex = sr2_vec_to_godot(&sr2::Vector::read_from_bytes(&buf).unwrap());
-            unknown5_vbuf.push(vertex);
-        }
-
-        // Type: unknown 3B. triangle indices?
-        let num_unknown6 = reader.read_u32::<LittleEndian>()?;
-        reader.seek_relative(num_unknown6 as i64 * 3)?;
-
-        // Type: unknown 4B
-        let num_unknown7 = reader.read_u32::<LittleEndian>()?;
-        reader.seek_relative(num_unknown7 as i64 * 4)?;
-
-        // Type: unknown 12B. Not vectors.
-        let num_unknown8 = reader.read_u32::<LittleEndian>()?;
-        reader.seek_relative(num_unknown8 as i64 * 12)?;
-
-        seek_align(reader, 16)?;
-
-        // Havok collisions stuff
-        let len_mopp = reader.read_u32::<LittleEndian>()?;
-
-        seek_align(reader, 16)?;
-
-        {
-            // Using MOPP magic for sanity check
-            let mut buf = vec![0; 4];
-            reader.read_exact(&mut buf)?;
-            let mopp_magic = String::from_utf8_lossy(&buf).to_string();
-            if mopp_magic.as_str() != "MOPP" {
-                let msg = "First MOPP signature didn't appear where expected.".into();
-                let pos = reader.stream_position().unwrap() as i64;
-                return Err(ChunkError::LostTrack { msg, pos });
-            }
-        }
-        reader.seek_relative(len_mopp as i64 - 4)?;
-
-        seek_align(reader, 4)?;
-
-        // Collision area AABB?
-        let unk_bb_min = {
-            let mut buf = vec![0; size_of::<sr2::Vector>()];
-            reader.read_exact(&mut buf)?;
-            sr2::Vector::read_from_bytes(&buf).unwrap()
-        };
-        let unk_bb_max = {
-            let mut buf = vec![0; size_of::<sr2::Vector>()];
-            reader.read_exact(&mut buf)?;
-            sr2::Vector::read_from_bytes(&buf).unwrap()
-        };
-
-        seek_align(reader, 16)?;
+    pub fn new<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Gd<Self>, sr2::ChunkError> {
+        let chunk = sr2::Chunk::read(reader)?;
 
         Ok(Gd::from_init_fn(|base| Self {
-            bbox_min: sr2_vec_to_godot(&header.bbox_min),
-            bbox_max: sr2_vec_to_godot(&header.bbox_max),
+            bbox_min: sr2_vec_to_godot(&chunk.header.bbox_min),
+            bbox_max: sr2_vec_to_godot(&chunk.header.bbox_max),
 
-            textures,
+            textures: chunk.textures,
 
-            unk_bb_min: sr2_vec_to_godot(&unk_bb_min),
-            unk_bb_max: sr2_vec_to_godot(&unk_bb_max),
+            unk_bb_min: sr2_vec_to_godot(&chunk.unk_bb_min),
+            unk_bb_max: sr2_vec_to_godot(&chunk.unk_bb_max),
 
-            unknown5: MaybeStaticCollision::new(&unknown5_vbuf),
+            unknown5: MaybeStaticCollision::from_sr2(&chunk.unknown5_vbuf),
 
-            city_object_models: obj_models.iter().map(CityObjectModel::from_sr2).collect(),
+            city_object_models: chunk
+                .obj_models
+                .iter()
+                .map(CityObjectModel::from_sr2)
+                .collect(),
 
             base,
         }))
     }
-}
-
-fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
-    let pos = reader.stream_position().unwrap() as i64;
-    reader.seek_relative((size - (pos % size)) % size)
 }
