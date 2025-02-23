@@ -17,6 +17,7 @@ mod transform;
 mod unknown3;
 mod unknown4;
 mod vector;
+mod materials;
 
 pub use chunk_header::Sr2ChunkHeader;
 pub use city_object::Sr2CityObjectModel;
