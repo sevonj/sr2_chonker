@@ -55,7 +55,7 @@ impl IMeshInstance3D for CityObjectModel {
 }
 
 impl CityObjectModel {
-    pub fn from_sr2(data: &sr2::CityObjectModel) -> Gd<Self> {
+    pub fn from_sr2(data: &sr2::ObjectModel) -> Gd<Self> {
         let mut this = Gd::from_init_fn(|base| Self {
             unk_0x30: data.unk_0x30,
             unk_0x34: data.unk_0x34,

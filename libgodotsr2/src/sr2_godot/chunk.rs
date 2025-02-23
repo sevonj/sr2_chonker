@@ -81,47 +81,53 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
-        let num_gpu_meshes = reader.read_u32::<LittleEndian>()?;
-        let num_city_object_models = reader.read_u32::<LittleEndian>()?;
-        let _num_models = reader.read_u32::<LittleEndian>()?;
-        let num_unknown3 = reader.read_u32::<LittleEndian>()?;
-        let num_unknown4 = reader.read_u32::<LittleEndian>()?;
+        let model_header = {
+            let mut buf = vec![0; size_of::<sr2::ModelHeader>()];
+            reader.read_exact(&mut buf)?;
+            sr2::ModelHeader::read_from_bytes(&buf).unwrap()
+        };
 
-        let mut rendermodel_unk0s = vec![];
-        let mut city_object_models = vec![];
-        let mut unknown3s = vec![];
-        let mut unknown4s = vec![];
+        //let num_gpu_meshes = reader.read_u32::<LittleEndian>()?;
+        //let num_city_object_models = reader.read_u32::<LittleEndian>()?;
+        //let _num_models = reader.read_u32::<LittleEndian>()?;
+        //let num_unknown3 = reader.read_u32::<LittleEndian>()?;
+        //let num_unknown4 = reader.read_u32::<LittleEndian>()?;
+
+        let mut gpu_mesh_unk_as = vec![];
+        let mut obj_models = vec![];
+        let mut model_unk_as = vec![];
+        let mut model_unk_bs = vec![];
 
         seek_align(reader, 16)?;
 
-        for _ in 0..num_gpu_meshes {
-            let mut buf = vec![0; size_of::<sr2::GpuMeshUnk0>()];
+        for _ in 0..model_header.num_gpu_meshes {
+            let mut buf = vec![0; size_of::<sr2::GpuMeshUnkA>()];
             reader.read_exact(&mut buf)?;
-            rendermodel_unk0s.push(sr2::GpuMeshUnk0::read_from_bytes(&buf).unwrap());
+            gpu_mesh_unk_as.push(sr2::GpuMeshUnkA::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
-        for _ in 0..num_city_object_models {
-            let mut buf = vec![0; size_of::<CityObjectModel>()];
+        for _ in 0..model_header.num_obj_models {
+            let mut buf = vec![0; size_of::<sr2::ObjectModel>()];
             reader.read_exact(&mut buf)?;
-            city_object_models.push(sr2::CityObjectModel::read_from_bytes(&buf).unwrap());
+            obj_models.push(sr2::ObjectModel::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
-        for _ in 0..num_unknown3 {
-            let mut buf = vec![0; size_of::<sr2::Unknown3>()];
+        for _ in 0..model_header.num_model_unknown_a {
+            let mut buf = vec![0; size_of::<sr2::ModelUnknownA>()];
             reader.read_exact(&mut buf)?;
-            unknown3s.push(sr2::Unknown3::read_from_bytes(&buf).unwrap());
+            model_unk_as.push(sr2::ModelUnknownA::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
-        for _ in 0..num_unknown4 {
-            let mut buf = vec![0; size_of::<sr2::Unknown4>()];
+        for _ in 0..model_header.num_model_unknown_b {
+            let mut buf = vec![0; size_of::<sr2::ModelUnknownB>()];
             reader.read_exact(&mut buf)?;
-            unknown4s.push(sr2::Unknown4::read_from_bytes(&buf).unwrap());
+            model_unk_bs.push(sr2::ModelUnknownB::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
@@ -195,10 +201,7 @@ impl Chunk {
 
             unknown5: MaybeStaticCollision::new(&unknown5_vbuf),
 
-            city_object_models: city_object_models
-                .iter()
-                .map(CityObjectModel::from_sr2)
-                .collect(),
+            city_object_models: obj_models.iter().map(CityObjectModel::from_sr2).collect(),
 
             base,
         }))
