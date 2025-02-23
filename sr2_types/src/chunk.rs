@@ -262,7 +262,7 @@ impl Chunk {
 
         let len_mopp = reader.read_u32::<LittleEndian>()?;
         seek_align(reader, 16)?;
-        {
+        if len_mopp != 0 {
             // Using MOPP signature as a landmark.
             let mut buf = vec![0_u8; 4];
             reader.read_exact(&mut buf)?;
