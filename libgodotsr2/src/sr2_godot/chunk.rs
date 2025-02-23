@@ -9,8 +9,6 @@
 use godot::prelude::*;
 use std::io::{BufReader, Read, Seek};
 
-use crate::sr2;
-
 use super::{sr2_vec_to_godot, CityObjectModel, MaybeStaticCollision};
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.

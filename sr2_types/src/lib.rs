@@ -6,10 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-//! Raw SR2 types.
-//! The purpose of this module is to hold all SR2 types.
-//! No editor or Godot code allowed!
-
 mod chunk;
 mod city_object;
 mod error;

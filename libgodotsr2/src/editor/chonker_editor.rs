@@ -17,7 +17,7 @@ use godot::classes::{
 
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
 use super::{SceneAxisLines, UiBrowserPanel};
-use crate::{sr2, sr2_godot::Chunk};
+use crate::sr2_godot::Chunk;
 
 /// The root [Node] of an
 #[derive(Debug, GodotClass)]

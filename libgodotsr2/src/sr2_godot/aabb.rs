@@ -8,8 +8,6 @@
 
 use godot::builtin::Vector3;
 
-use crate::sr2;
-
 pub fn sr2_aabb_to_godot(min: &sr2::Vector, max: &sr2::Vector) -> (Vector3, Vector3) {
     let min = Vector3 {
         x: -max.x,

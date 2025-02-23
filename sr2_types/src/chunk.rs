@@ -7,7 +7,10 @@
  */
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use std::io::{BufRead, BufReader, Read, Seek};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, Read, Seek},
+};
 use zerocopy::FromBytes;
 use zerocopy_derive::{FromBytes, IntoBytes};
 
@@ -128,11 +131,6 @@ pub struct ChunkHeader {
     pub header0xfc: i32,
 }
 
-impl ChunkHeader {
-    pub const MAGIC: u32 = 0xBBCACA12;
-    pub const VERION: u32 = 121;
-}
-
 /// An instance of SR2 chunk_pc file.
 pub struct Chunk {
     pub header: ChunkHeader,
@@ -163,6 +161,13 @@ impl Chunk {
     pub const MAGIC: u32 = 0xBBCACA12;
     pub const VERION: u32 = 121;
 
+    /// Open a .chunk_pc file
+    pub fn open(path: String) -> Result<Self, ChunkError> {
+        let mut reader = BufReader::new(File::open(path)?);
+        Self::read(&mut reader)
+    }
+
+    /// Read from stream
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, ChunkError> {
         let header = {
             let mut buf = vec![0_u8; size_of::<ChunkHeader>()];

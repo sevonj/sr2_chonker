@@ -8,8 +8,6 @@
 
 use godot::builtin::{Basis, Vector3};
 
-use crate::sr2;
-
 pub fn sr2_xform_to_godot(xform: &sr2::Transform) -> Basis {
     Basis {
         rows: [

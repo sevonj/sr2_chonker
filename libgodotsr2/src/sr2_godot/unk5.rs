@@ -12,8 +12,6 @@ use godot::classes::{
     mesh::PrimitiveType, ArrayMesh, IMeshInstance3D, Material, MeshInstance3D, SurfaceTool,
 };
 
-use crate::sr2;
-
 use super::sr2_vec_to_godot;
 
 /// Potentially world collisions

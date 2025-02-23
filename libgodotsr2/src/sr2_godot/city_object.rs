@@ -10,8 +10,6 @@ use godot::prelude::*;
 
 use godot::classes::{BoxMesh, IMeshInstance3D, MeshInstance3D};
 
-use crate::sr2;
-
 use super::sr2_vec_to_godot;
 use super::sr2_xform_to_godot;
 
