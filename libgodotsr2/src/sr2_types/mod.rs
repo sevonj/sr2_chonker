@@ -10,18 +10,18 @@
 //! The purpose of this module is to hold all SR2 types.
 //! No editor or Godot code allowed!
 
-mod sr2_chunk_header;
-mod sr2_city_object;
-mod sr2_gpu_mesh;
-mod sr2_transform;
-mod sr2_unknown3;
-mod sr2_unknown4;
-mod sr2_vector;
+mod chunk_header;
+mod city_object;
+mod gpu_mesh;
+mod transform;
+mod unknown3;
+mod unknown4;
+mod vector;
 
-pub use sr2_chunk_header::Sr2ChunkHeader;
-pub use sr2_city_object::Sr2CityObjectModel;
-pub use sr2_gpu_mesh::Sr2GpuMeshUnk0;
-pub use sr2_transform::Sr2Transform;
-pub use sr2_unknown3::Sr2Unknown3;
-pub use sr2_unknown4::Sr2Unknown4;
-pub use sr2_vector::Sr2Vector;
+pub use chunk_header::Sr2ChunkHeader;
+pub use city_object::Sr2CityObjectModel;
+pub use gpu_mesh::Sr2GpuMeshUnk0;
+pub use transform::Sr2Transform;
+pub use unknown3::Sr2Unknown3;
+pub use unknown4::Sr2Unknown4;
+pub use vector::Sr2Vector;
