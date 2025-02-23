@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use std::path::PathBuf;
+
 use clap::Parser;
 use colored::Colorize;
 use rust_search::SearchBuilder;
@@ -16,13 +18,21 @@ struct Args {
     /// Print errors
     #[arg(short, long)]
     verbose: bool,
+    /// Can be either a file, or a dir for batch check
+    #[arg(short, long)]
+    path: String,
 }
 
 fn main() {
     let args = Args::parse();
 
-    let path = "samples";
-    let files = get_files(path);
+    let pathbuf = PathBuf::from(&args.path);
+    if !pathbuf.exists() {
+        println!("Path doesn't exist.");
+        return;
+    }
+
+    let files = get_files(&args.path);
 
     if files.is_empty() {
         println!("No files found!");
@@ -35,13 +45,22 @@ fn main() {
     let mut failed = vec![];
 
     for (i, path) in files.iter().enumerate() {
+        print!(
+            "{}/{num_files} : {} {path}",
+            i + 1,
+            "[checking...]".yellow().bold()
+        );
         match sr2::Chunk::open(path) {
             Ok(_) => {
-                println!("{}/{num_files} : {} {path}", i + 1, "[OK] ".green().bold());
+                println!(
+                    "\r{}/{num_files} : {} {path}",
+                    i + 1,
+                    "[OK] ".green().bold()
+                );
             }
             Err(e) => {
                 failed.push(path.clone());
-                println!("{}/{num_files} : {} {path}", i + 1, "[ERR]".red().bold());
+                println!("\r{}/{num_files} : {} {path}", i + 1, "[ERR]".red().bold());
                 if args.verbose {
                     println!("{}", format!("└> {e}").bright_black());
                 }
