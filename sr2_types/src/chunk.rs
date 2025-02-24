@@ -14,13 +14,20 @@ use std::{
 use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
-use crate::{MeshBufferInstance, MeshHeader, VertexBufHeader, VertexBufferInstance};
+use crate::{
+    Material, MaterialData, MaterialHeader, MaterialTexEntry, MeshBufferInstance, MeshHeader,
+    VertexBufHeader, VertexBufferInstance,
+};
 
 use super::{
     GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Sr2TypeError, Vector,
 };
 
+/// Not a direct SR2 type - this is an instance type of which purpose is make
+/// the data easier to work with. Corresponds to [ChunkHeader]
+///
 /// An instance of SR2 CPU chunk (.chunk_pc) file.
+#[derive(Debug, Clone)]
 pub struct Chunk {
     pub header: ChunkHeader,
 
@@ -46,6 +53,10 @@ pub struct Chunk {
     pub unk_bb_max: Vector,
 
     pub mesh_buffers: Vec<MeshBufferInstance>,
+
+    pub mat_header: MaterialHeader,
+    pub materials: Vec<Material>,
+    pub shader_consts: Vec<f32>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -189,17 +200,13 @@ impl Chunk {
         let mut mesh_headers = vec![];
         let mut mesh_buffers: Vec<MeshBufferInstance> = vec![];
         for _ in 0..model_header.num_meshes {
-            let mut buf = vec![0_u8; size_of::<MeshHeader>()];
-            reader.read_exact(&mut buf)?;
-            mesh_headers.push(MeshHeader::read_from_bytes(&buf).unwrap());
+            mesh_headers.push(MeshHeader::read(reader)?);
         }
 
         for mesh_header in mesh_headers {
             let mut vbuf_headers = vec![];
             for _ in 0..mesh_header.num_vertex_buffers {
-                let mut buf = vec![0_u8; size_of::<VertexBufHeader>()];
-                reader.read_exact(&mut buf)?;
-                vbuf_headers.push(VertexBufHeader::read_from_bytes(&buf).unwrap());
+                vbuf_headers.push(VertexBufHeader::read(reader)?);
             }
 
             let mut vertex_buffers = vec![];
@@ -233,6 +240,25 @@ impl Chunk {
             }
         }
 
+        seek_align(reader, 16)?;
+
+        let mut materials = vec![];
+        let mut shader_consts = vec![];
+        let mat_header = MaterialHeader::read(reader)?;
+
+        /*for _ in 0..mat_header.num_materials {
+            let mat_data = MaterialData::read(reader)?;
+            materials.push(Material {
+                shader_name_checksum: mat_data.shader_name_checksum,
+                mat_name_checksum: mat_data.mat_name_checksum,
+                flags: mat_data.flags,
+                unknown_2b: vec![0; mat_data.num_unknown_2b as usize],
+                textures: vec![MaterialTexEntry::placeholder(); mat_data.num_textures as usize],
+                unk_0x10: mat_data.unk_0x10,
+                flags_0x12: mat_data.flags_0x12,
+            });
+        }*/
+
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
@@ -253,6 +279,9 @@ impl Chunk {
             unk_bb_max,
             mesh_buffers,
             remaining_data,
+            mat_header,
+            materials,
+            shader_consts,
         })
     }
 
@@ -359,6 +388,15 @@ impl Chunk {
             buf.extend_from_slice(mesh_buffer.indices.as_bytes());
         }
 
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        buf.extend_from_slice(self.mat_header.as_bytes());
+        for material in &self.materials {
+            let mat_data = material.material_data();
+            buf.extend_from_slice(mat_data.as_bytes());
+        }
+
         buf.extend_from_slice(&self.remaining_data);
 
         buf
@@ -370,7 +408,7 @@ fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> 
     reader.seek_relative((size - (pos % size)) % size)
 }
 
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ChunkHeader {
     pub magic: u32,

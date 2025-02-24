@@ -14,7 +14,7 @@ pub enum Sr2TypeError {
     ChunkInvalidMagic(u32),
     ChunkInvalidVersion(u32),
     ChunkLostTrack { msg: String, pos: i64 },
-    UnexpectedData,
+    UnexpectedData { pos: u64 },
 }
 
 impl Error for Sr2TypeError {}
@@ -34,7 +34,9 @@ impl std::fmt::Display for Sr2TypeError {
             Sr2TypeError::ChunkLostTrack { msg, pos } => {
                 write!(f, "Something's gone wrong, lost track of chunk. (pos: {pos:#X}, message: '{msg}')")
             }
-            Sr2TypeError::UnexpectedData => write!(f, "Unexpected data"),
+            Sr2TypeError::UnexpectedData { pos } => {
+                write!(f, "Unexpected data at position '{pos}'")
+            }
         }
     }
 }

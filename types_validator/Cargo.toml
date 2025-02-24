@@ -1,5 +1,5 @@
 [package]
-name = "sr2_types_validator"
+name = "types_validator"
 version = "0.1.0"
 edition = "2021"
 license = "MPL-2.0"

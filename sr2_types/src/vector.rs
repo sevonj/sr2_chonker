@@ -9,7 +9,7 @@
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 /// A 3D vector, for coords and whatnot
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct Vector {
     pub x: f32,

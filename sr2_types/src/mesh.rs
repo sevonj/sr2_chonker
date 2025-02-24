@@ -26,13 +26,20 @@
 //! - [VertexBufHeader] * mesh_header.num_vertex_buffers for mesh_header
 //! - ([Vector] * mesh_header.num_indices, [u16] * vert_header for mesh_header.num_vertex_buffers) for mesh_header
 
+use std::io::{BufReader, Read, Seek};
+use zerocopy::FromBytes;
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
+
+use crate::Sr2TypeError;
 
 use super::{Transform, Vector};
 
-/// An instance of SR2 mesh buffer used in chunks.
+/// Not a direct SR2 type - this is an instance type of which purpose is make
+/// the data easier to work with. Corresponds to [MeshHeader].
+///
+/// Defines vertex/index buffers used in chunks.
 /// Covers both CPU and GPU data.
-/// Corresponds to [MeshHeader]
+#[derive(Debug, Clone)]
 pub struct MeshBufferInstance {
     /// see [MeshHeader::mesh_type]
     pub mesh_type: u16,
@@ -53,9 +60,12 @@ impl MeshBufferInstance {
     }
 }
 
+/// Not a direct SR2 type - this is an instance type of which purpose is make
+/// the data easier to work with. Corresponds to [VertexBufHeader]
+///
 /// An instance of SR2 vertex buffer used in chunks.
 /// Covers both CPU and GPU data.
-/// Corresponds to [VertexBufHeader]
+#[derive(Debug, Clone)]
 pub struct VertexBufferInstance {
     pub num_vertex_a: u8,
     pub num_uvs: u8,
@@ -65,7 +75,7 @@ pub struct VertexBufferInstance {
 impl VertexBufferInstance {
     /// Serialize instance to SR2 type
     pub fn header(&self) -> VertexBufHeader {
-        let mut header = VertexBufHeader::default();
+        let mut header = VertexBufHeader::new();
 
         let len_vertex = self.len_vertex();
         header.num_vertex_a = self.num_vertex_a;
@@ -81,7 +91,7 @@ impl VertexBufferInstance {
     }
 }
 
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ModelHeader {
     pub num_gpu_meshes: u32,
@@ -92,7 +102,7 @@ pub struct ModelHeader {
 }
 
 /// Always same count as GPU meshes. Purpose unknown.
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct GpuMeshUnkA {
     pub unk_0x00: i32,
@@ -105,7 +115,7 @@ pub struct GpuMeshUnkA {
 
 /// Contains transform and rendermodel id.
 /// Every object has one of these, but usually a few are left over.
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ObjectModel {
     pub origin: Vector,
@@ -139,21 +149,21 @@ pub struct ObjectModel {
 }
 
 /// Probably part of objects or their models somehow
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ModelUnknownA {
     pub lotsa_floats: [f32; 0x19],
 }
 
 /// Probably part of objects or their models somehow
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ModelUnknownB {
     pub lotsa_floats: [f32; 0xd],
 }
 
 /// Describes buffers both in cpu and gpu chunk file.
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct MeshHeader {
     /// Either 7 or 0? 7 is cpu, 0 gpu
@@ -180,16 +190,31 @@ impl MeshHeader {
         }
     }
 
-    pub fn is_valid(&self) -> bool {
-        (self.mesh_type == 0 || self.mesh_type == 7)
-            && self.runtime_0x08 == -1
-            && self.runtime_0x0c == -1
-            && self.runtime_0x10 == 0
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let this = {
+            let mut buf = vec![0_u8; size_of::<Self>()];
+            reader.read_exact(&mut buf)?;
+            Self::read_from_bytes(&buf).unwrap()
+        };
+        if this.runtime_0x08 != -1 {
+            let pos = reader.stream_position().unwrap() - 0xc;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        if this.runtime_0x0c != -1 {
+            let pos = reader.stream_position().unwrap() - 0x8;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        if this.runtime_0x10 != 0 {
+            let pos = reader.stream_position().unwrap() - 0x4;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        Ok(this)
     }
 }
 
 /// Describes vertex format and count
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct VertexBufHeader {
     /// Number of unknown data in vertex. Each adds 2B to vert size.
@@ -206,8 +231,8 @@ pub struct VertexBufHeader {
     runtime_0x0c: u32,
 }
 
-impl Default for VertexBufHeader {
-    fn default() -> Self {
+impl VertexBufHeader {
+    fn new() -> Self {
         Self {
             num_vertex_a: 0,
             num_uvs: 0,
@@ -216,6 +241,24 @@ impl Default for VertexBufHeader {
             runtime_0x08: -1,
             runtime_0x0c: 0,
         }
+    }
+
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let this = {
+            let mut buf = vec![0_u8; size_of::<Self>()];
+            reader.read_exact(&mut buf)?;
+            Self::read_from_bytes(&buf).unwrap()
+        };
+        if this.runtime_0x08 != -1 {
+            let pos = reader.stream_position().unwrap() - 0x8;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        if this.runtime_0x0c != 0 {
+            let pos = reader.stream_position().unwrap() - 0x4;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        Ok(this)
     }
 }
 
@@ -226,7 +269,7 @@ impl VertexBufHeader {
 }
 
 /// A mesh that gets its data from the GPU chunk
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct GpuMesh {
     pub unknown_0x00: u16,
@@ -237,9 +280,8 @@ pub struct GpuMesh {
     runtime_0x0c: u32,
 }
 
-#[allow(clippy::derivable_impls)]
-impl Default for GpuMesh {
-    fn default() -> Self {
+impl GpuMesh {
+    fn new() -> Self {
         Self {
             unknown_0x00: 0,
             num_surfaces: 0,
@@ -248,10 +290,24 @@ impl Default for GpuMesh {
             runtime_0x0c: 0,
         }
     }
+
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let this = {
+            let mut buf = vec![0_u8; size_of::<Self>()];
+            reader.read_exact(&mut buf)?;
+            Self::read_from_bytes(&buf).unwrap()
+        };
+        if this.runtime_0x0c != 0 {
+            let pos = reader.stream_position().unwrap() - 0x4;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        Ok(this)
+    }
 }
 
 /// One surface of a [GpuMesh]
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct GpuSurface {
     /// Which vertex buffer to use

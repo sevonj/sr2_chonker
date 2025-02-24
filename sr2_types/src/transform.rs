@@ -11,7 +11,7 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 use super::Vector;
 
 /// Transform matrix
-#[derive(Debug, FromBytes, IntoBytes, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct Transform {
     pub basis_x: Vector,
