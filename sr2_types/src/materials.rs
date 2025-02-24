@@ -41,6 +41,7 @@ pub struct Material {
     pub textures: Vec<MaterialTexEntry>,
     pub unk_0x10: i16,
     pub flags_0x12: i16,
+    pub runtime_0x14: i32
 }
 
 impl Material {
@@ -55,6 +56,7 @@ impl Material {
         data.num_textures = self.textures.len() as u16;
         data.unk_0x10 = self.unk_0x10;
         data.flags_0x12 = self.flags_0x12;
+        data.runtime_0x14 = self.runtime_0x14;
 
         data
     }
@@ -107,23 +109,27 @@ impl MaterialHeader {
             Self::read_from_bytes(&buf).unwrap()
         };
         if this.runtime_0x04 != 0 {
-            let pos = reader.stream_position().unwrap();
+            let pos = reader.stream_position().unwrap() - 0x20;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x08 != 0 {
-            let pos = reader.stream_position().unwrap();
+            let pos = reader.stream_position().unwrap() - 0x1c;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x0c != 0 {
-            let pos = reader.stream_position().unwrap();
+            let pos = reader.stream_position().unwrap() - 0x18;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x14 != 0 {
-            let pos = reader.stream_position().unwrap();
+            let pos = reader.stream_position().unwrap() - 0x10;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x18 != 0 {
-            let pos = reader.stream_position().unwrap();
+            let pos = reader.stream_position().unwrap() - 0xc;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        if this.runtime_0x20 != 0 {
+            let pos = reader.stream_position().unwrap() - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         Ok(this)
@@ -151,8 +157,8 @@ pub struct MaterialData {
     pub unk_0x10: i16,
     /// Not confirmed, but looks like
     pub flags_0x12: i16,
-    /// Runtime only? Always -1.
-    runtime_0x14: i32,
+    /// Runtime only? Always -1 OR 0
+    pub runtime_0x14: i32,
 }
 
 impl MaterialData {
@@ -177,8 +183,8 @@ impl MaterialData {
             reader.read_exact(&mut buf)?;
             Self::read_from_bytes(&buf).unwrap()
         };
-        if this.runtime_0x14 != -1 {
-            let pos = reader.stream_position().unwrap();
+        if this.runtime_0x14 != -1 && this.runtime_0x14 != 0 {
+            let pos = reader.stream_position().unwrap() - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         Ok(this)

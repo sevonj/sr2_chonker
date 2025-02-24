@@ -35,7 +35,7 @@ impl std::fmt::Display for Sr2TypeError {
                 write!(f, "Something's gone wrong, lost track of chunk. (pos: {pos:#X}, message: '{msg}')")
             }
             Sr2TypeError::UnexpectedData { pos } => {
-                write!(f, "Unexpected data at position '{pos}'")
+                write!(f, "Unexpected data at position '{pos:#X}'")
             }
         }
     }

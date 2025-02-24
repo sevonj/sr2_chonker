@@ -257,10 +257,10 @@ impl Chunk {
                 textures: vec![MaterialTexEntry::placeholder(); mat_data.num_textures as usize],
                 unk_0x10: mat_data.unk_0x10,
                 flags_0x12: mat_data.flags_0x12,
+                runtime_0x14: mat_data.runtime_0x14,
             });
         }
         // */
-
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
