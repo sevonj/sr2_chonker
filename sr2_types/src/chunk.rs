@@ -15,8 +15,9 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    materials, Material, MaterialData, MaterialHeader, MaterialTexEntry, MeshBufferInstance,
-    MeshHeader, VertexBufHeader, VertexBufferInstance,
+    materials, Material, MaterialData, MaterialHeader, MaterialTexEntry, MaterialUnknown3,
+    MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBufHeader,
+    VertexBufferInstance,
 };
 
 use super::{
@@ -57,6 +58,7 @@ pub struct Chunk {
     pub mat_header: MaterialHeader,
     pub materials: Vec<Material>,
     pub shader_consts: Vec<f32>,
+    pub material_unk_3: Vec<MaterialUnknown3Instance>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -276,6 +278,23 @@ impl Chunk {
             *shad_const = reader.read_f32::<LittleEndian>()?;
         }
 
+        let mut material_unk_3 = vec![];
+        for _ in 0..mat_header.num_mat_unknown3 {
+            let data = MaterialUnknown3::read(reader)?;
+            material_unk_3.push(MaterialUnknown3Instance {
+                unk_0x00: data.unk_0x00,
+                unk_0x04: data.unk_0x04,
+                unk: vec![0; data.num_unk as usize],
+                unk_0x06: data.unk_0x06,
+                runtime_0x08: data.runtime_0x08,
+            });
+        }
+        //for mat_unk3 in &mut material_unk_3 {
+        //    for value in &mut mat_unk3.unk {
+        //        *value = reader.read_u32::<LittleEndian>()?;
+        //    }
+        //}
+
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
@@ -299,6 +318,7 @@ impl Chunk {
             mat_header,
             materials,
             shader_consts,
+            material_unk_3,
         })
     }
 
@@ -427,6 +447,15 @@ impl Chunk {
             buf.push(0);
         }
         buf.extend_from_slice(self.shader_consts.as_bytes());
+
+        for unk3 in &self.material_unk_3 {
+            buf.extend_from_slice(unk3.material_unknown3().as_bytes());
+        }
+        //for unk3 in &self.material_unk_3 {
+        //    for value in &unk3.unk {
+        //        buf.extend_from_slice(&value.to_le_bytes());
+        //    }
+        //}
 
         buf.extend_from_slice(&self.remaining_data);
 
