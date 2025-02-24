@@ -62,7 +62,11 @@ fn main() {
             Ok(chunk) => chunk,
             Err(e) => {
                 failed.push(path.clone());
-                println!("\r{}/{num_files} : {} {path}", i + 1, "[ERR]".red().bold());
+                println!(
+                    "\r{}/{num_files} : {} {path}        ",
+                    i + 1,
+                    "[ERR]".red().bold()
+                );
                 if args.verbose {
                     println!("{}", format!("└> {e}").bright_black());
                 }
@@ -72,7 +76,11 @@ fn main() {
         if args.intense {
             if let Err(e) = check_intense(path, &chunk) {
                 failed.push(path.clone());
-                println!("\r{}/{num_files} : {} {path}", i + 1, "[ERR]".red().bold());
+                println!(
+                    "\r{}/{num_files} : {} {path}        ",
+                    i + 1,
+                    "[ERR]".red().bold()
+                );
                 if args.verbose {
                     println!("{}", format!("└> {e}").bright_black());
                 }

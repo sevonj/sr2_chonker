@@ -246,7 +246,8 @@ impl Chunk {
         let mut shader_consts = vec![];
         let mat_header = MaterialHeader::read(reader)?;
 
-        /*for _ in 0..mat_header.num_materials {
+        //*
+        for _ in 0..mat_header.num_materials {
             let mat_data = MaterialData::read(reader)?;
             materials.push(Material {
                 shader_name_checksum: mat_data.shader_name_checksum,
@@ -257,7 +258,8 @@ impl Chunk {
                 unk_0x10: mat_data.unk_0x10,
                 flags_0x12: mat_data.flags_0x12,
             });
-        }*/
+        }
+        // */
 
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
