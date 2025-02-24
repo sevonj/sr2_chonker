@@ -181,7 +181,6 @@ impl MeshHeader {
     }
 
     pub fn is_valid(&self) -> bool {
-        
         (self.mesh_type == 0 || self.mesh_type == 7)
             && self.runtime_0x08 == -1
             && self.runtime_0x0c == -1
