@@ -4,13 +4,21 @@ compatibility_minimum = 4.3
 reloadable = true
 
 [libraries]
-linux.debug.x86_64 = "res://../libgodotsr2/target/debug/libgodotsr2.so"
-linux.release.x86_64 = "res://../libgodotsr2/target/release/libgodotsr2.so"
-windows.debug.x86_64 = "res://../libgodotsr2/target/debug/hot_reload.dll"
-windows.release.x86_64 = "res://../libgodotsr2/target/release/hot_reload.dll"
-macos.debug = "res://../libgodotsr2/target/debug/libgodotsr2.dylib"
-macos.release = "res://../libgodotsr2/target/release/libgodotsr2.dylib"
-macos.debug.arm64 = "res://../libgodotsr2/target/debug/libgodotsr2.dylib"
-macos.release.arm64 = "res://../libgodotsr2/target/release/libgodotsr2.dylib"
-web.debug.wasm32 = "res://../libgodotsr2/target/wasm32-unknown-emscripten/debug/hot_reload.wasm"
-web.release.wasm32 = "res://../libgodotsr2/target/wasm32-unknown-emscripten/release/hot_reload.wasm"
+# Should be compiled with targets specified:
+# x86_64-unknown-linux-gnu
+# x86_64-pc-windows-gnu
+
+linux.debug.x86_64 = "res://../target/x86_64-unknown-linux-gnu/debug/libgodotsr2.so"
+linux.release.x86_64 = "res://../target/x86_64-unknown-linux-gnu/release/libgodotsr2.so"
+windows.debug.x86_64 = "res://../target/x86_64-pc-windows-gnu/debug/hot_reload.dll"
+windows.release.x86_64 = "res://../target/x86_64-pc-windows-gnu/release/hot_reload.dll"
+
+# Not checked, paths may be wrong
+# mac and web users aren't supported anyway.
+
+macos.debug = "res://../target/debug.dylib"
+macos.release = "res://../target/release.dylib"
+macos.debug.arm64 = "res://../target/debug.dylib"
+macos.release.arm64 = "res://../target/release.dylib"
+web.debug.wasm32 = "res://../target/wasm32-unknown-emscripten/debug/hot_reload.wasm"
+web.release.wasm32 = "res://../target/wasm32-unknown-emscripten/release/hot_reload.wasm"
