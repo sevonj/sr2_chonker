@@ -250,7 +250,7 @@ impl Chunk {
                 shader_name_checksum: mat_data.shader_name_checksum,
                 mat_name_checksum: mat_data.mat_name_checksum,
                 flags: mat_data.flags,
-                unknown_2b: vec![0; mat_data.num_unknown_2b as usize],
+                unknown_2b: vec![0; mat_data.num_unknown_2b as usize * 3],
                 textures: vec![MaterialTexEntry::placeholder(); mat_data.num_textures as usize],
                 unk_0x10: mat_data.unk_0x10,
                 flags_0x12: mat_data.flags_0x12,
@@ -260,6 +260,7 @@ impl Chunk {
             });
         }
         for material in &mut materials {
+            seek_align(reader, 4)?;
             for unk in &mut material.unknown_2b {
                 *unk = reader.read_u16::<LittleEndian>()?;
             }
@@ -271,9 +272,9 @@ impl Chunk {
         seek_align(reader, 16)?;
 
         let mut shader_consts = vec![0_f32; mat_header.num_shader_constants as usize];
-        //for shad_const in &mut shader_consts {
-        //    *shad_const = reader.read_f32::<LittleEndian>()?;
-        //}
+        for shad_const in &mut shader_consts {
+            *shad_const = reader.read_f32::<LittleEndian>()?;
+        }
 
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
@@ -413,19 +414,19 @@ impl Chunk {
             buf.extend_from_slice(mat_data.as_bytes());
         }
         for material in &self.materials {
+            while buf.len() % 4 != 0 {
+                buf.push(0);
+            }
             buf.extend_from_slice(material.unknown_2b.as_bytes());
         }
         for material in &self.materials {
             buf.extend_from_slice(&material.unknown_16b_struct);
         }
-        
+
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        //for cc in &self.shader_consts{
-        //    buf.extend_from_slice(&cc.to_le_bytes());
-        //}
-        //buf.extend_from_slice(self.shader_consts.as_bytes());
+        buf.extend_from_slice(self.shader_consts.as_bytes());
 
         buf.extend_from_slice(&self.remaining_data);
 

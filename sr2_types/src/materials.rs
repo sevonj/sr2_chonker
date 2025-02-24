@@ -54,7 +54,7 @@ impl Material {
         data.shader_name_checksum = self.shader_name_checksum;
         data.mat_name_checksum = self.mat_name_checksum;
         data.flags = self.flags;
-        data.num_unknown_2b = self.unknown_2b.len() as u16;
+        data.num_unknown_2b = self.unknown_2b.len() as u16 / 3;
         data.num_textures = self.textures.len() as u16;
         data.unk_0x10 = self.unk_0x10;
         data.flags_0x12 = self.flags_0x12;
