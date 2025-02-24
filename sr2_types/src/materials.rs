@@ -42,6 +42,8 @@ pub struct Material {
     pub unk_0x10: i16,
     pub flags_0x12: i16,
     pub runtime_0x14: i32,
+
+    pub unknown_16b_struct: [u8; 16],
 }
 
 impl Material {

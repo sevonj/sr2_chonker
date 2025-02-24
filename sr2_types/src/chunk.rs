@@ -15,8 +15,8 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    Material, MaterialData, MaterialHeader, MaterialTexEntry, MeshBufferInstance, MeshHeader,
-    VertexBufHeader, VertexBufferInstance,
+    materials, Material, MaterialData, MaterialHeader, MaterialTexEntry, MeshBufferInstance,
+    MeshHeader, VertexBufHeader, VertexBufferInstance,
 };
 
 use super::{
@@ -243,10 +243,7 @@ impl Chunk {
         seek_align(reader, 16)?;
 
         let mut materials = vec![];
-        let mut shader_consts = vec![];
         let mat_header = MaterialHeader::read(reader)?;
-
-        //*
         for _ in 0..mat_header.num_materials {
             let mat_data = MaterialData::read(reader)?;
             materials.push(Material {
@@ -258,9 +255,26 @@ impl Chunk {
                 unk_0x10: mat_data.unk_0x10,
                 flags_0x12: mat_data.flags_0x12,
                 runtime_0x14: mat_data.runtime_0x14,
+
+                unknown_16b_struct: [0_u8; 16],
             });
         }
-        // */
+        for material in &mut materials {
+            for unk in &mut material.unknown_2b {
+                *unk = reader.read_u16::<LittleEndian>()?;
+            }
+        }
+        for material in &mut materials {
+            reader.read_exact(&mut material.unknown_16b_struct)?;
+        }
+
+        seek_align(reader, 16)?;
+
+        let mut shader_consts = vec![0_f32; mat_header.num_shader_constants as usize];
+        //for shad_const in &mut shader_consts {
+        //    *shad_const = reader.read_f32::<LittleEndian>()?;
+        //}
+
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
@@ -398,6 +412,20 @@ impl Chunk {
             let mat_data = material.material_data();
             buf.extend_from_slice(mat_data.as_bytes());
         }
+        for material in &self.materials {
+            buf.extend_from_slice(material.unknown_2b.as_bytes());
+        }
+        for material in &self.materials {
+            buf.extend_from_slice(&material.unknown_16b_struct);
+        }
+        
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+        //for cc in &self.shader_consts{
+        //    buf.extend_from_slice(&cc.to_le_bytes());
+        //}
+        //buf.extend_from_slice(self.shader_consts.as_bytes());
 
         buf.extend_from_slice(&self.remaining_data);
 
