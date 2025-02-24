@@ -281,7 +281,8 @@ pub struct GpuMesh {
 }
 
 impl GpuMesh {
-    fn new() -> Self {
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
         Self {
             unknown_0x00: 0,
             num_surfaces: 0,
