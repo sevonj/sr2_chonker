@@ -92,7 +92,7 @@ fn main() {
             if args.intense {
                 println!("{}", "All files intensely ok!".bright_green())
             } else {
-                println!("{}", "All files ok!".bright_green())
+                println!("{}", "All files non-intensely ok!".bright_green())
             }
         }
         _ => println!(
