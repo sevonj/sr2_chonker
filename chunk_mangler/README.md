@@ -1,6 +1,10 @@
 # Chunk Mangler
 
-Chunk Mangler is a platform for performing bulk actions on chunk files.
+Chunk Mangler is a platform for performing bulk actions on chunk files. This can be useful for figuring out what unknown fields do, or for modding chunks. 
+
+![](doc/image.png)
+
+Example: randomized shader constants result in weird colors and stuff.
 
 ## Usage
 
@@ -28,7 +32,8 @@ Have a look at the `do_things()` function in [./src/main.rs](./src/main.rs). Edi
 
     </details>
 3. Resulting chunk should appear in ./mangled dir.
-4. Try your modified chunk in the game
+4. Try your modified chunk in the game  
+    The fastest way to try out a chunk is probably to install it with GOTR. 
 
 ## Development
 TODO: auto-pack and launch the game
