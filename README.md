@@ -9,7 +9,7 @@ Restart from scratch
     Map editor built in Godot game engine. Not particularly useful in its current state.
 
 - **SR2 Types**  
-    Rust library for SR2 types, reverse-engineered from game assets. It's completely independent of chonker, and potentially useful for other tools as well.
+    Rust library for SR2 types, reverse-engineered from game assets. Completely separate of godot or chonker, and potentially useful for other tools as well.
 
 
 - **Misc. developent tools**
