@@ -15,7 +15,7 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    Material, MaterialData, MaterialHeader, MaterialTexEntry, MaterialUnknown3,
+    Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3,
     MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBufHeader,
     VertexBufferInstance,
 };
@@ -253,7 +253,7 @@ impl Chunk {
                 mat_name_checksum: mat_data.mat_name_checksum,
                 flags: mat_data.flags,
                 unknown_2b: vec![0; mat_data.num_unknown_2b as usize * 3],
-                textures: vec![MaterialTexEntry::placeholder(); mat_data.num_textures as usize],
+                textures: vec![MaterialTextureEntry::placeholder(); mat_data.num_textures as usize],
                 unk_0x10: mat_data.unk_0x10,
                 flags_0x12: mat_data.flags_0x12,
                 runtime_0x14: mat_data.runtime_0x14,
@@ -278,6 +278,16 @@ impl Chunk {
             *shad_const = reader.read_f32::<LittleEndian>()?;
         }
 
+        for material in &mut materials {
+            let mut buf = vec![0_u8; size_of::<MaterialTextureEntry>()];
+            for texture_entry in &mut material.textures {
+                reader.read_exact(&mut buf)?;
+                *texture_entry = MaterialTextureEntry::read_from_bytes(&buf).unwrap()
+            }
+            let num_unused = 16 - material.textures.len();
+            reader.seek_relative((num_unused * size_of::<MaterialTextureEntry>()) as i64)?;
+        }
+
         let mut material_unk_3 = vec![];
         for _ in 0..mat_header.num_mat_unknown3 {
             let data = MaterialUnknown3::read(reader)?;
@@ -289,11 +299,11 @@ impl Chunk {
                 runtime_0x08: data.runtime_0x08,
             });
         }
-        //for mat_unk3 in &mut material_unk_3 {
-        //    for value in &mut mat_unk3.unk {
-        //        *value = reader.read_u32::<LittleEndian>()?;
-        //    }
-        //}
+        for mat_unk3 in &mut material_unk_3 {
+            for value in &mut mat_unk3.unk {
+                *value = reader.read_u32::<LittleEndian>()?;
+            }
+        }
 
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
@@ -448,14 +458,22 @@ impl Chunk {
         }
         buf.extend_from_slice(self.shader_consts.as_bytes());
 
+        for material in &self.materials {
+            buf.extend_from_slice(material.textures.as_bytes());
+            let num_unused = 16 - material.textures.len();
+            for _ in 0..num_unused {
+                buf.extend_from_slice(MaterialTextureEntry::placeholder().as_bytes());
+            }
+        }
+
         for unk3 in &self.material_unk_3 {
             buf.extend_from_slice(unk3.material_unknown3().as_bytes());
         }
-        //for unk3 in &self.material_unk_3 {
-        //    for value in &unk3.unk {
-        //        buf.extend_from_slice(&value.to_le_bytes());
-        //    }
-        //}
+        for unk3 in &self.material_unk_3 {
+            for value in &unk3.unk {
+                buf.extend_from_slice(&value.to_le_bytes());
+            }
+        }
 
         buf.extend_from_slice(&self.remaining_data);
 

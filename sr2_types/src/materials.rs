@@ -18,7 +18,7 @@
 //! - unknown 16B struct * num_materials
 //! - Align(16)
 //! - [f32] * num_shader_constants
-//! - [MaterialTextureCont] * num_materials
+//! - [MaterialTexture] * num_materials * 16 // 16 are always allocated, even if not that many, or even any are used.
 //! - [MaterialUnknown3] * num_mat_unknown3
 //! - Buffer belonging to [MaterialUnknown3]. size = (mat_unknown3s[_index].unk2_count * 4) for each
 
@@ -38,7 +38,7 @@ pub struct Material {
     pub mat_name_checksum: u32,
     pub flags: u32,
     pub unknown_2b: Vec<u16>,
-    pub textures: Vec<MaterialTexEntry>,
+    pub textures: Vec<MaterialTextureEntry>,
     pub unk_0x10: i16,
     pub flags_0x12: i16,
     pub runtime_0x14: i32,
@@ -221,21 +221,14 @@ impl MaterialData {
 
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
-pub struct MaterialTexCont {
-    /// 16 textures are always allocated, even if some or all are unused.
-    pub textures: [MaterialTexEntry; 16],
-}
-
-#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
-#[repr(C)]
-pub struct MaterialTexEntry {
+pub struct MaterialTextureEntry {
     /// Texture index. -1 if entry is unused
     pub index: i16,
     /// Texture flags? -1 if entry is unused
     pub flags: i16,
 }
 
-impl MaterialTexEntry {
+impl MaterialTextureEntry {
     pub fn placeholder() -> Self {
         Self {
             index: -1,
@@ -300,13 +293,8 @@ mod tests {
     }
 
     #[test]
-    fn test_material_texture_cont_size() {
-        assert_eq!(size_of::<MaterialTexCont>(), 0x40);
-    }
-
-    #[test]
     fn test_material_texture_entry_size() {
-        assert_eq!(size_of::<MaterialTexEntry>(), 0x04);
+        assert_eq!(size_of::<MaterialTextureEntry>(), 0x04);
     }
 
     #[test]
