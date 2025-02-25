@@ -9,7 +9,7 @@
 use godot::prelude::*;
 use std::io::{BufReader, Read, Seek};
 
-use super::{sr2_vec_to_godot, CityObjectModel, MaybeStaticCollision};
+use super::{sr2_vec_to_godot, CityObjectModel, WorldCollision};
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
 #[derive(Debug, GodotClass)]
@@ -27,7 +27,7 @@ pub struct Chunk {
     /// Found next to collision mopp
     pub unk_bb_max: Vector3,
 
-    pub unknown5: Gd<MaybeStaticCollision>,
+    pub world_collision: Gd<WorldCollision>,
 
     pub city_object_models: Vec<Gd<CityObjectModel>>,
 
@@ -47,7 +47,7 @@ impl INode for Chunk {
         for cobj_model in self.city_object_models.clone() {
             self.base_mut().add_child(&cobj_model);
         }
-        let unknown5 = self.unknown5.clone();
+        let unknown5 = self.world_collision.clone();
         self.base_mut().add_child(&unknown5);
     }
 }
@@ -65,7 +65,7 @@ impl Chunk {
             unk_bb_min: sr2_vec_to_godot(&chunk.unk_bb_min),
             unk_bb_max: sr2_vec_to_godot(&chunk.unk_bb_max),
 
-            unknown5: MaybeStaticCollision::from_sr2(&chunk.unknown5_vbuf),
+            world_collision: WorldCollision::from_sr2(&chunk.world_collision_vbuf),
 
             city_object_models: chunk
                 .obj_models

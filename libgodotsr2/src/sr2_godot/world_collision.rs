@@ -14,17 +14,16 @@ use godot::classes::{
 
 use super::sr2_vec_to_godot;
 
-/// Potentially world collisions
 #[derive(Debug, GodotClass)]
 #[class(no_init, base=MeshInstance3D)]
-pub struct MaybeStaticCollision {
+pub struct WorldCollision {
     base: Base<MeshInstance3D>,
 }
 
 #[godot_api]
-impl IMeshInstance3D for MaybeStaticCollision {}
+impl IMeshInstance3D for WorldCollision {}
 
-impl MaybeStaticCollision {
+impl WorldCollision {
     pub fn from_sr2(vertex_buffer: &[sr2::Vector]) -> Gd<Self> {
         let vertex_buffer: Vec<Vector3> = vertex_buffer.iter().map(sr2_vec_to_godot).collect();
 

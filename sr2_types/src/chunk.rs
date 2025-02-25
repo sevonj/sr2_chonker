@@ -40,8 +40,7 @@ pub struct Chunk {
     pub model_unk_as: Vec<ModelUnknownA>,
     pub model_unk_bs: Vec<ModelUnknownB>,
 
-    /// maybe collision vertices.
-    pub unknown5_vbuf: Vec<Vector>,
+    pub world_collision_vbuf: Vec<Vector>,
     /// Unknown buffer, may or may not relate to unknown5
     pub unknown6: Vec<u8>,
     /// Type: unknown 4B
@@ -316,7 +315,7 @@ impl Chunk {
             obj_models,
             model_unk_as,
             model_unk_bs,
-            unknown5_vbuf,
+            world_collision_vbuf: unknown5_vbuf,
             unknown6,
             unknown7,
             unknown8,
@@ -382,10 +381,8 @@ impl Chunk {
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        buf.extend_from_slice(&(self.unknown5_vbuf.len() as u32).to_le_bytes());
-        for v in &self.unknown5_vbuf {
-            buf.extend_from_slice(v.as_bytes());
-        }
+        buf.extend_from_slice(&(self.world_collision_vbuf.len() as u32).to_le_bytes());
+        buf.extend_from_slice(self.world_collision_vbuf.as_bytes());
         buf.extend_from_slice(&(self.unknown6.len() as u32 / 3).to_le_bytes());
         buf.extend_from_slice(&self.unknown6);
         buf.extend_from_slice(&(self.unknown7.len() as u32 / 4).to_le_bytes());
