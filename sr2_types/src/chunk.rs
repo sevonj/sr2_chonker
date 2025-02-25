@@ -15,7 +15,7 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    materials, Material, MaterialData, MaterialHeader, MaterialTexEntry, MaterialUnknown3,
+    Material, MaterialData, MaterialHeader, MaterialTexEntry, MaterialUnknown3,
     MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBufHeader,
     VertexBufferInstance,
 };
