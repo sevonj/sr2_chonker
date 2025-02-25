@@ -58,7 +58,8 @@ fn do_things(chunk: &mut Chunk) {
     //}
 
     // Randomize shader constants for clown vomit
-    for shadercont in &mut chunk.shader_consts {
-        *shadercont = rand::random_range(0.0..1.0);
+
+    for value in &mut chunk.shader_consts {
+        *value = rand::random_range(0.0..1.0);
     }
 }
