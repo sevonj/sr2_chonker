@@ -35,29 +35,24 @@ use crate::Sr2TypeError;
 
 use super::{Transform, Vector};
 
-/// Not a direct SR2 type - this is an instance type of which purpose is make
-/// the data easier to work with. Corresponds to [MeshHeader].
-///
-/// Defines vertex/index buffers used in chunks.
-/// Covers both CPU and GPU data.
-#[derive(Debug, Clone)]
-pub struct MeshBufferInstance {
-    /// see [MeshHeader::mesh_type]
-    pub mesh_type: u16,
-    pub vertex_buffers: Vec<VertexBuffer>,
-    pub indices: Vec<u16>,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u16)]
+pub enum MeshBufferType {
+    /// Stored in GPU chunk
+    Gpu = 0,
+    /// Stored in CPU chunk
+    Cpu = 7,
 }
 
-impl MeshBufferInstance {
-    /// Serialize instance to SR2 type
-    pub fn header(&self) -> MeshHeader {
-        let mut header = MeshHeader::new();
+impl TryFrom<u16> for MeshBufferType {
+    type Error = Sr2TypeError;
 
-        header.mesh_type = self.mesh_type;
-        header.num_indices = self.indices.len() as u32;
-        header.num_vertex_buffers = self.vertex_buffers.len() as u16;
-
-        header
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Gpu),
+            7 => Ok(Self::Cpu),
+            _ => Err(Sr2TypeError::UnexpectedMeshBufferType),
+        }
     }
 }
 
@@ -132,54 +127,65 @@ pub struct ModelUnknownB {
     pub lotsa_floats: [f32; 0xd],
 }
 
-/// Describes buffers both in cpu and gpu chunk file.
-#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+/// Contains both vertex and index buffers. Data may be pulled from either CPU or GPU chunk.
+#[derive(Debug, Clone)]
 #[repr(C)]
-pub struct MeshHeader {
-    /// Either 7 or 0? 7 is cpu, 0 gpu
-    pub mesh_type: u16,
-    pub num_vertex_buffers: u16,
-    pub num_indices: u32,
-    /// Always -1, probably runtime-only.
-    runtime_0x08: i32,
-    /// Always -1, probably runtime-only.
-    runtime_0x0c: i32,
-    /// Always 0, probably runtime-only.
-    runtime_0x10: u32,
+pub struct MeshBuffer {
+    pub buffer_type: MeshBufferType,
+    pub vertex_buffers: Vec<VertexBuffer>,
+    pub indices: Vec<u16>,
 }
 
-impl MeshHeader {
-    fn new() -> Self {
+impl MeshBuffer {
+    pub fn new(buffer_type: MeshBufferType) -> Self {
         Self {
-            mesh_type: 0,
-            num_vertex_buffers: 0,
-            num_indices: 0,
-            runtime_0x08: -1,
-            runtime_0x0c: -1,
-            runtime_0x10: 0,
+            buffer_type,
+            vertex_buffers: vec![],
+            indices: vec![],
         }
     }
 
     /// Read from stream
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
-        let this = {
-            let mut buf = vec![0_u8; size_of::<Self>()];
-            reader.read_exact(&mut buf)?;
-            Self::read_from_bytes(&buf).unwrap()
+        let mesh_type = reader.read_u16::<LittleEndian>()?;
+        let num_vertex_buffers = reader.read_u16::<LittleEndian>()?;
+        let num_indices = reader.read_u32::<LittleEndian>()?;
+        let runtime_0x08 = reader.read_i32::<LittleEndian>()?;
+        let runtime_0x0c = reader.read_i32::<LittleEndian>()?;
+        let runtime_0x10 = reader.read_u32::<LittleEndian>()?;
+
+        let this = Self {
+            buffer_type: MeshBufferType::try_from(mesh_type)?,
+            vertex_buffers: vec![VertexBuffer::placeholder(); num_vertex_buffers as usize],
+            indices: vec![0_u16; num_indices as usize],
         };
-        if this.runtime_0x08 != -1 {
+
+        if runtime_0x08 != -1 {
             let pos = reader.stream_position().unwrap() - 0xc;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
-        if this.runtime_0x0c != -1 {
+        if runtime_0x0c != -1 {
             let pos = reader.stream_position().unwrap() - 0x8;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
-        if this.runtime_0x10 != 0 {
+        if runtime_0x10 != 0 {
             let pos = reader.stream_position().unwrap() - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
+
         Ok(this)
+    }
+
+    /// Serialize header
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = vec![];
+        bytes.extend_from_slice(&(self.buffer_type as u16).to_le_bytes());
+        bytes.extend_from_slice(&(self.vertex_buffers.len() as u16).to_le_bytes());
+        bytes.extend_from_slice(&(self.indices.len() as u32).to_le_bytes());
+        bytes.extend_from_slice(&(-1_i32).to_le_bytes());
+        bytes.extend_from_slice(&(-1_i32).to_le_bytes());
+        bytes.extend_from_slice(&0_u32.to_le_bytes());
+        bytes
     }
 }
 
@@ -200,6 +206,15 @@ impl VertexBuffer {
         Self {
             num_vertex_a,
             num_uvs,
+
+            data: vec![],
+        }
+    }
+
+    pub fn placeholder() -> Self {
+        Self {
+            num_vertex_a: 0xff,
+            num_uvs: 0xff,
 
             data: vec![],
         }
@@ -364,7 +379,8 @@ mod tests {
 
     #[test]
     fn test_mesh_header_size() {
-        assert_eq!(size_of::<MeshHeader>(), 0x14);
+        let mesh_buffer = MeshBuffer::new(MeshBufferType::Cpu);
+        assert_eq!(mesh_buffer.to_bytes().len(), 0x14);
     }
 
     #[test]

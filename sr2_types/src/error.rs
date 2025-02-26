@@ -16,6 +16,7 @@ pub enum Sr2TypeError {
     ChunkLostTrack { msg: String, pos: i64 },
     UnexpectedData { pos: u64 },
     VertexStrideMismatch { pos: u64 },
+    UnexpectedMeshBufferType,
     VertexBufLenStrideMismatch,
 }
 
@@ -44,6 +45,9 @@ impl std::fmt::Display for Sr2TypeError {
                     f,
                     "Vertex stride doesn't match what it should be. Pos: '{pos:#X}'"
                 )
+            }
+            Sr2TypeError::UnexpectedMeshBufferType => {
+                write!(f, "Mesh has unexpected type.")
             }
             Sr2TypeError::VertexBufLenStrideMismatch => {
                 write!(f, "Vertex buffer size isn't a multiple of vertex stride.")

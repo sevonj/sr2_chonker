@@ -16,7 +16,7 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
     Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3,
-    MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBuffer,
+    MaterialUnknown3Instance, MeshBuffer, MeshBufferType, VertexBuffer,
 };
 
 use super::{
@@ -51,7 +51,7 @@ pub struct Chunk {
     pub unk_bb_min: Vector,
     pub unk_bb_max: Vector,
 
-    pub mesh_buffers: Vec<MeshBufferInstance>,
+    pub mesh_buffers: Vec<MeshBuffer>,
 
     pub mat_header: MaterialHeader,
     pub materials: Vec<Material>,
@@ -197,27 +197,18 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
-        let mut mesh_headers = vec![];
-        let mut mesh_buffers: Vec<MeshBufferInstance> = vec![];
+        let mut mesh_buffers: Vec<MeshBuffer> = vec![];
         for _ in 0..model_header.num_meshes {
-            mesh_headers.push(MeshHeader::read(reader)?);
+            mesh_buffers.push(MeshBuffer::read(reader)?);
         }
-
-        for mesh_header in mesh_headers {
-            let mut vertex_buffers = vec![];
-            for _ in 0..mesh_header.num_vertex_buffers {
-                vertex_buffers.push(VertexBuffer::read(reader)?);
+        for mesh_buffer in &mut mesh_buffers {
+            for vertex_buffer in &mut mesh_buffer.vertex_buffers {
+                *vertex_buffer = VertexBuffer::read(reader)?;
             }
-
-            mesh_buffers.push(MeshBufferInstance {
-                mesh_type: mesh_header.mesh_type,
-                vertex_buffers,
-                indices: vec![0_u16; mesh_header.num_indices as usize],
-            });
         }
 
         for mesh_buffer in &mut mesh_buffers {
-            if mesh_buffer.mesh_type != 7 {
+            if mesh_buffer.buffer_type != MeshBufferType::Cpu {
                 continue;
             }
             seek_align(reader, 16)?;
@@ -398,7 +389,7 @@ impl Chunk {
             buf.push(0);
         }
         for mesh_buffer in &self.mesh_buffers {
-            buf.extend_from_slice(mesh_buffer.header().as_bytes());
+            buf.extend_from_slice(&mesh_buffer.to_bytes());
         }
         for mesh_buffer in &self.mesh_buffers {
             for vbuf in &mesh_buffer.vertex_buffers {
@@ -406,7 +397,7 @@ impl Chunk {
             }
         }
         for mesh_buffer in &self.mesh_buffers {
-            if mesh_buffer.mesh_type != 7 {
+            if mesh_buffer.buffer_type != MeshBufferType::Cpu {
                 continue;
             }
             while buf.len() % 16 != 0 {
