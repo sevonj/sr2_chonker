@@ -135,9 +135,12 @@ fn check_intense(path: &str, chunk: &Chunk) -> Result<(), String> {
         return Err(e.to_string());
     }
 
-    if serialized == original {
-        Ok(())
-    } else {
-        Err("Dont' match".into())
+    if serialized.len() != original.len() {
+        return Err("Sizes don't match".into());
     }
+    if serialized != original {
+        return Err("Content doesn't match".into());
+    }
+
+    Ok(())
 }
