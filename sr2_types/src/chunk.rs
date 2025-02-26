@@ -16,9 +16,8 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
     Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3,
-    MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBufHeader,
-    VertexBufferInstance,
-};
+    MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBuffer,
+    };
 
 use super::{
     GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Sr2TypeError, Vector,
@@ -205,19 +204,9 @@ impl Chunk {
         }
 
         for mesh_header in mesh_headers {
-            let mut vbuf_headers = vec![];
-            for _ in 0..mesh_header.num_vertex_buffers {
-                vbuf_headers.push(VertexBufHeader::read(reader)?);
-            }
-
             let mut vertex_buffers = vec![];
-            for vbuf_header in vbuf_headers {
-                let len_buf = vbuf_header.len_vertex as usize * vbuf_header.num_vertices as usize;
-                vertex_buffers.push(VertexBufferInstance {
-                    num_vertex_a: vbuf_header.num_vertex_a,
-                    num_uvs: vbuf_header.num_uvs,
-                    data: vec![0_u8; len_buf],
-                });
+            for _ in 0..mesh_header.num_vertex_buffers {
+                                vertex_buffers.push(VertexBuffer::read(reader)?);
             }
 
             mesh_buffers.push(MeshBufferInstance {
@@ -413,7 +402,7 @@ impl Chunk {
         }
         for mesh_buffer in &self.mesh_buffers {
             for vbuf in &mesh_buffer.vertex_buffers {
-                buf.extend_from_slice(vbuf.header().as_bytes());
+                buf.extend_from_slice(&vbuf.to_bytes());
             }
         }
         for mesh_buffer in &self.mesh_buffers {

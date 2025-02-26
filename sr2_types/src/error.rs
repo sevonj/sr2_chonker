@@ -15,6 +15,8 @@ pub enum Sr2TypeError {
     ChunkInvalidVersion(u32),
     ChunkLostTrack { msg: String, pos: i64 },
     UnexpectedData { pos: u64 },
+    VertexStrideMismatch { pos: u64 },
+    VertexBufLenStrideMismatch,
 }
 
 impl Error for Sr2TypeError {}
@@ -36,6 +38,15 @@ impl std::fmt::Display for Sr2TypeError {
             }
             Sr2TypeError::UnexpectedData { pos } => {
                 write!(f, "Unexpected data at position '{pos:#X}'")
+            }
+            Sr2TypeError::VertexStrideMismatch { pos } => {
+                write!(
+                    f,
+                    "Vertex stride doesn't match what it should be. Pos: '{pos:#X}'"
+                )
+            }
+            Sr2TypeError::VertexBufLenStrideMismatch => {
+                write!(f, "Vertex buffer size isn't a multiple of vertex stride.")
             }
         }
     }
