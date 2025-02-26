@@ -61,7 +61,6 @@ impl MeshBufferInstance {
     }
 }
 
-
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ModelHeader {
@@ -196,7 +195,7 @@ pub struct VertexBuffer {
 }
 
 impl VertexBuffer {
-/// New with empty buffer
+    /// New with empty buffer
     pub fn new(num_vertex_a: u8, num_uvs: u8) -> Self {
         Self {
             num_vertex_a,
@@ -370,7 +369,7 @@ mod tests {
 
     #[test]
     fn test_vertex_buf_header_size() {
-let vertex_buffer = VertexBuffer::new(2, 1);
+        let vertex_buffer = VertexBuffer::new(2, 1);
         assert_eq!(vertex_buffer.to_bytes().len(), 0x10);
     }
 

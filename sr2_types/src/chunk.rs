@@ -17,7 +17,7 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 use crate::{
     Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3,
     MaterialUnknown3Instance, MeshBufferInstance, MeshHeader, VertexBuffer,
-    };
+};
 
 use super::{
     GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Sr2TypeError, Vector,
@@ -206,7 +206,7 @@ impl Chunk {
         for mesh_header in mesh_headers {
             let mut vertex_buffers = vec![];
             for _ in 0..mesh_header.num_vertex_buffers {
-                                vertex_buffers.push(VertexBuffer::read(reader)?);
+                vertex_buffers.push(VertexBuffer::read(reader)?);
             }
 
             mesh_buffers.push(MeshBufferInstance {
