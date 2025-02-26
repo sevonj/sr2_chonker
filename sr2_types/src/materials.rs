@@ -29,42 +29,6 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::Sr2TypeError;
 
-/// Not a direct SR2 type - this is an instance type of which purpose is make
-/// the data easier to work with. Corresponds to [MaterialData]
-///
-/// An instance of SR2 material.
-#[derive(Debug, Clone)]
-pub struct Material {
-    pub shader_name_checksum: u32,
-    pub mat_name_checksum: u32,
-    pub flags: u32,
-    pub unknown_2b: Vec<u16>,
-    pub textures: Vec<MaterialTextureEntry>,
-    pub unk_0x10: i16,
-    pub flags_0x12: i16,
-    pub runtime_0x14: i32,
-
-    pub unknown_16b_struct: [u8; 16],
-}
-
-impl Material {
-    /// Serialize instance to SR2 type
-    pub fn material_data(&self) -> MaterialData {
-        let mut data = MaterialData::new();
-
-        data.shader_name_checksum = self.shader_name_checksum;
-        data.mat_name_checksum = self.mat_name_checksum;
-        data.flags = self.flags;
-        data.num_unknown_2b = self.unknown_2b.len() as u16 / 3;
-        data.num_textures = self.textures.len() as u16;
-        data.unk_0x10 = self.unk_0x10;
-        data.flags_0x12 = self.flags_0x12;
-        data.runtime_0x14 = self.runtime_0x14;
-
-        data
-    }
-}
-
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct MaterialHeader {
@@ -139,58 +103,97 @@ impl MaterialHeader {
     }
 }
 
-/// Material from chunk files
-#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
-#[repr(C)]
-pub struct MaterialData {
-    /// A guess, not confirmed.
-    /// Values see a lot of reuse between materials,
-    /// so probably multiple mats using the same shader.
+/// SR2 chunk material.
+#[derive(Debug, Clone)]
+pub struct Material {
     pub shader_name_checksum: u32,
-    /// A guess, not confirmed.
-    /// Values seem unique to each mat, need to check if really so.
     pub mat_name_checksum: u32,
-    /// Not confirmed, but looks like
     pub flags: u32,
-    /// Number of entries belonging to this mat in the block immediately after
-    /// materials.
-    pub num_unknown_2b: u16,
-    pub num_textures: u16,
-    /// Always 0?
+    pub unknown2: Vec<MaterialUnknown2>,
+    pub textures: Vec<MaterialTextureEntry>,
     pub unk_0x10: i16,
-    /// Not confirmed, but looks like
     pub flags_0x12: i16,
-    /// Runtime only? Always -1 OR 0
     pub runtime_0x14: i32,
+
+    pub unknown_16b_struct: [u8; 16],
 }
 
-impl MaterialData {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+impl Material {
+    pub fn blank() -> Self {
         Self {
             shader_name_checksum: 0,
             mat_name_checksum: 0,
             flags: 0,
-            num_unknown_2b: 0,
-            num_textures: 0,
+            unknown2: vec![],
+            textures: vec![],
             unk_0x10: 0,
             flags_0x12: 0,
-            runtime_0x14: -1,
+            runtime_0x14: 0,
+            unknown_16b_struct: [0_u8; 16],
         }
     }
 
     /// Read from stream
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
-        let this = {
-            let mut buf = vec![0_u8; size_of::<Self>()];
-            reader.read_exact(&mut buf)?;
-            Self::read_from_bytes(&buf).unwrap()
+        let shader_name_checksum = reader.read_u32::<LittleEndian>()?;
+        let mat_name_checksum = reader.read_u32::<LittleEndian>()?;
+        let flags = reader.read_u32::<LittleEndian>()?;
+        let num_unknown_2b = reader.read_u16::<LittleEndian>()?;
+        let num_textures = reader.read_u16::<LittleEndian>()?;
+        let unk_0x10 = reader.read_i16::<LittleEndian>()?;
+        let flags_0x12 = reader.read_i16::<LittleEndian>()?;
+        let runtime_0x14 = reader.read_i32::<LittleEndian>()?;
+
+        let this = Self {
+            shader_name_checksum,
+            mat_name_checksum,
+            flags,
+            unknown2: vec![MaterialUnknown2::placeholder(); num_unknown_2b as usize],
+            textures: vec![MaterialTextureEntry::placeholder(); num_textures as usize],
+            unk_0x10,
+            flags_0x12,
+            runtime_0x14,
+            unknown_16b_struct: [0_u8; 16],
         };
-        if this.runtime_0x14 != -1 && this.runtime_0x14 != 0 {
+
+        if runtime_0x14 != -1 && runtime_0x14 != 0 {
             let pos = reader.stream_position().unwrap() - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
+
         Ok(this)
+    }
+
+    /// Serialize
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = vec![];
+        bytes.extend_from_slice(&self.shader_name_checksum.to_le_bytes());
+        bytes.extend_from_slice(&self.mat_name_checksum.to_le_bytes());
+        bytes.extend_from_slice(&self.flags.to_le_bytes());
+        bytes.extend_from_slice(&(self.unknown2.len() as u16).to_le_bytes());
+        bytes.extend_from_slice(&(self.textures.len() as u16).to_le_bytes());
+        bytes.extend_from_slice(&self.unk_0x10.to_le_bytes());
+        bytes.extend_from_slice(&self.flags_0x12.to_le_bytes());
+        bytes.extend_from_slice(&self.runtime_0x14.to_le_bytes());
+        bytes
+    }
+}
+
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+#[repr(C)]
+pub struct MaterialUnknown2 {
+    pub unk_0x00: i16,
+    pub unk_0x02: i16,
+    pub unk_0x04: i16,
+}
+
+impl MaterialUnknown2 {
+    pub fn placeholder() -> Self {
+        Self {
+            unk_0x00: 0,
+            unk_0x02: 0,
+            unk_0x04: 0,
+        }
     }
 }
 
@@ -280,7 +283,9 @@ mod tests {
 
     #[test]
     fn test_material_data_size() {
-        assert_eq!(size_of::<MaterialData>(), 0x18);
+        let mat = Material::blank();
+        let bytes = mat.to_bytes();
+        assert_eq!(bytes.len(), 0x18);
     }
 
     #[test]

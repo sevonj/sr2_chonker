@@ -15,7 +15,7 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3, MeshBuffer,
+    Material, MaterialHeader, MaterialTextureEntry, MaterialUnknown2, MaterialUnknown3, MeshBuffer,
     MeshBufferType, VertexBuffer,
 };
 
@@ -23,9 +23,6 @@ use super::{
     GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Sr2TypeError, Vector,
 };
 
-/// Not a direct SR2 type - this is an instance type of which purpose is make
-/// the data easier to work with. Corresponds to [ChunkHeader]
-///
 /// An instance of SR2 CPU chunk (.chunk_pc) file.
 #[derive(Debug, Clone)]
 pub struct Chunk {
@@ -226,24 +223,14 @@ impl Chunk {
         let mut materials = vec![];
         let mat_header = MaterialHeader::read(reader)?;
         for _ in 0..mat_header.num_materials {
-            let mat_data = MaterialData::read(reader)?;
-            materials.push(Material {
-                shader_name_checksum: mat_data.shader_name_checksum,
-                mat_name_checksum: mat_data.mat_name_checksum,
-                flags: mat_data.flags,
-                unknown_2b: vec![0; mat_data.num_unknown_2b as usize * 3],
-                textures: vec![MaterialTextureEntry::placeholder(); mat_data.num_textures as usize],
-                unk_0x10: mat_data.unk_0x10,
-                flags_0x12: mat_data.flags_0x12,
-                runtime_0x14: mat_data.runtime_0x14,
-
-                unknown_16b_struct: [0_u8; 16],
-            });
+            materials.push(Material::read(reader)?);
         }
         for material in &mut materials {
             seek_align(reader, 4)?;
-            for unk in &mut material.unknown_2b {
-                *unk = reader.read_u16::<LittleEndian>()?;
+            let mut buf = vec![0_u8; size_of::<MaterialUnknown2>()];
+            for unk2 in &mut material.unknown2 {
+                reader.read_exact(&mut buf)?;
+                *unk2 = MaterialUnknown2::read_from_bytes(&buf).unwrap()
             }
         }
         for material in &mut materials {
@@ -410,14 +397,13 @@ impl Chunk {
         }
         buf.extend_from_slice(self.mat_header.as_bytes());
         for material in &self.materials {
-            let mat_data = material.material_data();
-            buf.extend_from_slice(mat_data.as_bytes());
+            buf.extend_from_slice(&material.to_bytes());
         }
         for material in &self.materials {
             while buf.len() % 4 != 0 {
                 buf.push(0);
             }
-            buf.extend_from_slice(material.unknown_2b.as_bytes());
+            buf.extend_from_slice(material.unknown2.as_bytes());
         }
         for material in &self.materials {
             buf.extend_from_slice(&material.unknown_16b_struct);
