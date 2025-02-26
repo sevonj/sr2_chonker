@@ -22,6 +22,7 @@
 //! - [MaterialUnknown3] * num_mat_unknown3
 //! - Buffer belonging to [MaterialUnknown3]. size = (mat_unknown3s[_index].unk2_count * 4) for each
 
+use byteorder::{LittleEndian, ReadBytesExt};
 use std::io::{BufReader, Read, Seek};
 use zerocopy::FromBytes;
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
@@ -60,32 +61,6 @@ impl Material {
         data.flags_0x12 = self.flags_0x12;
         data.runtime_0x14 = self.runtime_0x14;
 
-        data
-    }
-}
-
-/// Not a direct SR2 type - this is an instance type of which purpose is make
-/// the data easier to work with. Corresponds to [MaterialData]
-///
-/// Unknown 16B struct
-#[derive(Debug, Clone)]
-#[repr(C)]
-pub struct MaterialUnknown3Instance {
-    pub unk_0x00: u32,
-    pub unk_0x04: u32,
-    pub unk: Vec<u32>,
-    pub unk_0x06: u16,
-    pub runtime_0x08: i32,
-}
-
-impl MaterialUnknown3Instance {
-    pub fn material_unknown3(&self) -> MaterialUnknown3 {
-        let mut data = MaterialUnknown3::new();
-        data.unk_0x00 = self.unk_0x00;
-        data.unk_0x04 = self.unk_0x04;
-        data.num_unk = self.unk.len() as u16;
-        data.unk_0x06 = self.unk_0x06;
-        data.runtime_0x08 = self.runtime_0x08;
         data
     }
 }
@@ -238,16 +213,13 @@ impl MaterialTextureEntry {
 }
 
 /// Unknown 16B struct
-#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+#[derive(Debug, Clone)]
 #[repr(C)]
 pub struct MaterialUnknown3 {
     pub unk_0x00: u32,
     pub unk_0x04: u32,
-    /// Number of entries in following buffer
-    pub num_unk: u16,
+    pub unk_data: Vec<u32>,
     pub unk_0x06: u16,
-    /// Always -1. Runtime pointer?
-    pub runtime_0x08: i32,
 }
 
 impl MaterialUnknown3 {
@@ -256,24 +228,43 @@ impl MaterialUnknown3 {
         Self {
             unk_0x00: 0,
             unk_0x04: 0,
-            num_unk: 0,
+            unk_data: vec![],
             unk_0x06: 0,
-            runtime_0x08: -1,
         }
     }
 
     /// Read from stream
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
-        let this = {
-            let mut buf = vec![0_u8; size_of::<Self>()];
-            reader.read_exact(&mut buf)?;
-            Self::read_from_bytes(&buf).unwrap()
+        let unk_0x00 = reader.read_u32::<LittleEndian>()?;
+        let unk_0x04 = reader.read_u32::<LittleEndian>()?;
+        let num_unk = reader.read_u16::<LittleEndian>()?;
+        let unk_0x06 = reader.read_u16::<LittleEndian>()?;
+        let runtime_0x08 = reader.read_i32::<LittleEndian>()?;
+
+        let this = Self {
+            unk_0x00,
+            unk_0x04,
+            unk_data: vec![0_u32; num_unk as usize],
+            unk_0x06,
         };
-        //if this.runtime_0x08 != -1 {
-        //    let pos = reader.stream_position().unwrap() - 0x4;
-        //    return Err(Sr2TypeError::UnexpectedData { pos });
-        //}
+
+        if runtime_0x08 != -1 {
+            let pos = reader.stream_position().unwrap() - 0x4;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+
         Ok(this)
+    }
+
+    /// Serialize
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = vec![];
+        bytes.extend_from_slice(&self.unk_0x00.to_le_bytes());
+        bytes.extend_from_slice(&self.unk_0x04.to_le_bytes());
+        bytes.extend_from_slice(&(self.unk_data.len() as u16).to_le_bytes());
+        bytes.extend_from_slice(&self.unk_0x06.to_le_bytes());
+        bytes.extend_from_slice(&(-1_i32).to_le_bytes());
+        bytes
     }
 }
 
@@ -299,6 +290,7 @@ mod tests {
 
     #[test]
     fn test_material_unknown3_size() {
-        assert_eq!(size_of::<MaterialUnknown3>(), 0x10);
+        let unk3 = MaterialUnknown3::new();
+        assert_eq!(unk3.to_bytes().len(), 0x10);
     }
 }

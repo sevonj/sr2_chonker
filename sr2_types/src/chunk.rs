@@ -15,8 +15,8 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3,
-    MaterialUnknown3Instance, MeshBuffer, MeshBufferType, VertexBuffer,
+    Material, MaterialData, MaterialHeader, MaterialTextureEntry, MaterialUnknown3, MeshBuffer,
+    MeshBufferType, VertexBuffer,
 };
 
 use super::{
@@ -56,7 +56,7 @@ pub struct Chunk {
     pub mat_header: MaterialHeader,
     pub materials: Vec<Material>,
     pub shader_consts: Vec<f32>,
-    pub material_unk_3: Vec<MaterialUnknown3Instance>,
+    pub material_unk_3: Vec<MaterialUnknown3>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -269,17 +269,10 @@ impl Chunk {
 
         let mut material_unk_3 = vec![];
         for _ in 0..mat_header.num_mat_unknown3 {
-            let data = MaterialUnknown3::read(reader)?;
-            material_unk_3.push(MaterialUnknown3Instance {
-                unk_0x00: data.unk_0x00,
-                unk_0x04: data.unk_0x04,
-                unk: vec![0; data.num_unk as usize],
-                unk_0x06: data.unk_0x06,
-                runtime_0x08: data.runtime_0x08,
-            });
+            material_unk_3.push(MaterialUnknown3::read(reader)?);
         }
         for mat_unk3 in &mut material_unk_3 {
-            for value in &mut mat_unk3.unk {
+            for value in &mut mat_unk3.unk_data {
                 *value = reader.read_u32::<LittleEndian>()?;
             }
         }
@@ -444,12 +437,10 @@ impl Chunk {
         }
 
         for unk3 in &self.material_unk_3 {
-            buf.extend_from_slice(unk3.material_unknown3().as_bytes());
+            buf.extend_from_slice(&unk3.to_bytes());
         }
         for unk3 in &self.material_unk_3 {
-            for value in &unk3.unk {
-                buf.extend_from_slice(&value.to_le_bytes());
-            }
+            buf.extend_from_slice(unk3.unk_data.as_bytes());
         }
 
         buf.extend_from_slice(&self.remaining_data);
