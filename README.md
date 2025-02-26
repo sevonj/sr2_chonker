@@ -13,7 +13,7 @@ Restart from scratch
 
 - **Misc. developent tools**
     - [./types_validator](./types_validator) - A development tool for testing if sr2_types  behaves correctly
-    - [./chunk_mangler`](./chunk_mangler) - A research tool for finding the purpose of different fields in chunk files.
+    - [./chunk_mangler](./chunk_mangler) - A research tool for finding the purpose of different fields in chunk files.
 
 
 ## Development
@@ -21,8 +21,8 @@ Restart from scratch
 
 ### Directories
 
-- [./project`](./project) - Editor project directory
-- [./libgodotsr2`](./libgodotsr2) - Editor source code (a Rust [GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/what_is_gdextension.html))
+- [./project](./project) - Editor project directory
+- [./libgodotsr2](./libgodotsr2) - Editor source code (a Rust [GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/what_is_gdextension.html))
 
 
 ### Building
