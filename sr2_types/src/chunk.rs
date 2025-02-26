@@ -15,8 +15,8 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    Material, MaterialHeader, MaterialTextureEntry, MaterialUnknown2, MaterialUnknown3, MeshBuffer,
-    MeshBufferType, VertexBuffer,
+    io_helper::seek_align, Material, MaterialHeader, MaterialTextureEntry, MaterialUnknown2,
+    MaterialUnknown3, MeshBuffer, MeshBufferType, MeshData, VertexBuffer,
 };
 
 use super::{
@@ -54,6 +54,8 @@ pub struct Chunk {
     pub materials: Vec<Material>,
     pub shader_consts: Vec<f32>,
     pub material_unk_3: Vec<MaterialUnknown3>,
+
+    pub mesh_datas: Vec<MeshData>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -264,6 +266,16 @@ impl Chunk {
             }
         }
 
+        let mut mesh_datas = vec![];
+        for _ in 0..model_header.num_gpu_meshes {
+            mesh_datas.push(MeshData::read(reader)?);
+        }
+
+        println!(
+            "\nRemaining barrier on in: {:#X}\n",
+            reader.stream_position()?
+        );
+
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
@@ -288,6 +300,7 @@ impl Chunk {
             materials,
             shader_consts,
             material_unk_3,
+            mesh_datas,
         })
     }
 
@@ -429,15 +442,36 @@ impl Chunk {
             buf.extend_from_slice(unk3.unk_data.as_bytes());
         }
 
+        for mesh_data in &self.mesh_datas {
+            buf.extend_from_slice(&mesh_data.to_bytes());
+
+            while buf.len() % 16 != 0 {
+                buf.push(0);
+            }
+
+            if let Some(submesh) = &mesh_data.submesh_a {
+                buf.extend_from_slice(&submesh.to_bytes());
+            }
+            if let Some(submesh) = &mesh_data.submesh_b {
+                buf.extend_from_slice(&submesh.to_bytes());
+            }
+
+            if let Some(submesh) = &mesh_data.submesh_a {
+                for surf in &submesh.surfaces {
+                    buf.extend_from_slice(surf.as_bytes());
+                }
+            }
+            if let Some(submesh) = &mesh_data.submesh_b {
+                for surf in &submesh.surfaces {
+                    buf.extend_from_slice(surf.as_bytes());
+                }
+            }
+        }
+
         buf.extend_from_slice(&self.remaining_data);
 
         buf
     }
-}
-
-fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
-    let pos = reader.stream_position().unwrap() as i64;
-    reader.seek_relative((size - (pos % size)) % size)
 }
 
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]

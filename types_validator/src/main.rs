@@ -8,14 +8,13 @@
 
 use std::{
     fs::File,
-    io::{BufReader, Read},
+    io::{BufReader, Read, Write},
     path::PathBuf,
 };
 
 use clap::Parser;
 use colored::Colorize;
 use rust_search::SearchBuilder;
-use sr2::Chunk;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -29,6 +28,9 @@ struct Args {
     /// Deserialize -> Re-Serialize -> Compare
     #[arg(short, long)]
     intense: bool,
+    /// Save failed output files
+    #[arg(short, long)]
+    save_failed: bool,
 }
 
 fn main() {
@@ -58,9 +60,15 @@ fn main() {
             i + 1,
             "[checking...]".yellow().bold()
         );
-        let chunk = match sr2::Chunk::open(path) {
-            Ok(chunk) => chunk,
-            Err(e) => {
+        match validate(&path, args.intense) {
+            Ok(()) => {
+                println!(
+                    "\r{}/{num_files} : {} {path}",
+                    i + 1,
+                    "[OK] ".green().bold()
+                );
+            }
+            Err((e, data)) => {
                 failed.push(path.clone());
                 println!(
                     "\r{}/{num_files} : {} {path}        ",
@@ -69,30 +77,15 @@ fn main() {
                 );
                 if args.verbose {
                     println!("{}", format!("└> {e}").bright_black());
+                }
+                if args.save_failed {
+                    if let Some(data) = data {
+                        save_file(path, &data);
+                    }
                 }
                 continue;
             }
         };
-        if args.intense {
-            if let Err(e) = check_intense(path, &chunk) {
-                failed.push(path.clone());
-                println!(
-                    "\r{}/{num_files} : {} {path}        ",
-                    i + 1,
-                    "[ERR]".red().bold()
-                );
-                if args.verbose {
-                    println!("{}", format!("└> {e}").bright_black());
-                }
-                continue;
-            }
-        }
-
-        println!(
-            "\r{}/{num_files} : {} {path}",
-            i + 1,
-            "[OK] ".green().bold()
-        );
     }
 
     match failed.len() {
@@ -120,35 +113,52 @@ fn get_files(path: &str) -> Vec<String> {
         .collect()
 }
 
-/// true if ok
-fn check_intense(path: &str, chunk: &Chunk) -> Result<(), String> {
+fn validate(path: &str, intense: bool) -> Result<(), (String, Option<Vec<u8>>)> {
+    let chunk = match sr2::Chunk::open(path) {
+        Ok(chunk) => chunk,
+        Err(e) => return Err((e.to_string(), None)),
+    };
+
+    if !intense {
+        return Ok(());
+    }
+
     let serialized = chunk.to_bytes();
     let mut original = vec![];
-    let file = match File::open(path) {
-        Ok(f) => f,
-        Err(e) => {
-            return Err(e.to_string());
-        }
-    };
+    let file = File::open(path).unwrap();
     let mut reader = BufReader::new(file);
-    if let Err(e) = reader.read_to_end(&mut original) {
-        return Err(e.to_string());
-    }
+    reader.read_to_end(&mut original).unwrap();
 
     if serialized.len() != original.len() {
         let diff = serialized.len() as isize - original.len() as isize;
         if diff < 0 {
-            return Err(format!(
-                "Sizes don't match. Output fell short by {}B",
-                diff.abs()
+            return Err((
+                format!("Sizes don't match. Output fell short by {}B", diff.abs()),
+                Some(serialized),
             ));
         } else {
-            return Err(format!("Sizes don't match. Output is bigger by {diff}B"));
+            return Err((
+                format!("Sizes don't match. Output is bigger by {diff}B"),
+                Some(serialized),
+            ));
         }
     }
     if serialized != original {
-        return Err("Content doesn't match".into());
+        return Err(("Content doesn't match".into(), Some(serialized)));
     }
 
     Ok(())
+}
+
+fn save_file(input_filepath: &str, bytes: &[u8]) {
+    let mut pbuf = PathBuf::from(input_filepath);
+    pbuf.set_extension("failed_chunk_pc");
+    let filename = pbuf.file_name().unwrap();
+    let output_dir = PathBuf::from("./failed_output/");
+    let output_filepath = output_dir.join(filename);
+
+    std::fs::create_dir_all(&output_dir).unwrap();
+    let mut new_file = File::create(output_filepath).unwrap();
+
+    new_file.write_all(&bytes).unwrap();
 }

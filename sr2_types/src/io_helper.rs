@@ -6,19 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-mod chunk;
-mod city_object;
-mod error;
-mod io_helper;
-mod materials;
-mod mesh;
-mod transform;
-mod vector;
+use std::io::Seek;
 
-pub use chunk::*;
-pub use city_object::*;
-pub use error::*;
-pub use materials::*;
-pub use mesh::*;
-pub use transform::*;
-pub use vector::*;
+pub fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
+    let pos = reader.stream_position().unwrap() as i64;
+    reader.seek_relative((size - (pos % size)) % size)
+}

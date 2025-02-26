@@ -28,10 +28,10 @@
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::io::{BufReader, Read, Seek};
-use zerocopy::FromBytes;
+use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
-use crate::Sr2TypeError;
+use crate::{io_helper::seek_align, Sr2TypeError};
 
 use super::{Transform, Vector};
 
@@ -283,60 +283,147 @@ impl VertexBuffer {
 }
 
 /// A mesh that gets its data from the GPU chunk
-#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+#[derive(Debug, Clone)]
 #[repr(C)]
-pub struct GpuMeshHeader {
+pub struct MeshData {
     pub bbox_min: Vector,
     pub bbox_max: Vector,
     pub unk_0x18: u32,
     pub unk_0x1c: u32,
-    pub mesh_a: u32,
-    pub mesh_b: u32,
+    pub submesh_a: Option<Submesh>,
+    pub submesh_b: Option<Submesh>,
+}
+
+impl MeshData {
+    /// Construct from stream.
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let bbox_min = Vector::read(reader)?;
+        let bbox_max = Vector::read(reader)?;
+        let unk_0x18 = reader.read_u32::<LittleEndian>()?;
+        let unk_0x1c = reader.read_u32::<LittleEndian>()?;
+        let ptr_submesh_a = reader.read_i32::<LittleEndian>()?;
+        let ptr_submesh_b = reader.read_i32::<LittleEndian>()?;
+
+        seek_align(reader, 16)?;
+
+        let mut submesh_a = match ptr_submesh_a {
+            0 => None,
+            -1 => Some(Submesh::read(reader)?),
+            _ => {
+                return Err(Sr2TypeError::UnexpectedData {
+                    pos: reader.stream_position().unwrap() - 0x8,
+                });
+            }
+        };
+        let mut submesh_b = match ptr_submesh_b {
+            0 => None,
+            -1 => Some(Submesh::read(reader)?),
+            _ => {
+                return Err(Sr2TypeError::UnexpectedData {
+                    pos: reader.stream_position().unwrap() - 0x4,
+                });
+            }
+        };
+
+        if let Some(submesh) = &mut submesh_a {
+            for surf in &mut submesh.surfaces {
+                *surf = Surface::read(reader)?;
+            }
+        }
+        if let Some(submesh) = &mut submesh_b {
+            for surf in &mut submesh.surfaces {
+                *surf = Surface::read(reader)?;
+            }
+        }
+
+        let mesh_data = Self {
+            bbox_min,
+            bbox_max,
+            unk_0x18,
+            unk_0x1c,
+            submesh_a,
+            submesh_b,
+        };
+
+        Ok(mesh_data)
+    }
+
+    /// Serialize
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let ptr_submesh_a: i32 = if self.submesh_a.is_some() { -1 } else { 0 };
+        let ptr_submesh_b: i32 = if self.submesh_b.is_some() { -1 } else { 0 };
+
+        let mut bytes = vec![];
+        bytes.extend_from_slice(self.bbox_min.as_bytes());
+        bytes.extend_from_slice(self.bbox_max.as_bytes());
+        bytes.extend_from_slice(&self.unk_0x18.to_le_bytes());
+        bytes.extend_from_slice(&self.unk_0x1c.to_le_bytes());
+        bytes.extend_from_slice(&ptr_submesh_a.to_le_bytes());
+        bytes.extend_from_slice(&ptr_submesh_b.to_le_bytes());
+
+        bytes
+    }
 }
 
 /// A mesh that gets its data from the GPU chunk
-#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+#[derive(Debug, Clone)]
 #[repr(C)]
-pub struct GpuMesh {
+pub struct Submesh {
     pub unknown_0x00: u16,
-    pub num_surfaces: u16,
-    pub unknown_0x04: u32,
+    pub surfaces: Vec<Surface>,
+    pub unknown_0x04: i32,
     pub unknown_0x08: u32,
-    /// Always 0
-    runtime_0x0c: u32,
 }
 
-impl GpuMesh {
+impl Submesh {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
             unknown_0x00: 0,
-            num_surfaces: 0,
+            surfaces: vec![],
             unknown_0x04: 0,
             unknown_0x08: 0,
-            runtime_0x0c: 0,
         }
     }
 
     /// Read from stream
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
-        let this = {
-            let mut buf = vec![0_u8; size_of::<Self>()];
-            reader.read_exact(&mut buf)?;
-            Self::read_from_bytes(&buf).unwrap()
-        };
-        if this.runtime_0x0c != 0 {
+        let unknown_0x00 = reader.read_u16::<LittleEndian>()?;
+        let num_surfaces = reader.read_u16::<LittleEndian>()?;
+        let unknown_0x04 = reader.read_i32::<LittleEndian>()?;
+        let unknown_0x08 = reader.read_u32::<LittleEndian>()?;
+        let runtime_0x0c = reader.read_u32::<LittleEndian>()?;
+
+        if runtime_0x0c != 0 {
             let pos = reader.stream_position().unwrap() - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
-        Ok(this)
+
+        Ok(Self {
+            unknown_0x00,
+            surfaces: vec![Surface::placeholder(); num_surfaces as usize],
+            unknown_0x04,
+            unknown_0x08,
+        })
+    }
+
+    /// Serialize
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = vec![];
+        bytes.extend_from_slice(&self.unknown_0x00.to_le_bytes());
+        bytes.extend_from_slice(&(self.surfaces.len() as u16).to_le_bytes());
+        bytes.extend_from_slice(&self.unknown_0x04.to_le_bytes());
+        bytes.extend_from_slice(&self.unknown_0x08.to_le_bytes());
+        bytes.extend_from_slice(&0_u32.to_le_bytes());
+
+        bytes
     }
 }
 
 /// One surface of a [GpuMesh]
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
-pub struct GpuSurface {
+pub struct Surface {
     /// Which vertex buffer to use
     pub idx_vertex_buffer: u32,
     /// Index index is zeroed to this value
@@ -345,6 +432,27 @@ pub struct GpuSurface {
     pub start_vertex: u32,
     pub num_indices: u16,
     pub idx_material: u16,
+}
+
+impl Surface {
+    pub fn placeholder() -> Self {
+        Self {
+            idx_vertex_buffer: 0,
+            start_index: 0,
+            start_vertex: 0,
+            num_indices: 0,
+            idx_material: 0,
+        }
+    }
+
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let mut buf = vec![0_u8; size_of::<Self>()];
+        reader.read_exact(&mut buf)?;
+        let this = Self::read_from_bytes(&buf).unwrap();
+
+        Ok(this)
+    }
 }
 
 #[cfg(test)]
@@ -390,12 +498,13 @@ mod tests {
     }
 
     #[test]
-    fn test_gpu_mesh_size() {
-        assert_eq!(size_of::<GpuMesh>(), 0x10);
+    fn test_submesh_size() {
+        let submesh = Submesh::new();
+        assert_eq!(submesh.to_bytes().len(), 0x10);
     }
 
     #[test]
     fn test_gpu_surface_size() {
-        assert_eq!(size_of::<GpuSurface>(), 0x10);
+        assert_eq!(size_of::<Surface>(), 0x10);
     }
 }
