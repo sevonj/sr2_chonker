@@ -136,7 +136,15 @@ fn check_intense(path: &str, chunk: &Chunk) -> Result<(), String> {
     }
 
     if serialized.len() != original.len() {
-        return Err("Sizes don't match".into());
+        let diff = serialized.len() as isize - original.len() as isize;
+        if diff < 0 {
+            return Err(format!(
+                "Sizes don't match. Output fell short by {}B",
+                diff.abs()
+            ));
+        } else {
+            return Err(format!("Sizes don't match. Output is bigger by {diff}B"));
+        }
     }
     if serialized != original {
         return Err("Content doesn't match".into());
