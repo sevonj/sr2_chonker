@@ -33,9 +33,8 @@ Restart from scratch
 
 **Steps:**  
 1. Build the Rust source.
-    Run `cargo build` in project/libgodorsr2
-    Add `--release` flag to make a release build.
-   
+    - Run `cargo build` in project/libgodorsr2
+    - Use `--release` flag to make it release build.
 2. Export godot project like normal or run it in the editor.
 
 
