@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://b11b13kcu3xt7"]
+
+[sub_resource type="Environment" id="Environment_5jl5r"]
+background_mode = 1
+background_color = Color(0.247059, 0.247059, 0.247059, 1)
+
+[node name="ChonkerEditor" type="ChonkerEditor"]
+
+[node name="Node" type="Node" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Node"]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Node"]
+environment = SubResource("Environment_5jl5r")

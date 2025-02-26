@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dyey4td4gwb7u"]
+
+[ext_resource type="Shader" path="res://assets/materials/shad_floorgrid.gdshader" id="1_st5vg"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_st5vg")
+shader_parameter/gridColor = Color(0.329412, 0.329412, 0.329412, 1)
+shader_parameter/checkerColor = Color(0, 0, 0, 0)
+shader_parameter/fadeStart = 0.0
+shader_parameter/fadeEnd = 500.0
+shader_parameter/unitSize = 4.0
+shader_parameter/subdivisions = 4
+shader_parameter/majorLineThickness = 1.0
+shader_parameter/minorLineThickness = 1.0
+shader_parameter/minorLineAlpha = 0.65
+shader_parameter/centerOffset = Vector3(0, 0, 0)
