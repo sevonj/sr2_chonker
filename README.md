@@ -9,8 +9,7 @@ Restart from scratch
     Map editor built in Godot game engine. Not particularly useful in its current state.
 
 - **SR2 Types**  
-    Rust library for SR2 types, reverse-engineered from game assets. Completely separate of godot or chonker, and potentially useful for other tools as well.
-
+    Rust library for SR2 types, reverse-engineered from game assets. Completely separate of Godot or Chonker, and therefore potentially useful for other tools as well. Note that things may and will be renamed and moved around as more gets figured out.
 
 - **Misc. developent tools**
     - [./types_validator](./types_validator) - A development tool for testing if sr2_types  behaves correctly
@@ -34,17 +33,9 @@ Restart from scratch
 
 **Steps:**  
 1. Build the Rust source.
-    <details>
-    <summary> Instructions </summary>
-    - Example build command:  
-    ```cargo build -p godotsr2 --release --target=x86_64-pc-windows-gnu```  
-    Explanation:
-        - `-p` which package to build. `godotsr2` is the editor.
-        - `--release` Optional release build flag. Defaults to debug build if left out.
-        - `--target` Target platform. Use`x86_64-unknown-linux-gnu` for Linux and `x86_64-pc-windows-gnu` for Windows.
-            - You must specify a target for the editor, because Godot expects the binary from a specific path. For the other tools, this isn't necessary.
-            - If the compiler complains about a missing target, you can install a target with `rustup target add <target>`
-    </details>
+    Run `cargo build` in project/libgodorsr2
+    Add `--release` flag to make a release build.
+   
 2. Export godot project like normal or run it in the editor.
 
 

@@ -1,3 +1,0 @@
-[workspace]
-resolver = "2"
-members = ["sr2_types", "libgodotsr2", "types_validator", "chunk_mangler"]
