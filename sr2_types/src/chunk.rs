@@ -26,6 +26,9 @@ use super::{
 /// An instance of SR2 CPU chunk (.chunk_pc) file.
 #[derive(Debug, Clone)]
 pub struct Chunk {
+    /// Not part of chunk format. Used to track progress of format reversing.
+    pub bytes_mapped: usize,
+
     pub header: ChunkHeader,
 
     pub textures: Vec<String>,
@@ -63,6 +66,8 @@ pub struct Chunk {
 
     pub objects: Vec<Object>,
 
+    pub unknown_names: Vec<String>,
+
     pub remaining_data: Vec<u8>,
 }
 
@@ -78,6 +83,8 @@ impl Chunk {
 
     /// Read from stream
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let stream_start = reader.stream_position()? as usize;
+
         let header = {
             let mut buf = vec![0_u8; size_of::<ChunkHeader>()];
             reader.read_exact(&mut buf)?;
@@ -180,7 +187,7 @@ impl Chunk {
             if String::from_utf8_lossy(&buf).to_string().as_str() != "MOPP" {
                 return Err(Sr2TypeError::ChunkLostTrack {
                     msg: "First MOPP signature didn't appear where expected.".into(),
-                    pos: reader.stream_position()? as i64,
+                    pos: reader.stream_position()?,
                 });
             }
             reader.seek_relative(-4)?;
@@ -283,11 +290,41 @@ impl Chunk {
         for _ in 0..header.num_objects {
             objects.push(Object::read(reader)?);
         }
+        for object in &mut objects {
+            let mut buf = vec![];
+            reader.read_until(0x00, &mut buf)?;
+            object.name = String::from_utf8_lossy(&buf).to_string();
+        }
 
+        seek_align(reader, 16)?;
+
+        let len_unk_names_buf = reader.read_u32::<LittleEndian>()?;
+        let unk_names_buf_end = reader.stream_position()? + len_unk_names_buf as u64;
+        let mut unknown_names = vec![];
+        loop {
+            let stream_pos = reader.stream_position()?;
+            if stream_pos == unk_names_buf_end {
+                break;
+            } else if stream_pos > unk_names_buf_end {
+                let msg = "Overshot unknown names buffer".into();
+                return Err(Sr2TypeError::ChunkLostTrack {
+                    msg,
+                    pos: stream_pos,
+                });
+            }
+            let mut buf = vec![];
+            reader.read_until(0x00, &mut buf)?;
+            unknown_names.push(String::from_utf8_lossy(&buf).to_string());
+        }
+
+        seek_align(reader, 16)?;
+
+        let bytes_mapped = reader.stream_position()? as usize - stream_start;
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
         Ok(Self {
+            bytes_mapped,
             header,
             textures,
             mesh_unk_as,
@@ -309,6 +346,7 @@ impl Chunk {
             material_unk_3,
             meshes,
             objects,
+            unknown_names,
         })
     }
 
@@ -491,6 +529,24 @@ impl Chunk {
 
         for object in &self.objects {
             buf.extend_from_slice(&object.to_bytes());
+        }
+        for object in &self.objects {
+            buf.extend_from_slice(object.name.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        let mut unk_names_buf = vec![];
+        for name in &self.unknown_names {
+            unk_names_buf.extend_from_slice(name.as_bytes());
+        }
+        buf.extend_from_slice(&(unk_names_buf.len() as u32).to_le_bytes());
+        buf.extend_from_slice(&unk_names_buf);
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
         }
 
         buf.extend_from_slice(&self.remaining_data);

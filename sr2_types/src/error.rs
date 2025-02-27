@@ -13,7 +13,7 @@ pub enum Sr2TypeError {
     IOError { source: std::io::Error },
     ChunkInvalidMagic(u32),
     ChunkInvalidVersion(u32),
-    ChunkLostTrack { msg: String, pos: i64 },
+    ChunkLostTrack { msg: String, pos: u64 },
     UnexpectedData { pos: u64 },
     VertexStrideMismatch { pos: u64 },
     UnexpectedMeshBufferType,

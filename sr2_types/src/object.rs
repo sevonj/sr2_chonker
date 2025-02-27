@@ -33,6 +33,8 @@ pub struct Object {
     pub unk_0x44: u32,
     pub unk_0x48: i32,
     pub unk_0x4c: i32,
+
+    pub name: String,
 }
 
 impl Object {
@@ -89,6 +91,8 @@ impl Object {
             unk_0x44,
             unk_0x48,
             unk_0x4c,
+
+            name: "".into(),
         };
 
         Ok(this)

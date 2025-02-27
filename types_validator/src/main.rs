@@ -15,6 +15,7 @@ use std::{
 use clap::Parser;
 use colored::Colorize;
 use rust_search::SearchBuilder;
+use sr2::Chunk;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -57,6 +58,8 @@ fn main() {
 
     let mut failed = vec![];
 
+    let mut progress_tracker = vec![];
+
     for (i, path) in files.iter().enumerate() {
         print!(
             "{}/{num_files} : {} {path}",
@@ -64,12 +67,18 @@ fn main() {
             "[checking...]".yellow().bold()
         );
         match validate(&path, args.intense) {
-            Ok(()) => {
+            Ok(chunk) => {
                 if !args.quiet {
+                    let chunk_total_size = chunk.bytes_mapped + chunk.remaining_data.len();
+                    let progress_percentage =
+                        (chunk.bytes_mapped as f64 * 100.0 / chunk_total_size as f64) as usize;
+                    progress_tracker.push(progress_percentage);
+
                     println!(
-                        "\r{}/{num_files} : {} {path}",
+                        "\r{}/{num_files} : {} ({:#3}%) {path}     ",
                         i + 1,
-                        "[OK] ".green().bold()
+                        "[OK] ".green().bold(),
+                        progress_percentage
                     );
                 } else {
                     print!(
@@ -110,6 +119,9 @@ fn main() {
             format!("{} out of {num_files} files failed.", failed.len()).yellow()
         ),
     }
+    let sum: usize = progress_tracker.iter().sum();
+    let avg = sum / progress_tracker.len();
+    println!("Roughly {avg}% of cpu chunk data mapped (excluding failed chunks)")
 }
 
 fn get_files(path: &str) -> Vec<String> {
@@ -122,14 +134,14 @@ fn get_files(path: &str) -> Vec<String> {
         .collect()
 }
 
-fn validate(path: &str, intense: bool) -> Result<(), (String, Option<Vec<u8>>)> {
+fn validate(path: &str, intense: bool) -> Result<Chunk, (String, Option<Vec<u8>>)> {
     let chunk = match sr2::Chunk::open(path) {
         Ok(chunk) => chunk,
         Err(e) => return Err((e.to_string(), None)),
     };
 
     if !intense {
-        return Ok(());
+        return Ok(chunk);
     }
 
     let serialized = chunk.to_bytes();
@@ -156,7 +168,7 @@ fn validate(path: &str, intense: bool) -> Result<(), (String, Option<Vec<u8>>)> 
         return Err(("Content doesn't match".into(), Some(serialized)));
     }
 
-    Ok(())
+    Ok(chunk)
 }
 
 fn save_file(input_filepath: &str, bytes: &[u8]) {
