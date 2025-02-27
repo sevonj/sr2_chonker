@@ -9,6 +9,6 @@
 use std::io::Seek;
 
 pub fn seek_align<R: Seek>(reader: &mut R, size: i64) -> Result<(), std::io::Error> {
-    let pos = reader.stream_position().unwrap() as i64;
+    let pos = reader.stream_position()? as i64;
     reader.seek_relative((size - (pos % size)) % size)
 }

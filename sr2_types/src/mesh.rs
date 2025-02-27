@@ -59,11 +59,11 @@ impl TryFrom<u16> for MeshBufferType {
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
 pub struct ModelHeader {
-    pub num_gpu_meshes: u32,
-    pub num_obj_models: u32,
     pub num_meshes: u32,
-    pub num_model_unknown_a: u32,
-    pub num_model_unknown_b: u32,
+    pub num_obj_models: u32,
+    pub num_mesh_buffers: u32,
+    pub num_obj_unknown_a: u32,
+    pub num_obj_unknown_b: u32,
 }
 
 /// Always same count as GPU meshes. Purpose unknown.
@@ -108,7 +108,7 @@ pub struct ObjectModel {
     pub unk_0x50: i32,
 
     pub unk_0x54: f32,
-    pub idx_gpu_model: i32,
+    pub mesh_idx: i32,
     /// flags?
     pub unk_0x5c: i32,
 }
@@ -161,15 +161,15 @@ impl MeshBuffer {
         };
 
         if runtime_0x08 != -1 {
-            let pos = reader.stream_position().unwrap() - 0xc;
+            let pos = reader.stream_position()? - 0xc;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if runtime_0x0c != -1 {
-            let pos = reader.stream_position().unwrap() - 0x8;
+            let pos = reader.stream_position()? - 0x8;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if runtime_0x10 != 0 {
-            let pos = reader.stream_position().unwrap() - 0x4;
+            let pos = reader.stream_position()? - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
 
@@ -254,15 +254,15 @@ impl VertexBuffer {
         };
 
         if this.stride() != stride as usize {
-            let pos = reader.stream_position().unwrap() - 0x10;
+            let pos = reader.stream_position()? - 0x10;
             return Err(Sr2TypeError::VertexStrideMismatch { pos });
         }
         if runtime_0x08 != -1 {
-            let pos = reader.stream_position().unwrap() - 0x8;
+            let pos = reader.stream_position()? - 0x8;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if runtime_0x0c != 0 {
-            let pos = reader.stream_position().unwrap() - 0x4;
+            let pos = reader.stream_position()? - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
 
@@ -285,24 +285,34 @@ impl VertexBuffer {
 /// A mesh that gets its data from the GPU chunk
 #[derive(Debug, Clone)]
 #[repr(C)]
-pub struct MeshData {
+pub struct Mesh {
     pub bbox_min: Vector,
     pub bbox_max: Vector,
-    pub unk_0x18: u32,
-    pub unk_0x1c: u32,
+    pub unk_always_1: u32,
     pub submesh_a: Option<Submesh>,
     pub submesh_b: Option<Submesh>,
 }
 
-impl MeshData {
-    /// Construct from stream.
+impl Mesh {
+    /// Deserialize from stream.
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
         let bbox_min = Vector::read(reader)?;
         let bbox_max = Vector::read(reader)?;
-        let unk_0x18 = reader.read_u32::<LittleEndian>()?;
-        let unk_0x1c = reader.read_u32::<LittleEndian>()?;
+        let runtime_0x18 = reader.read_u32::<LittleEndian>()?;
+        let unk_always_1 = reader.read_u32::<LittleEndian>()?;
         let ptr_submesh_a = reader.read_i32::<LittleEndian>()?;
         let ptr_submesh_b = reader.read_i32::<LittleEndian>()?;
+
+        if runtime_0x18 != 0 {
+            let pos = reader.stream_position()? - 0x10;
+            return Err(Sr2TypeError::UnexpectedData { pos });
+        }
+        //if unk_always_1 != 1 {
+        //    let pos = reader.stream_position()? - 0xc;
+        //    return Err(Sr2TypeError::UnexpectedData { pos });
+        //}
+
+        let pos_before_align = reader.stream_position()?;
 
         seek_align(reader, 16)?;
 
@@ -311,7 +321,7 @@ impl MeshData {
             -1 => Some(Submesh::read(reader)?),
             _ => {
                 return Err(Sr2TypeError::UnexpectedData {
-                    pos: reader.stream_position().unwrap() - 0x8,
+                    pos: pos_before_align - 0x8,
                 });
             }
         };
@@ -320,7 +330,7 @@ impl MeshData {
             -1 => Some(Submesh::read(reader)?),
             _ => {
                 return Err(Sr2TypeError::UnexpectedData {
-                    pos: reader.stream_position().unwrap() - 0x4,
+                    pos: pos_before_align - 0x4,
                 });
             }
         };
@@ -339,8 +349,7 @@ impl MeshData {
         let mesh_data = Self {
             bbox_min,
             bbox_max,
-            unk_0x18,
-            unk_0x1c,
+            unk_always_1,
             submesh_a,
             submesh_b,
         };
@@ -356,8 +365,8 @@ impl MeshData {
         let mut bytes = vec![];
         bytes.extend_from_slice(self.bbox_min.as_bytes());
         bytes.extend_from_slice(self.bbox_max.as_bytes());
-        bytes.extend_from_slice(&self.unk_0x18.to_le_bytes());
-        bytes.extend_from_slice(&self.unk_0x1c.to_le_bytes());
+        bytes.extend_from_slice(&0_u32.to_le_bytes());
+        bytes.extend_from_slice(&self.unk_always_1.to_le_bytes());
         bytes.extend_from_slice(&ptr_submesh_a.to_le_bytes());
         bytes.extend_from_slice(&ptr_submesh_b.to_le_bytes());
 
@@ -395,7 +404,7 @@ impl Submesh {
         let runtime_0x0c = reader.read_u32::<LittleEndian>()?;
 
         if runtime_0x0c != 0 {
-            let pos = reader.stream_position().unwrap() - 0x4;
+            let pos = reader.stream_position()? - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
 
@@ -452,6 +461,18 @@ impl Surface {
         let this = Self::read_from_bytes(&buf).unwrap();
 
         Ok(this)
+    }
+
+    /// Fetches indices from [MeshBuffer]
+    pub fn get_indices_checked(&self, buffer: &MeshBuffer) -> Result<Vec<u16>, ()> {
+        let start = self.start_index as usize;
+        let end = start + self.num_indices as usize;
+
+        if start + end >= buffer.indices.len() {
+            return Err(());
+        }
+
+        Ok(buffer.indices[start..end].to_vec())
     }
 }
 

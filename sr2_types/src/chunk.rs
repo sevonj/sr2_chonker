@@ -16,7 +16,7 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
     io_helper::seek_align, Material, MaterialHeader, MaterialTextureEntry, MaterialUnknown2,
-    MaterialUnknown3, MeshBuffer, MeshBufferType, MeshData, VertexBuffer,
+    MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, VertexBuffer,
 };
 
 use super::{
@@ -30,12 +30,13 @@ pub struct Chunk {
 
     pub textures: Vec<String>,
 
-    pub model_header: ModelHeader,
-    pub gpu_mesh_unk_as: Vec<GpuMeshUnkA>,
+    // Objects, object models
+    pub mesh_unk_as: Vec<GpuMeshUnkA>,
     pub obj_models: Vec<ObjectModel>,
-    pub model_unk_as: Vec<ModelUnknownA>,
-    pub model_unk_bs: Vec<ModelUnknownB>,
+    pub obj_unknown_as: Vec<ModelUnknownA>,
+    pub obj_unknown_bs: Vec<ModelUnknownB>,
 
+    // This block is probably all collisions
     pub world_collision_vbuf: Vec<Vector>,
     /// Unknown buffer, may or may not relate to unknown5
     pub unknown6: Vec<u8>,
@@ -48,14 +49,17 @@ pub struct Chunk {
     pub unk_bb_min: Vector,
     pub unk_bb_max: Vector,
 
+    // Vertex & index buffers definitions and data
     pub mesh_buffers: Vec<MeshBuffer>,
 
+    // Materials
     pub mat_header: MaterialHeader,
     pub materials: Vec<Material>,
     pub shader_consts: Vec<f32>,
     pub material_unk_3: Vec<MaterialUnknown3>,
 
-    pub mesh_datas: Vec<MeshData>,
+    // GPU meshes that pull data from mesh_buffer
+    pub meshes: Vec<Mesh>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -84,6 +88,8 @@ impl Chunk {
             return Err(Sr2TypeError::ChunkInvalidVersion(header.version));
         }
 
+        seek_align(reader, 16)?;
+
         let num_textures = reader.read_u32::<LittleEndian>()?;
         reader.seek_relative(num_textures as i64 * 4)?;
 
@@ -102,17 +108,17 @@ impl Chunk {
             ModelHeader::read_from_bytes(&buf).unwrap()
         };
 
-        let mut gpu_mesh_unk_as = vec![];
+        let mut mesh_unk_as = vec![];
         let mut obj_models = vec![];
-        let mut model_unk_as = vec![];
-        let mut model_unk_bs = vec![];
+        let mut obj_unk_as = vec![];
+        let mut obj_unk_bs = vec![];
 
         seek_align(reader, 16)?;
 
-        for _ in 0..model_header.num_gpu_meshes {
+        for _ in 0..model_header.num_meshes {
             let mut buf = vec![0_u8; size_of::<GpuMeshUnkA>()];
             reader.read_exact(&mut buf)?;
-            gpu_mesh_unk_as.push(GpuMeshUnkA::read_from_bytes(&buf).unwrap());
+            mesh_unk_as.push(GpuMeshUnkA::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
@@ -125,18 +131,18 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
-        for _ in 0..model_header.num_model_unknown_a {
+        for _ in 0..model_header.num_obj_unknown_a {
             let mut buf = vec![0_u8; size_of::<ModelUnknownA>()];
             reader.read_exact(&mut buf)?;
-            model_unk_as.push(ModelUnknownA::read_from_bytes(&buf).unwrap());
+            obj_unk_as.push(ModelUnknownA::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
-        for _ in 0..model_header.num_model_unknown_b {
+        for _ in 0..model_header.num_obj_unknown_b {
             let mut buf = vec![0_u8; size_of::<ModelUnknownB>()];
             reader.read_exact(&mut buf)?;
-            model_unk_bs.push(ModelUnknownB::read_from_bytes(&buf).unwrap());
+            obj_unk_bs.push(ModelUnknownB::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
@@ -172,7 +178,7 @@ impl Chunk {
             if String::from_utf8_lossy(&buf).to_string().as_str() != "MOPP" {
                 return Err(Sr2TypeError::ChunkLostTrack {
                     msg: "First MOPP signature didn't appear where expected.".into(),
-                    pos: reader.stream_position().unwrap() as i64,
+                    pos: reader.stream_position()? as i64,
                 });
             }
             reader.seek_relative(-4)?;
@@ -197,7 +203,7 @@ impl Chunk {
         seek_align(reader, 16)?;
 
         let mut mesh_buffers: Vec<MeshBuffer> = vec![];
-        for _ in 0..model_header.num_meshes {
+        for _ in 0..model_header.num_mesh_buffers {
             mesh_buffers.push(MeshBuffer::read(reader)?);
         }
         for mesh_buffer in &mut mesh_buffers {
@@ -267,14 +273,9 @@ impl Chunk {
         }
 
         let mut mesh_datas = vec![];
-        for _ in 0..model_header.num_gpu_meshes {
-            mesh_datas.push(MeshData::read(reader)?);
+        for _ in 0..model_header.num_meshes {
+            mesh_datas.push(Mesh::read(reader)?);
         }
-
-        println!(
-            "\nRemaining barrier on in: {:#X}\n",
-            reader.stream_position()?
-        );
 
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
@@ -282,11 +283,10 @@ impl Chunk {
         Ok(Self {
             header,
             textures,
-            model_header,
-            gpu_mesh_unk_as,
+            mesh_unk_as,
             obj_models,
-            model_unk_as,
-            model_unk_bs,
+            obj_unknown_as: obj_unk_as,
+            obj_unknown_bs: obj_unk_bs,
             world_collision_vbuf: unknown5_vbuf,
             unknown6,
             unknown7,
@@ -300,7 +300,7 @@ impl Chunk {
             materials,
             shader_consts,
             material_unk_3,
-            mesh_datas,
+            meshes: mesh_datas,
         })
     }
 
@@ -309,6 +309,10 @@ impl Chunk {
         let mut buf = vec![];
 
         buf.extend_from_slice(self.header.as_bytes());
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
 
         buf.extend_from_slice(&(self.textures.len() as u32).to_le_bytes());
         for _ in &self.textures {
@@ -321,12 +325,21 @@ impl Chunk {
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        buf.extend_from_slice(self.model_header.as_bytes());
+        buf.extend_from_slice(
+            (ModelHeader {
+                num_meshes: self.meshes.len() as u32,
+                num_obj_models: self.obj_models.len() as u32,
+                num_mesh_buffers: self.mesh_buffers.len() as u32,
+                num_obj_unknown_a: self.obj_unknown_as.len() as u32,
+                num_obj_unknown_b: self.obj_unknown_bs.len() as u32,
+            })
+            .as_bytes(),
+        );
 
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        for gpu_mesh_unk_a in &self.gpu_mesh_unk_as {
+        for gpu_mesh_unk_a in &self.mesh_unk_as {
             buf.extend_from_slice(gpu_mesh_unk_a.as_bytes());
         }
 
@@ -340,14 +353,14 @@ impl Chunk {
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        for model_unk_a in &self.model_unk_as {
+        for model_unk_a in &self.obj_unknown_as {
             buf.extend_from_slice(model_unk_a.as_bytes());
         }
 
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        for model_unk_b in &self.model_unk_bs {
+        for model_unk_b in &self.obj_unknown_bs {
             buf.extend_from_slice(model_unk_b.as_bytes());
         }
 
@@ -442,7 +455,7 @@ impl Chunk {
             buf.extend_from_slice(unk3.unk_data.as_bytes());
         }
 
-        for mesh_data in &self.mesh_datas {
+        for mesh_data in &self.meshes {
             buf.extend_from_slice(&mesh_data.to_bytes());
 
             while buf.len() % 16 != 0 {
@@ -483,74 +496,49 @@ pub struct ChunkHeader {
     pub header0x0c: i32,
     pub header0x10: i32,
 
-    /// Hash?
-    pub header0x14: i32,
-    /// Hash?
-    pub header0x18: i32,
-    /// Hash?
-    pub header0x20: i32,
-    /// Hash?
-    pub header0x24: i32,
-    /// Hash?
-    pub header0x28: i32,
-    /// Hash?
-    pub header0x2c: i32,
-    /// Hash?
-    pub header0x30: i32,
-    /// Hash?
-    pub header0x34: i32,
-    /// Hash?
-    pub header0x38: i32,
-    /// Hash?
-    pub header0x3c: i32,
-    /// Hash?
-    pub header0x40: i32,
-    /// Hash?
-    pub header0x44: i32,
-    /// Hash?
-    pub header0x48: i32,
-    /// Hash?
-    pub header0x4c: i32,
-    /// Hash?
-    pub header0x50: i32,
-    /// Hash?
-    pub header0x54: i32,
-    /// Hash?
-    pub header0x58: i32,
-    /// Hash?
-    pub header0x5c: i32,
-    /// Hash?
-    pub header0x60: i32,
-    /// Hash?
-    pub header0x64: i32,
-    /// Hash?
-    pub header0x68: i32,
-    /// Hash?
-    pub header0x6c: i32,
-    /// Hash?
-    pub header0x70: i32,
-    /// Hash?
-    pub header0x74: i32,
-    /// Hash?
-    pub header0x78: i32,
-    /// Hash?
-    pub header0x7c: i32,
-    /// Hash?
-    pub header0x80: i32,
-    /// Hash?
-    pub header0x84: i32,
-    /// Hash?
-    pub header0x88: i32,
-    /// Hash?
-    pub header0x8c: i32,
+    // Checksums? Volition uses checksums a lot, and the values really don't
+    // seem to make sense for anything else. [V]'s hashing algorithms are known
+    // but testing them with all data in the chunk would be a pain.
+    pub hash_0x14: i32,
+    pub hash_0x18: i32,
+    pub hash_0x20: i32,
+    pub hash_0x24: i32,
+    pub hash_0x28: i32,
+    pub hash_0x2c: i32,
+    pub hash_0x30: i32,
+    pub hash_0x34: i32,
+    pub hash_0x38: i32,
+    pub hash_0x3c: i32,
+    pub hash_0x40: i32,
+    pub hash_0x44: i32,
+    pub hash_0x48: i32,
+    pub hash_0x4c: i32,
+    pub hash_0x50: i32,
+    pub hash_0x54: i32,
+    pub hash_0x58: i32,
+    pub hash_0x5c: i32,
+    pub hash_0x60: i32,
+    pub hash_0x64: i32,
+    pub hash_0x68: i32,
+    pub hash_0x6c: i32,
+    pub hash_0x70: i32,
+    pub hash_0x74: i32,
+    pub hash_0x78: i32,
+    pub hash_0x7c: i32,
+    pub hash_0x80: i32,
+    pub hash_0x84: i32,
+    pub hash_0x88: i32,
+    pub hash_0x8c: i32,
 
     /// First half of GPU chunk. Contains models.
     pub len_gpu_chunk_a: i32,
     /// Second half of GPU chunk.
-    /// Probably contains destroyable objects.
+    /// Probably contains destroyable objects or something weird.
     pub len_gpu_chunk_b: i32,
 
-    pub num_city_objects: i32,
+    // Everything from here to bbox_min that is so far discovered is a count.
+    // Therefore it's reasonable to expect the unknowns
+    pub num_objects: i32,
     pub num_unknown23s: i32,
     /// num_something?
     pub header0x9c: i32,
@@ -564,12 +552,16 @@ pub struct ChunkHeader {
     pub header0xac: i32,
     /// num_something?
     pub header0xb4: i32,
+
+    // This block is potentially all mover stuff, as all of these unknowns'
+    // data is sandwiched between mesh_movers and mesh_mover_names
     pub num_mesh_movers: i32,
     pub num_unknown27s: i32,
     pub num_unknown28s: i32,
     pub num_unknown29s: i32,
     pub num_unknown30s: i32,
     pub num_unknown31s: i32,
+
     /// num_something?
     pub header0xcc: i32,
     /// num_something?
@@ -579,12 +571,9 @@ pub struct ChunkHeader {
     pub bbox_min: Vector,
     /// Load zone???
     pub bbox_max: Vector,
-
-    pub header0xec: f32,
+    /// Repeat of bbox_min.y?
+    pub bbox_min_y: f32,
     pub header0xf0: i32,
-    pub header0xf4: i32,
-    pub header0xf8: i32,
-    pub header0xfc: i32,
 }
 
 #[cfg(test)]

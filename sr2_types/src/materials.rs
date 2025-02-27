@@ -76,27 +76,27 @@ impl MaterialHeader {
             Self::read_from_bytes(&buf).unwrap()
         };
         if this.runtime_0x04 != 0 {
-            let pos = reader.stream_position().unwrap() - 0x20;
+            let pos = reader.stream_position()? - 0x20;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x08 != 0 {
-            let pos = reader.stream_position().unwrap() - 0x1c;
+            let pos = reader.stream_position()? - 0x1c;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x0c != 0 {
-            let pos = reader.stream_position().unwrap() - 0x18;
+            let pos = reader.stream_position()? - 0x18;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x14 != 0 {
-            let pos = reader.stream_position().unwrap() - 0x10;
+            let pos = reader.stream_position()? - 0x10;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x18 != 0 {
-            let pos = reader.stream_position().unwrap() - 0xc;
+            let pos = reader.stream_position()? - 0xc;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         if this.runtime_0x20 != 0 {
-            let pos = reader.stream_position().unwrap() - 0x4;
+            let pos = reader.stream_position()? - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
         Ok(this)
@@ -157,7 +157,7 @@ impl Material {
         };
 
         if runtime_0x14 != -1 && runtime_0x14 != 0 {
-            let pos = reader.stream_position().unwrap() - 0x4;
+            let pos = reader.stream_position()? - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
 
@@ -252,7 +252,7 @@ impl MaterialUnknown3 {
         };
 
         if runtime_0x08 != -1 {
-            let pos = reader.stream_position().unwrap() - 0x4;
+            let pos = reader.stream_position()? - 0x4;
             return Err(Sr2TypeError::UnexpectedData { pos });
         }
 

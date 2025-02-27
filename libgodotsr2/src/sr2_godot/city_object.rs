@@ -65,7 +65,7 @@ impl CityObjectModel {
             unk_0x4c: data.unk_0x4c,
             unk_0x50: data.unk_0x50,
             unk_0x54: data.unk_0x54,
-            idx_gpu_model: data.idx_gpu_model,
+            idx_gpu_model: data.mesh_idx,
             unk_0x5c: data.unk_0x5c,
 
             base,
