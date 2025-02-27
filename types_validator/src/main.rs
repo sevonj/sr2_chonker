@@ -31,6 +31,9 @@ struct Args {
     /// Save failed output files
     #[arg(short, long)]
     save_failed: bool,
+    /// Only show failed files
+    #[arg(short, long)]
+    quiet: bool,
 }
 
 fn main() {
@@ -62,11 +65,17 @@ fn main() {
         );
         match validate(&path, args.intense) {
             Ok(()) => {
-                println!(
-                    "\r{}/{num_files} : {} {path}",
-                    i + 1,
-                    "[OK] ".green().bold()
-                );
+                if !args.quiet {
+                    println!(
+                        "\r{}/{num_files} : {} {path}",
+                        i + 1,
+                        "[OK] ".green().bold()
+                    );
+                } else {
+                    print!(
+                        "\r                                                                                                    \r"
+                    );
+                }
             }
             Err((e, data)) => {
                 failed.push(path.clone());

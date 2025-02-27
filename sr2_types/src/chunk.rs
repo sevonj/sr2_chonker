@@ -16,7 +16,7 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
     io_helper::seek_align, Material, MaterialHeader, MaterialTextureEntry, MaterialUnknown2,
-    MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, VertexBuffer,
+    MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, Object, VertexBuffer,
 };
 
 use super::{
@@ -60,6 +60,8 @@ pub struct Chunk {
 
     // GPU meshes that pull data from mesh_buffer
     pub meshes: Vec<Mesh>,
+
+    pub objects: Vec<Object>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -110,8 +112,8 @@ impl Chunk {
 
         let mut mesh_unk_as = vec![];
         let mut obj_models = vec![];
-        let mut obj_unk_as = vec![];
-        let mut obj_unk_bs = vec![];
+        let mut obj_unknown_as = vec![];
+        let mut obj_unknown_bs = vec![];
 
         seek_align(reader, 16)?;
 
@@ -134,7 +136,7 @@ impl Chunk {
         for _ in 0..model_header.num_obj_unknown_a {
             let mut buf = vec![0_u8; size_of::<ModelUnknownA>()];
             reader.read_exact(&mut buf)?;
-            obj_unk_as.push(ModelUnknownA::read_from_bytes(&buf).unwrap());
+            obj_unknown_as.push(ModelUnknownA::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
@@ -142,17 +144,17 @@ impl Chunk {
         for _ in 0..model_header.num_obj_unknown_b {
             let mut buf = vec![0_u8; size_of::<ModelUnknownB>()];
             reader.read_exact(&mut buf)?;
-            obj_unk_bs.push(ModelUnknownB::read_from_bytes(&buf).unwrap());
+            obj_unknown_bs.push(ModelUnknownB::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
 
         let num_unknown5_vertices = reader.read_u32::<LittleEndian>()?;
-        let mut unknown5_vbuf = vec![];
+        let mut world_collision_vbuf = vec![];
         for _ in 0..num_unknown5_vertices {
             let mut buf = vec![0_u8; size_of::<Vector>()];
             reader.read_exact(&mut buf)?;
-            unknown5_vbuf.push(Vector::read_from_bytes(&buf).unwrap());
+            world_collision_vbuf.push(Vector::read_from_bytes(&buf).unwrap());
         }
 
         let num_unknown6 = reader.read_u32::<LittleEndian>()?;
@@ -272,9 +274,14 @@ impl Chunk {
             }
         }
 
-        let mut mesh_datas = vec![];
+        let mut meshes = vec![];
         for _ in 0..model_header.num_meshes {
-            mesh_datas.push(Mesh::read(reader)?);
+            meshes.push(Mesh::read(reader)?);
+        }
+
+        let mut objects = vec![];
+        for _ in 0..header.num_objects {
+            objects.push(Object::read(reader)?);
         }
 
         let mut remaining_data = vec![];
@@ -285,9 +292,9 @@ impl Chunk {
             textures,
             mesh_unk_as,
             obj_models,
-            obj_unknown_as: obj_unk_as,
-            obj_unknown_bs: obj_unk_bs,
-            world_collision_vbuf: unknown5_vbuf,
+            obj_unknown_as,
+            obj_unknown_bs,
+            world_collision_vbuf,
             unknown6,
             unknown7,
             unknown8,
@@ -300,7 +307,8 @@ impl Chunk {
             materials,
             shader_consts,
             material_unk_3,
-            meshes: mesh_datas,
+            meshes,
+            objects,
         })
     }
 
@@ -481,6 +489,10 @@ impl Chunk {
             }
         }
 
+        for object in &self.objects {
+            buf.extend_from_slice(&object.to_bytes());
+        }
+
         buf.extend_from_slice(&self.remaining_data);
 
         buf
@@ -583,6 +595,6 @@ mod tests {
 
     #[test]
     fn test_chunk_header_size() {
-        assert_eq!(size_of::<ChunkHeader>(), 0x100);
+        assert_eq!(size_of::<ChunkHeader>(), 0xf4);
     }
 }

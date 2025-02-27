@@ -7,18 +7,18 @@
  */
 
 mod chunk;
-mod city_object;
 mod error;
 mod io_helper;
 mod materials;
 mod mesh;
+mod object;
 mod transform;
 mod vector;
 
 pub use chunk::*;
-pub use city_object::*;
 pub use error::*;
 pub use materials::*;
 pub use mesh::*;
+pub use object::*;
 pub use transform::*;
 pub use vector::*;

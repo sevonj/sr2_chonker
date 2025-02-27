@@ -464,6 +464,7 @@ impl Surface {
     }
 
     /// Fetches indices from [MeshBuffer]
+    #[allow(clippy::result_unit_err)]
     pub fn get_indices_checked(&self, buffer: &MeshBuffer) -> Result<Vec<u16>, ()> {
         let start = self.start_index as usize;
         let end = start + self.num_indices as usize;
