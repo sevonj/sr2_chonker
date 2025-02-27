@@ -18,7 +18,7 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 use crate::{
     io_helper::seek_align, CribSomething, Material, MaterialHeader, MaterialTextureEntry,
     MaterialUnknown2, MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, Object, Unknown19,
-    VertexBuffer,
+    Unknown20, Unknown21, VertexBuffer,
 };
 
 use super::{
@@ -78,6 +78,8 @@ pub struct Chunk {
     pub crib_smthn: Vec<CribSomething>,
 
     pub unknown19: Vec<Unknown19>,
+    pub unknown20: Vec<Unknown20>,
+    pub unknown21: Vec<Unknown21>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -359,6 +361,26 @@ impl Chunk {
             unknown19.push(Unknown19::read(reader)?);
         }
 
+        let num_unknown20 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown20 = vec![];
+        // Another 0xCD block
+        reader.seek_relative(num_unknown20 as i64 * 12)?;
+        for _ in 0..num_unknown20 {
+            unknown20.push(Unknown20::read(reader)?);
+        }
+
+        seek_align(reader, 16)?;
+
+        let num_unknown21 = reader.read_u32::<LittleEndian>()?;
+        // Another 0xCD block
+        reader.seek_relative(num_unknown21 as i64 * 8)?;
+        let mut unknown21 = vec![];
+        for _ in 0..num_unknown21 {
+            unknown21.push(Unknown21::read(reader)?);
+        }
+
+        seek_align(reader, 16)?;
+
         let bytes_mapped = reader.stream_position()? as usize - stream_start;
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
@@ -390,6 +412,8 @@ impl Chunk {
             cd_pad_size,
             crib_smthn,
             unknown19,
+            unknown20,
+            unknown21,
         })
     }
 
@@ -624,6 +648,25 @@ impl Chunk {
         buf.extend_from_slice(&(self.unknown19.len() as u32).to_le_bytes());
         for unknown19 in &self.unknown19 {
             buf.extend_from_slice(unknown19.as_bytes());
+        }
+        buf.extend_from_slice(&(self.unknown20.len() as u32).to_le_bytes());
+        buf.extend_from_slice(&vec![0xcd_u8; self.unknown20.len() * 12]);
+        for unknown20 in &self.unknown20 {
+            buf.extend_from_slice(unknown20.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        buf.extend_from_slice(&(self.unknown21.len() as u32).to_le_bytes());
+        buf.extend_from_slice(&vec![0xcd_u8; self.unknown21.len() * 8]);
+        for unknown21 in &self.unknown21 {
+            buf.extend_from_slice(unknown21.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
         }
 
         buf.extend_from_slice(&self.remaining_data);

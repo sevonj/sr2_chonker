@@ -34,3 +34,36 @@ impl Unknown19 {
 pub struct Unknown19Sub {
     pub data_todo: [f32; 7],
 }
+
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+pub struct Unknown20 {
+    pub data_todo: [u8; 12],
+}
+
+impl Unknown20 {
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let mut buf = vec![0_u8; size_of::<Self>()];
+        reader.read_exact(&mut buf)?;
+        let this = Self::read_from_bytes(&buf).unwrap();
+
+        Ok(this)
+    }
+}
+
+#[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
+pub struct Unknown21 {
+    pub unknown_0x0: u32,
+    pub unknown_0x4: u32,
+}
+
+impl Unknown21 {
+    /// Read from stream
+    pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
+        let mut buf = vec![0_u8; size_of::<Self>()];
+        reader.read_exact(&mut buf)?;
+        let this = Self::read_from_bytes(&buf).unwrap();
+
+        Ok(this)
+    }
+}
