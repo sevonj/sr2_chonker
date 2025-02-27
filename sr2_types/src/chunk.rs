@@ -15,8 +15,9 @@ use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
-    io_helper::seek_align, Material, MaterialHeader, MaterialTextureEntry, MaterialUnknown2,
-    MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, Object, VertexBuffer,
+    io_helper::seek_align, CribSomething, Material, MaterialHeader, MaterialTextureEntry,
+    MaterialUnknown2, MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, Object, Unknown19,
+    VertexBuffer,
 };
 
 use super::{
@@ -56,17 +57,26 @@ pub struct Chunk {
     pub mesh_buffers: Vec<MeshBuffer>,
 
     // Materials
-    pub mat_header: MaterialHeader,
     pub materials: Vec<Material>,
     pub shader_consts: Vec<f32>,
     pub material_unk_3: Vec<MaterialUnknown3>,
 
-    // GPU meshes that pull data from mesh_buffer
+    /// GPU meshes that pull data from mesh_buffer
     pub meshes: Vec<Mesh>,
 
     pub objects: Vec<Object>,
 
     pub unknown_names: Vec<String>,
+
+    pub unknown13: Vec<u32>,
+
+    /// Yeah so there's a buffer filled with 0xCD bytes.
+    pub cd_pad_size: u32,
+
+    /// Only present in crib chunks.
+    pub crib_smthn: Vec<CribSomething>,
+
+    pub unknown19: Vec<Unknown19>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -318,6 +328,32 @@ impl Chunk {
         }
 
         seek_align(reader, 16)?;
+        let num_unknown13 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown13 = vec![];
+        for _ in 0..num_unknown13 {
+            unknown13.push(reader.read_u32::<LittleEndian>()?);
+        }
+
+        seek_align(reader, 16)?;
+
+        let cd_pad_size = reader.read_u32::<LittleEndian>()?;
+        reader.seek_relative(cd_pad_size as i64)?;
+
+        seek_align(reader, 16)?;
+
+        let num_crib_smthn = reader.read_u32::<LittleEndian>()?;
+        let mut crib_smthn = vec![];
+        for _ in 0..num_crib_smthn {
+            crib_smthn.push(CribSomething::read(reader)?);
+        }
+
+        seek_align(reader, 16)?;
+
+        let num_unknown19 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown19 = vec![];
+        for _ in 0..num_unknown19 {
+            unknown19.push(Unknown19::read(reader)?);
+        }
 
         let bytes_mapped = reader.stream_position()? as usize - stream_start;
         let mut remaining_data = vec![];
@@ -340,13 +376,16 @@ impl Chunk {
             unk_bb_max,
             mesh_buffers,
             remaining_data,
-            mat_header,
             materials,
             shader_consts,
             material_unk_3,
             meshes,
             objects,
             unknown_names,
+            unknown13,
+            cd_pad_size,
+            crib_smthn,
+            unknown19,
         })
     }
 
@@ -467,7 +506,14 @@ impl Chunk {
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        buf.extend_from_slice(self.mat_header.as_bytes());
+        buf.extend_from_slice(
+            MaterialHeader::new(
+                self.materials.len() as u32,
+                self.shader_consts.len() as u32,
+                self.material_unk_3.len() as u32,
+            )
+            .as_bytes(),
+        );
         for material in &self.materials {
             buf.extend_from_slice(&material.to_bytes());
         }
@@ -547,6 +593,33 @@ impl Chunk {
 
         while buf.len() % 16 != 0 {
             buf.push(0);
+        }
+        buf.extend_from_slice(&(self.unknown13.len() as u32).to_le_bytes());
+        buf.extend_from_slice(self.unknown13.as_bytes());
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        buf.extend_from_slice(self.cd_pad_size.as_bytes());
+        buf.extend_from_slice(&vec![0xcd_u8; self.cd_pad_size as usize]);
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        buf.extend_from_slice(&(self.crib_smthn.len() as u32).to_le_bytes());
+        for unknown18 in &self.crib_smthn {
+            buf.extend_from_slice(&unknown18.to_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        buf.extend_from_slice(&(self.unknown19.len() as u32).to_le_bytes());
+        for unknown19 in &self.unknown19 {
+            buf.extend_from_slice(unknown19.as_bytes());
         }
 
         buf.extend_from_slice(&self.remaining_data);

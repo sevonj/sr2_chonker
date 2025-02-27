@@ -53,17 +53,16 @@ pub struct MaterialHeader {
 }
 
 impl MaterialHeader {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+    pub fn new(num_materials: u32, num_shader_constants: u32, num_mat_unknown3: u32) -> Self {
         Self {
-            num_materials: 0,
+            num_materials,
             runtime_0x04: 0,
             runtime_0x08: 0,
             runtime_0x0c: 0,
-            num_shader_constants: 0,
+            num_shader_constants,
             runtime_0x14: 0,
             runtime_0x18: 0,
-            num_mat_unknown3: 0,
+            num_mat_unknown3,
             runtime_0x20: 0,
         }
     }
