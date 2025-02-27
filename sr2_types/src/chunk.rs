@@ -8,6 +8,7 @@
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::{
+    cmp::Ordering,
     fs::File,
     io::{BufRead, BufReader, Read, Seek},
 };
@@ -313,18 +314,21 @@ impl Chunk {
         let mut unknown_names = vec![];
         loop {
             let stream_pos = reader.stream_position()?;
-            if stream_pos == unk_names_buf_end {
-                break;
-            } else if stream_pos > unk_names_buf_end {
-                let msg = "Overshot unknown names buffer".into();
-                return Err(Sr2TypeError::ChunkLostTrack {
-                    msg,
-                    pos: stream_pos,
-                });
+            match stream_pos.cmp(&unk_names_buf_end) {
+                Ordering::Less => {
+                    let mut buf = vec![];
+                    reader.read_until(0x00, &mut buf)?;
+                    unknown_names.push(String::from_utf8_lossy(&buf).to_string());
+                }
+                Ordering::Equal => break,
+                Ordering::Greater => {
+                    let msg = "Overshot unknown names buffer".into();
+                    return Err(Sr2TypeError::ChunkLostTrack {
+                        msg,
+                        pos: stream_pos,
+                    });
+                }
             }
-            let mut buf = vec![];
-            reader.read_until(0x00, &mut buf)?;
-            unknown_names.push(String::from_utf8_lossy(&buf).to_string());
         }
 
         seek_align(reader, 16)?;
