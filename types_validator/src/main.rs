@@ -68,12 +68,12 @@ fn main() {
         );
         match validate(&path, args.intense) {
             Ok(chunk) => {
+                let chunk_total_size = chunk.bytes_mapped + chunk.remaining_data.len();
+                let progress_percentage =
+                    (chunk.bytes_mapped as f64 * 100.0 / chunk_total_size as f64) as usize;
+                progress_tracker.push(progress_percentage);
+                
                 if !args.quiet {
-                    let chunk_total_size = chunk.bytes_mapped + chunk.remaining_data.len();
-                    let progress_percentage =
-                        (chunk.bytes_mapped as f64 * 100.0 / chunk_total_size as f64) as usize;
-                    progress_tracker.push(progress_percentage);
-
                     println!(
                         "\r{}/{num_files} : {} ({:#3}%) {path}     ",
                         i + 1,
@@ -120,7 +120,12 @@ fn main() {
         ),
     }
     let sum: usize = progress_tracker.iter().sum();
-    let avg = sum / progress_tracker.len();
+    let len = progress_tracker.len();
+    let avg = if len > 0 {
+        format!("{}", sum / len)
+    } else {
+        "N/A".into()
+    };
     println!("Roughly {avg}% of cpu chunk data mapped (excluding failed chunks)")
 }
 
