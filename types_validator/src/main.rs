@@ -66,13 +66,13 @@ fn main() {
             i + 1,
             "[checking...]".yellow().bold()
         );
-        match validate(&path, args.intense) {
+        match validate(path, args.intense) {
             Ok(chunk) => {
                 let chunk_total_size = chunk.bytes_mapped + chunk.remaining_data.len();
                 let progress_percentage =
                     (chunk.bytes_mapped as f64 * 100.0 / chunk_total_size as f64) as usize;
                 progress_tracker.push(progress_percentage);
-                
+
                 if !args.quiet {
                     println!(
                         "\r{}/{num_files} : {} ({:#3}%) {path}     ",
@@ -186,5 +186,5 @@ fn save_file(input_filepath: &str, bytes: &[u8]) {
     std::fs::create_dir_all(&output_dir).unwrap();
     let mut new_file = File::create(output_filepath).unwrap();
 
-    new_file.write_all(&bytes).unwrap();
+    new_file.write_all(bytes).unwrap();
 }

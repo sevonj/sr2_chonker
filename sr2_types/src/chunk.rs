@@ -17,8 +17,9 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::{
     io_helper::seek_align, CribSomething, Material, MaterialHeader, MaterialTextureEntry,
-    MaterialUnknown2, MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, Object, Unknown19,
-    Unknown20, Unknown21, VertexBuffer,
+    MaterialUnknown2, MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, MeshMover, Object,
+    Unknown19, Unknown20, Unknown21, Unknown23, Unknown24, Unknown27, Unknown28,
+    Unknown31, Unknown32, VertexBuffer,
 };
 
 use super::{
@@ -80,6 +81,21 @@ pub struct Chunk {
     pub unknown19: Vec<Unknown19>,
     pub unknown20: Vec<Unknown20>,
     pub unknown21: Vec<Unknown21>,
+    pub unknown22: Vec<u32>,
+    pub unknown23: Vec<Unknown23>,
+    pub unknown24: Unknown24,
+
+    /// Only present in these 4 chunks:
+    /// sr2_intaicutjyucar, sr2_intarcutlimo, sr2_intdkmissunkdk, sr2_skybox
+    pub cutscn_skybox_smthn: Vec<u16>,
+
+    pub movers: Vec<MeshMover>,
+    pub unknown27: Vec<Unknown27>,
+    pub unknown28: Vec<Unknown28>,
+    pub unknown29: Vec<u32>,
+    pub unknown30: Vec<Vector>,
+    pub unknown31: Vec<Unknown31>,
+    pub unknown32: Vec<Unknown32>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -98,17 +114,22 @@ impl Chunk {
     pub fn read<R: Read + Seek>(reader: &mut BufReader<R>) -> Result<Self, Sr2TypeError> {
         let stream_start = reader.stream_position()? as usize;
 
-        let header = {
+        let chunk_header = {
             let mut buf = vec![0_u8; size_of::<ChunkHeader>()];
             reader.read_exact(&mut buf)?;
             ChunkHeader::read_from_bytes(&buf).unwrap()
         };
-        if header.magic != Self::MAGIC {
-            return Err(Sr2TypeError::ChunkInvalidMagic(header.magic));
+        if chunk_header.magic != Self::MAGIC {
+            return Err(Sr2TypeError::ChunkInvalidMagic(chunk_header.magic));
         }
-        if header.version != Self::VERION {
-            return Err(Sr2TypeError::ChunkInvalidVersion(header.version));
+        if chunk_header.version != Self::VERION {
+            return Err(Sr2TypeError::ChunkInvalidVersion(chunk_header.version));
         }
+        //if header.num_cutscn_skybox_thing != 0 {
+        //    return Err(Sr2TypeError::ChunkInvalidVersion(
+        //        header.num_cutscn_skybox_thing,
+        //    ));
+        //}
 
         seek_align(reader, 16)?;
 
@@ -300,7 +321,7 @@ impl Chunk {
         }
 
         let mut objects = vec![];
-        for _ in 0..header.num_objects {
+        for _ in 0..chunk_header.num_objects {
             objects.push(Object::read(reader)?);
         }
         for object in &mut objects {
@@ -381,13 +402,82 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
+        let num_unknown22 = reader.read_u32::<LittleEndian>()?;
+        let mut unknown22 = vec![];
+        for _ in 0..num_unknown22 {
+            unknown22.push(reader.read_u32::<LittleEndian>()?);
+        }
+
+        seek_align(reader, 16)?;
+
+        let mut unknown23 = vec![];
+        for _ in 0..chunk_header.num_unknown23 {
+            unknown23.push(Unknown23::read(reader)?);
+        }
+
+        seek_align(reader, 16)?;
+
+        let unknown24 = Unknown24::read(reader)?;
+
+        seek_align(reader, 16)?;
+
+        let mut cutscn_skybox_things = vec![];
+        for _ in 0..chunk_header.num_cutscn_skybox_thing {
+            cutscn_skybox_things.push(reader.read_u16::<LittleEndian>()?);
+        }
+
+        seek_align(reader, 16)?;
+
+        let mut movers = vec![];
+        let mut unknown27 = vec![];
+        let mut unknown28 = vec![];
+        let mut unknown29 = vec![];
+        let mut unknown30 = vec![];
+        let mut unknown31 = vec![];
+        let mut unknown32 = vec![];
+        for _ in 0..chunk_header.num_mesh_movers {
+            movers.push(MeshMover::read(reader)?);
+        }
+        for _ in 0..chunk_header.num_unknown27 {
+            unknown27.push(Unknown27::read(reader)?);
+        }
+        for _ in 0..chunk_header.num_unknown28 {
+            unknown28.push(Unknown28::read(reader)?);
+        }
+        for _ in 0..chunk_header.num_unknown29 {
+            unknown29.push(reader.read_u32::<LittleEndian>()?);
+        }
+        for _ in 0..chunk_header.num_unknown30 {
+            let value = Vector::read(reader)?;
+            unknown30.push(value);
+        }
+        for _ in 0..chunk_header.num_unknown31 {
+            unknown31.push(Unknown31::read(reader)?);
+        }
+        for _ in 0..chunk_header.num_unknown32 {
+            unknown32.push(Unknown32::read(reader)?);
+        }
+        for mover in &mut movers {
+            let mut buf = vec![];
+            reader.read_until(0x00, &mut buf)?;
+            mover.name = String::from_utf8_lossy(&buf).to_string();
+
+            for start_name in &mut mover.starts {
+                let mut buf = vec![];
+                reader.read_until(0x00, &mut buf)?;
+                *start_name = String::from_utf8_lossy(&buf).to_string();
+            }
+        }
+
+        seek_align(reader, 16)?;
+
         let bytes_mapped = reader.stream_position()? as usize - stream_start;
         let mut remaining_data = vec![];
         reader.read_to_end(&mut remaining_data)?;
 
         Ok(Self {
             bytes_mapped,
-            header,
+            header: chunk_header,
             textures,
             mesh_unk_as,
             obj_models,
@@ -414,6 +504,17 @@ impl Chunk {
             unknown19,
             unknown20,
             unknown21,
+            unknown22,
+            unknown23,
+            unknown24,
+            cutscn_skybox_smthn: cutscn_skybox_things,
+            movers,
+            unknown27,
+            unknown28,
+            unknown29,
+            unknown30,
+            unknown31,
+            unknown32,
         })
     }
 
@@ -421,7 +522,16 @@ impl Chunk {
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut buf = vec![];
 
-        buf.extend_from_slice(self.header.as_bytes());
+        let mut chunk_header = self.header.clone();
+        chunk_header.num_unknown23 = self.unknown23.len() as u32;
+        chunk_header.num_mesh_movers = self.movers.len() as u32;
+        chunk_header.num_unknown27 = self.unknown27.len() as u32;
+        chunk_header.num_unknown28 = self.unknown28.len() as u32;
+        chunk_header.num_unknown29 = self.unknown29.len() as u32;
+        chunk_header.num_unknown30 = self.unknown30.len() as u32;
+        chunk_header.num_unknown31 = self.unknown31.len() as u32;
+        chunk_header.num_unknown32 = self.unknown32.len() as u32;
+        buf.extend_from_slice(chunk_header.as_bytes());
 
         while buf.len() % 16 != 0 {
             buf.push(0);
@@ -669,6 +779,69 @@ impl Chunk {
             buf.push(0);
         }
 
+        buf.extend_from_slice(&(self.unknown22.len() as u32).to_le_bytes());
+        for unknown22 in &self.unknown22 {
+            buf.extend_from_slice(&unknown22.to_le_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        for unknown23 in &self.unknown23 {
+            buf.extend_from_slice(unknown23.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        buf.extend_from_slice(&self.unknown24.to_bytes());
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        for value in &self.cutscn_skybox_smthn {
+            buf.extend_from_slice(value.as_bytes());
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
+        for mover in &self.movers {
+            buf.extend_from_slice(&mover.to_bytes());
+        }
+        for unknown27 in &self.unknown27 {
+            buf.extend_from_slice(unknown27.as_bytes());
+        }
+        for unknown28 in &self.unknown28 {
+            buf.extend_from_slice(unknown28.as_bytes());
+        }
+        for unknown29 in &self.unknown29 {
+            buf.extend_from_slice(&unknown29.to_le_bytes());
+        }
+        for unknown30 in &self.unknown30 {
+            buf.extend_from_slice(unknown30.as_bytes());
+        }
+        for unknown31 in &self.unknown31 {
+            buf.extend_from_slice(unknown31.as_bytes());
+        }
+        for unknown32 in &self.unknown32 {
+            buf.extend_from_slice(unknown32.as_bytes());
+        }
+        for mover in &self.movers {
+            buf.extend_from_slice(mover.name.as_bytes());
+            for start_name in &mover.starts {
+                buf.extend_from_slice(start_name.as_bytes());
+            }
+        }
+
+        while buf.len() % 16 != 0 {
+            buf.push(0);
+        }
+
         buf.extend_from_slice(&self.remaining_data);
 
         buf
@@ -719,41 +892,43 @@ pub struct ChunkHeader {
     pub hash_0x8c: i32,
 
     /// First half of GPU chunk. Contains models.
-    pub len_gpu_chunk_a: i32,
+    pub len_gpu_chunk_a: u32,
     /// Second half of GPU chunk.
     /// Probably contains destroyable objects or something weird.
-    pub len_gpu_chunk_b: i32,
+    pub len_gpu_chunk_b: u32,
 
     // Everything from here to bbox_min that is so far discovered is a count.
     // Therefore it's reasonable to expect the unknowns
-    pub num_objects: i32,
-    pub num_unknown23s: i32,
+    pub num_objects: u32,
+    pub num_unknown23: u32,
     /// num_something?
     pub header0x9c: i32,
     /// num_something?
-    pub header0xa0: i32,
+    pub header0xa0: u32,
     /// num_something?
-    pub header0xa4: i32,
+    pub header0xa4: u32,
     /// num_something?
-    pub header0xa8: i32,
+    pub header0xa8: u32,
     /// num_something?
-    pub header0xac: i32,
+    pub header0xac: u32,
     /// num_something?
-    pub header0xb4: i32,
+    pub header0xb4: u32,
 
     // This block is potentially all mover stuff, as all of these unknowns'
     // data is sandwiched between mesh_movers and mesh_mover_names
-    pub num_mesh_movers: i32,
-    pub num_unknown27s: i32,
-    pub num_unknown28s: i32,
-    pub num_unknown29s: i32,
-    pub num_unknown30s: i32,
-    pub num_unknown31s: i32,
+    pub num_mesh_movers: u32,
+    pub num_unknown27: u32,
+    pub num_unknown28: u32,
+    pub num_unknown29: u32,
+    pub num_unknown30: u32,
+    pub num_unknown31: u32,
 
     /// num_something?
-    pub header0xcc: i32,
-    /// num_something?
-    pub header0xd0: i32,
+    pub unk_0xcc: u32,
+
+    /// Always zero, except in these 4 chunks:
+    /// sr2_intaicutjyucar, sr2_intarcutlimo, sr2_intdkmissunkdk, sr2_skybox
+    pub num_cutscn_skybox_thing: u32,
 
     /// Load zone???
     pub bbox_min: Vector,
@@ -761,7 +936,9 @@ pub struct ChunkHeader {
     pub bbox_max: Vector,
     /// Repeat of bbox_min.y?
     pub bbox_min_y: f32,
-    pub header0xf0: i32,
+
+    /// Located between mesh mover stuff
+    pub num_unknown32: u32,
 }
 
 #[cfg(test)]
