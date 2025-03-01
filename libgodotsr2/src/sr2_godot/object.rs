@@ -6,11 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use godot::classes::mesh::PrimitiveType;
 use godot::prelude::*;
 
-use godot::classes::{ArrayMesh, Material, MeshInstance3D, SurfaceTool};
+use godot::classes::{Material, MeshInstance3D};
 
+use super::aabb::build_bbox_mesh;
 use super::sr2_aabb_to_godot;
 
 /// Corresponds to [sr2::Object]
@@ -59,48 +59,4 @@ impl CityObject {
         let name = self.data.name.clone();
         self.base_mut().set_name(&name);
     }
-}
-
-fn build_bbox_mesh(min: Vector3, max: Vector3) -> Gd<ArrayMesh> {
-    let mut st = SurfaceTool::new_gd();
-
-    st.begin(PrimitiveType::LINES);
-
-    let a = min;
-    let b = Vector3::new(min.x, min.y, max.z);
-    let c = Vector3::new(min.x, max.y, max.z);
-    let d = Vector3::new(min.x, max.y, min.z);
-    let e = Vector3::new(max.x, min.y, min.z);
-    let f = Vector3::new(max.x, min.y, max.z);
-    let g = max;
-    let h = Vector3::new(max.x, max.y, min.z);
-
-    st.add_vertex(a);
-    st.add_vertex(b);
-    st.add_vertex(b);
-    st.add_vertex(c);
-    st.add_vertex(c);
-    st.add_vertex(d);
-    st.add_vertex(d);
-    st.add_vertex(a);
-
-    st.add_vertex(e);
-    st.add_vertex(f);
-    st.add_vertex(f);
-    st.add_vertex(g);
-    st.add_vertex(g);
-    st.add_vertex(h);
-    st.add_vertex(h);
-    st.add_vertex(e);
-
-    st.add_vertex(a);
-    st.add_vertex(e);
-    st.add_vertex(b);
-    st.add_vertex(f);
-    st.add_vertex(c);
-    st.add_vertex(g);
-    st.add_vertex(d);
-    st.add_vertex(h);
-
-    st.commit().unwrap()
 }

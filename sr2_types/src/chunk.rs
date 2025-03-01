@@ -18,8 +18,8 @@ use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 use crate::{
     io_helper::seek_align, CribSomething, Material, MaterialHeader, MaterialTextureEntry,
     MaterialUnknown2, MaterialUnknown3, Mesh, MeshBuffer, MeshBufferType, MeshMover, Object,
-    Unknown19, Unknown20, Unknown21, Unknown23, Unknown24, Unknown27, Unknown28,
-    Unknown31, Unknown32, VertexBuffer,
+    Unknown19, Unknown20, Unknown21, Unknown23, Unknown24, Unknown27, Unknown28, Unknown31,
+    Unknown32, VertexBuffer,
 };
 
 use super::{
@@ -60,7 +60,9 @@ pub struct Chunk {
 
     // Materials
     pub materials: Vec<Material>,
+    /// These should go inside material. Figure out the relationship.
     pub shader_consts: Vec<f32>,
+    /// These probably should go inside material. Figure out the relationship.
     pub material_unk_3: Vec<MaterialUnknown3>,
 
     /// GPU meshes that pull data from mesh_buffer
@@ -90,12 +92,13 @@ pub struct Chunk {
     pub cutscn_skybox_smthn: Vec<u16>,
 
     pub movers: Vec<MeshMover>,
-    pub unknown27: Vec<Unknown27>,
-    pub unknown28: Vec<Unknown28>,
-    pub unknown29: Vec<u32>,
-    pub unknown30: Vec<Vector>,
-    pub unknown31: Vec<Unknown31>,
-    pub unknown32: Vec<Unknown32>,
+    pub mover_unknown27: Vec<Unknown27>,
+    pub mover_unknown28: Vec<Unknown28>,
+    pub mover_unknown29: Vec<u32>,
+    /// Probably. Coords are relative.
+    pub mover_positions: Vec<Vector>,
+    pub mover_unknown31: Vec<Unknown31>,
+    pub mover_unknown32: Vec<Unknown32>,
 
     pub remaining_data: Vec<u8>,
 }
@@ -427,7 +430,7 @@ impl Chunk {
         let mut unknown27 = vec![];
         let mut unknown28 = vec![];
         let mut unknown29 = vec![];
-        let mut unknown30 = vec![];
+        let mut mover_positions = vec![];
         let mut unknown31 = vec![];
         let mut unknown32 = vec![];
         for _ in 0..chunk_header.num_mesh_movers {
@@ -444,7 +447,7 @@ impl Chunk {
         }
         for _ in 0..chunk_header.num_unknown30 {
             let value = Vector::read(reader)?;
-            unknown30.push(value);
+            mover_positions.push(value);
         }
         for _ in 0..chunk_header.num_unknown31 {
             unknown31.push(Unknown31::read(reader)?);
@@ -504,12 +507,12 @@ impl Chunk {
             unknown24,
             cutscn_skybox_smthn: cutscn_skybox_things,
             movers,
-            unknown27,
-            unknown28,
-            unknown29,
-            unknown30,
-            unknown31,
-            unknown32,
+            mover_unknown27: unknown27,
+            mover_unknown28: unknown28,
+            mover_unknown29: unknown29,
+            mover_positions,
+            mover_unknown31: unknown31,
+            mover_unknown32: unknown32,
         })
     }
 
@@ -520,12 +523,12 @@ impl Chunk {
         let mut chunk_header = self.header.clone();
         chunk_header.num_unknown23 = self.unknown23.len() as u32;
         chunk_header.num_mesh_movers = self.movers.len() as u32;
-        chunk_header.num_unknown27 = self.unknown27.len() as u32;
-        chunk_header.num_unknown28 = self.unknown28.len() as u32;
-        chunk_header.num_unknown29 = self.unknown29.len() as u32;
-        chunk_header.num_unknown30 = self.unknown30.len() as u32;
-        chunk_header.num_unknown31 = self.unknown31.len() as u32;
-        chunk_header.num_unknown32 = self.unknown32.len() as u32;
+        chunk_header.num_unknown27 = self.mover_unknown27.len() as u32;
+        chunk_header.num_unknown28 = self.mover_unknown28.len() as u32;
+        chunk_header.num_unknown29 = self.mover_unknown29.len() as u32;
+        chunk_header.num_unknown30 = self.mover_positions.len() as u32;
+        chunk_header.num_unknown31 = self.mover_unknown31.len() as u32;
+        chunk_header.num_unknown32 = self.mover_unknown32.len() as u32;
         buf.extend_from_slice(chunk_header.as_bytes());
 
         while buf.len() % 16 != 0 {
@@ -808,22 +811,22 @@ impl Chunk {
         for mover in &self.movers {
             buf.extend_from_slice(&mover.to_bytes());
         }
-        for unknown27 in &self.unknown27 {
+        for unknown27 in &self.mover_unknown27 {
             buf.extend_from_slice(unknown27.as_bytes());
         }
-        for unknown28 in &self.unknown28 {
+        for unknown28 in &self.mover_unknown28 {
             buf.extend_from_slice(unknown28.as_bytes());
         }
-        for unknown29 in &self.unknown29 {
+        for unknown29 in &self.mover_unknown29 {
             buf.extend_from_slice(&unknown29.to_le_bytes());
         }
-        for unknown30 in &self.unknown30 {
+        for unknown30 in &self.mover_positions {
             buf.extend_from_slice(unknown30.as_bytes());
         }
-        for unknown31 in &self.unknown31 {
+        for unknown31 in &self.mover_unknown31 {
             buf.extend_from_slice(unknown31.as_bytes());
         }
-        for unknown32 in &self.unknown32 {
+        for unknown32 in &self.mover_unknown32 {
             buf.extend_from_slice(unknown32.as_bytes());
         }
         for mover in &self.movers {

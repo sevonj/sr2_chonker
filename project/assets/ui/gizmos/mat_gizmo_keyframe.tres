@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://brd7crw7guax1"]
+
+[ext_resource type="Texture2D" uid="uid://0gnjkgoypil7" path="res://assets/ui/gizmos/tex_gizmo_keyframe.png" id="1_6xq81"]
+
+[resource]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0, 1, 1)
+albedo_texture = ExtResource("1_6xq81")
+billboard_mode = 1

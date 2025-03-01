@@ -12,14 +12,16 @@
 
 mod aabb;
 mod chunk;
+mod mesh_mover;
 mod object;
 mod transform;
 mod vector;
 mod world_collision;
 
-pub use chunk::Chunk;
-pub use object::CityObject;
-pub use world_collision::WorldCollision;
+pub use chunk::*;
+pub use mesh_mover::*;
+pub use object::*;
+pub use world_collision::*;
 
 pub use aabb::{godot_aabb_to_sr2, sr2_aabb_to_godot};
 pub use transform::{godot_xform_to_sr2, sr2_xform_to_godot};

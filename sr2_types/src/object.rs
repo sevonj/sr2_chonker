@@ -19,7 +19,6 @@ pub struct Object {
     pub cull_box_min: Vector,
     pub cull_box_max: Vector,
     pub render_distance: f32,
-
     pub unk_0x24: u32,
     pub unk_0x2c: u16,
     pub flags_0x30: i32,

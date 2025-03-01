@@ -3,8 +3,8 @@
 shader_type spatial;
 render_mode unshaded;
 
-const float fadeStart = 1440.0;
-const float fadeEnd = 2048.0;
+const float fadeStart = 1440.0 * 2.0;
+const float fadeEnd = 2048.0 * 2.0;
 
 void fragment() {
 	float depth = FRAGCOORD.z;
