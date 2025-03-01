@@ -9,7 +9,7 @@
 use godot::classes::mesh::PrimitiveType;
 use godot::prelude::*;
 
-use godot::classes::{ArrayMesh, CsgBox3D, Material, MeshInstance3D, SurfaceTool};
+use godot::classes::{ArrayMesh, Material, MeshInstance3D, SurfaceTool};
 
 use super::sr2_aabb_to_godot;
 
