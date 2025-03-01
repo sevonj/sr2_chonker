@@ -51,7 +51,7 @@ impl Object {
         let pad_0x2e = reader.read_u16::<LittleEndian>()?;
         let flags_0x30 = reader.read_i32::<LittleEndian>()?;
         let flags_0x34 = reader.read_i32::<LittleEndian>()?;
-        let unk_0x38 = reader.read_u32::<LittleEndian>()?;
+        let unk_cutsceneskybox_0x38 = reader.read_u32::<LittleEndian>()?;
         let unk_0x3c = reader.read_u16::<LittleEndian>()?;
         let unk_0x3e = reader.read_u16::<LittleEndian>()?;
         let idx_obj_model = reader.read_u32::<LittleEndian>()?;
@@ -84,7 +84,7 @@ impl Object {
             unk_0x2c,
             flags_0x30,
             flags_0x34,
-            unk_cutsceneskybox_0x38: unk_0x38,
+            unk_cutsceneskybox_0x38,
             unk_0x3c,
             unk_0x3e,
             idx_obj_model,

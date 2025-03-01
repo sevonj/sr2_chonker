@@ -102,7 +102,7 @@ pub struct Chunk {
 
 impl Chunk {
     pub const MAGIC: u32 = 0xBBCACA12;
-    pub const VERION: u32 = 121;
+    pub const VERSION: u32 = 121;
 
     /// Open a .chunk_pc file
     pub fn open(path: &str) -> Result<Self, Sr2TypeError> {
@@ -122,14 +122,9 @@ impl Chunk {
         if chunk_header.magic != Self::MAGIC {
             return Err(Sr2TypeError::ChunkInvalidMagic(chunk_header.magic));
         }
-        if chunk_header.version != Self::VERION {
+        if chunk_header.version != Self::VERSION {
             return Err(Sr2TypeError::ChunkInvalidVersion(chunk_header.version));
         }
-        //if header.num_cutscn_skybox_thing != 0 {
-        //    return Err(Sr2TypeError::ChunkInvalidVersion(
-        //        header.num_cutscn_skybox_thing,
-        //    ));
-        //}
 
         seek_align(reader, 16)?;
 
