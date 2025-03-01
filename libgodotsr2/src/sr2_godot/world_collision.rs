@@ -40,7 +40,7 @@ impl WorldCollision {
         st.begin(PrimitiveType::POINTS);
 
         for vertex in vertex_buffer {
-            st.add_vertex(*vertex);
+            st.add_vertex(*vertex * 2.0);
         }
 
         let material: Gd<Material> = load("res://assets/materials/mat_wireframe_vcol.tres");
