@@ -12,13 +12,13 @@
 
 mod aabb;
 mod chunk;
-mod city_object;
+mod object;
 mod transform;
 mod vector;
 mod world_collision;
 
 pub use chunk::Chunk;
-pub use city_object::CityObjectModel;
+pub use object::CityObject;
 pub use world_collision::WorldCollision;
 
 pub use aabb::{godot_aabb_to_sr2, sr2_aabb_to_godot};

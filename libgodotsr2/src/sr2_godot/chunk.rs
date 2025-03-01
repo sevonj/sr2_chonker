@@ -9,7 +9,7 @@
 use godot::prelude::*;
 use std::io::{BufReader, Read, Seek};
 
-use super::{sr2_vec_to_godot, CityObjectModel, WorldCollision};
+use super::{sr2_vec_to_godot, CityObject, WorldCollision};
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
 #[derive(Debug, GodotClass)]
@@ -29,7 +29,7 @@ pub struct Chunk {
 
     pub world_collision: Gd<WorldCollision>,
 
-    pub city_object_models: Vec<Gd<CityObjectModel>>,
+    pub objects: Vec<Gd<CityObject>>,
 
     base: Base<Node>,
 }
@@ -44,8 +44,8 @@ impl INode for Chunk {
         // bbox.set_global_position(self.bbox_min + bbox_size / 2.0);
         // self.base_mut().add_child(&bbox);
 
-        for cobj_model in self.city_object_models.clone() {
-            self.base_mut().add_child(&cobj_model);
+        for obj in self.objects.clone() {
+            self.base_mut().add_child(&obj);
         }
         let unknown5 = self.world_collision.clone();
         self.base_mut().add_child(&unknown5);
@@ -67,10 +67,10 @@ impl Chunk {
 
             world_collision: WorldCollision::from_sr2(&chunk.world_collision_vbuf),
 
-            city_object_models: chunk
-                .obj_models
+            objects: chunk
+                .objects
                 .iter()
-                .map(CityObjectModel::from_sr2)
+                .map(|o| CityObject::from_sr2(o.clone()))
                 .collect(),
 
             base,
