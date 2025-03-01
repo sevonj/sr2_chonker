@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://doaxqv65f6v38"]
+
+[ext_resource type="Shader" path="res://assets/materials/shad_wireframe_minimal.gdshader" id="1_kyxld"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_kyxld")
+shader_parameter/wireframeColor = Color(0.22982, 0.0352263, 0.22993, 1)
+shader_parameter/width = 1.0
+shader_parameter/filtered = true
