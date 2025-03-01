@@ -4,13 +4,13 @@ compatibility_minimum = 4.3
 reloadable = true
 
 [libraries]
-linux.debug.x86_64 = "res://../target/debug/libgodotsr2.so"
-linux.release.x86_64 = "res://../target/release/libgodotsr2.so"
-windows.debug.x86_64 = "res://../target/debug/godotsr2.dll"
-windows.release.x86_64 = "res://../target/release/godotsr2.dll"
-macos.debug = "res://../target/debug.dylib"
-macos.release = "res://../target/release.dylib"
-macos.debug.arm64 = "res://../target/debug.dylib"
-macos.release.arm64 = "res://../target/release.dylib"
-web.debug.wasm32 = "res://../target/wasm32-unknown-emscripten/debug/hot_reload.wasm"
-web.release.wasm32 = "res://../target/wasm32-unknown-emscripten/release/hot_reload.wasm"
+linux.debug.x86_64 = "res://../libgodotsr2/target/debug/libgodotsr2.so"
+linux.release.x86_64 = "res://../libgodotsr2/target/release/libgodotsr2.so"
+windows.debug.x86_64 = "res://../libgodotsr2/target/debug/godotsr2.dll"
+windows.release.x86_64 = "res://../libgodotsr2/target/release/godotsr2.dll"
+macos.debug = "res://../libgodotsr2/target/debug.dylib"
+macos.release = "res://../libgodotsr2/target/release.dylib"
+macos.debug.arm64 = "res://../libgodotsr2/target/debug.dylib"
+macos.release.arm64 = "res://../libgodotsr2/target/release.dylib"
+web.debug.wasm32 = "res://../libgodotsr2/target/wasm32-unknown-emscripten/debug/hot_reload.wasm"
+web.release.wasm32 = "res://../libgodotsr2/target/wasm32-unknown-emscripten/release/hot_reload.wasm"
