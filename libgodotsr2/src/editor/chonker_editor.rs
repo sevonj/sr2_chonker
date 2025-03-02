@@ -7,8 +7,6 @@
  */
 
 use godot::prelude::*;
-use std::fs::File;
-use std::io::BufReader;
 
 use godot::classes::{
     control::{LayoutPreset, MouseFilter, SizeFlags},
@@ -16,7 +14,7 @@ use godot::classes::{
 };
 
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
-use super::{SceneAxisLines, UiBrowserPanel};
+use super::{SceneAxisLines, UiBrowserPanel, ViewportVisibilityPanel};
 use crate::sr2_godot::Chunk;
 
 /// The root [Node] of an
@@ -140,10 +138,14 @@ impl ChonkerEditor {
     }
 
     fn setup_viewport_ui(&mut self) {
+        let mut viewport_visibility_panel = ViewportVisibilityPanel::new(self.scn_camera.clone());
+        viewport_visibility_panel.set_name("viewport_visibility_panel");
+
         let mut viewport_camera_panel = ViewportCameraPanel::new(self.scn_camera.clone());
         viewport_camera_panel.set_name("viewport_camera_panel");
 
         let mut viewport = self.viewport_ui.bind_mut();
+        viewport.add_ui_panel(&viewport_visibility_panel.upcast());
         viewport.add_ui_panel(&viewport_camera_panel.upcast());
     }
 
@@ -163,8 +165,7 @@ impl ChonkerEditor {
     fn load_chunk(&mut self, filepath: String) -> Result<(), sr2::Sr2TypeError> {
         self.unload_chunk();
 
-        let mut reader = BufReader::new(File::open(filepath)?);
-        let chunk = Chunk::new(&mut reader)?;
+        let chunk = Chunk::new(&filepath)?;
 
         self.viewport.add_child(&chunk);
 

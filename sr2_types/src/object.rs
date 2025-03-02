@@ -28,7 +28,7 @@ pub struct Object {
     pub unk_cutsceneskybox_0x38: u32,
     pub unk_0x3c: u16,
     pub unk_0x3e: u16,
-    pub idx_obj_model: u32,
+    pub idx_mesh_inst: u32,
     pub unk_0x44: u32,
     pub unk_0x48: i32,
     pub unk_0x4c: i32,
@@ -53,7 +53,7 @@ impl Object {
         let unk_cutsceneskybox_0x38 = reader.read_u32::<LittleEndian>()?;
         let unk_0x3c = reader.read_u16::<LittleEndian>()?;
         let unk_0x3e = reader.read_u16::<LittleEndian>()?;
-        let idx_obj_model = reader.read_u32::<LittleEndian>()?;
+        let idx_mesh_inst = reader.read_u32::<LittleEndian>()?;
         let unk_0x44 = reader.read_u32::<LittleEndian>()?;
         let unk_0x48 = reader.read_i32::<LittleEndian>()?;
         let unk_0x4c = reader.read_i32::<LittleEndian>()?;
@@ -86,7 +86,7 @@ impl Object {
             unk_cutsceneskybox_0x38,
             unk_0x3c,
             unk_0x3e,
-            idx_obj_model,
+            idx_mesh_inst,
             unk_0x44,
             unk_0x48,
             unk_0x4c,
@@ -114,7 +114,7 @@ impl Object {
         bytes.extend_from_slice(&self.unk_cutsceneskybox_0x38.to_le_bytes());
         bytes.extend_from_slice(&self.unk_0x3c.to_le_bytes());
         bytes.extend_from_slice(&self.unk_0x3e.to_le_bytes());
-        bytes.extend_from_slice(&self.idx_obj_model.to_le_bytes());
+        bytes.extend_from_slice(&self.idx_mesh_inst.to_le_bytes());
         bytes.extend_from_slice(&self.unk_0x44.to_le_bytes());
         bytes.extend_from_slice(&self.unk_0x48.to_le_bytes());
         bytes.extend_from_slice(&self.unk_0x4c.to_le_bytes());

@@ -8,21 +8,22 @@
 
 //! This module contains Godot-instanceable types that correspond to the bare SR2 types.
 //! Lossless conversion between the the two should eventually be implemented.
-//! This depends on [crate::sr2], but shouldn't depend on the editor.
+//! This depends on [crate::sr2], ~~but shouldn't depend on the editor~~. We'll see about that later.
 
 mod aabb;
 mod chunk;
+mod mesh;
 mod mesh_mover;
 mod object;
 mod transform;
 mod vector;
 mod world_collision;
 
+pub use aabb::*;
 pub use chunk::*;
+pub use mesh::*;
 pub use mesh_mover::*;
 pub use object::*;
+pub use transform::*;
+pub use vector::*;
 pub use world_collision::*;
-
-pub use aabb::{godot_aabb_to_sr2, sr2_aabb_to_godot};
-pub use transform::{godot_xform_to_sr2, sr2_xform_to_godot};
-pub use vector::{godot_vec_to_sr2, sr2_vec_to_godot};

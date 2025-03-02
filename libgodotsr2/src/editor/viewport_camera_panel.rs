@@ -6,6 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use godot::classes::control::SizeFlags;
 use godot::prelude::*;
 
 use godot::classes::{Font, IPanelContainer, Label, PanelContainer, StyleBox, VBoxContainer};
@@ -73,6 +74,7 @@ impl ViewportCameraPanel {
         let stylebox: Gd<StyleBox> = load("res://assets/ui/theme/stylebox_viewport_panel.tres");
 
         self.base_mut().add_child(&vbox);
+        self.base_mut().set_v_size_flags(SizeFlags::SHRINK_BEGIN);
         self.base_mut()
             .add_theme_stylebox_override("panel", &stylebox);
         //self.base_mut().set_custom_minimum_size(Vector2::ONE * 64.0);

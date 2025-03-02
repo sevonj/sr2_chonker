@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://illfbb2cif4a"]
+
+[ext_resource type="Shader" path="res://assets/materials/shad_wireframe_opaque.gdshader" id="1_bfaka"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_bfaka")
+shader_parameter/modelColor = Color(0.666667, 0.666667, 0.666667, 1)
+shader_parameter/wireframeColor = Color(0.466667, 0.466667, 0.466667, 1)

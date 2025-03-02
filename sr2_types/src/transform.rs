@@ -7,7 +7,6 @@
  */
 
 use std::io::{BufReader, Read, Seek};
-
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
 use crate::Sr2TypeError;

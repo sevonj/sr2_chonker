@@ -6,10 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use godot::classes::mesh::PrimitiveType;
 use godot::prelude::*;
 
-use godot::classes::{IMeshInstance3D, Material, MeshInstance3D, SurfaceTool};
+use godot::classes::{mesh::PrimitiveType, IMeshInstance3D, Material, MeshInstance3D, SurfaceTool};
+
+use super::RenderLayer;
 
 const LINE_LEN: f32 = 2048.0;
 
@@ -27,6 +28,7 @@ impl IMeshInstance3D for SceneAxisLines {
     }
 
     fn ready(&mut self) {
+        self.base_mut().set_layer_mask(RenderLayer::Gizmos.mask());
         self.setup_mesh();
     }
 }

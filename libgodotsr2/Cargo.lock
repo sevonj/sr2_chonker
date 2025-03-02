@@ -146,6 +146,7 @@ dependencies = [
 name = "godotsr2"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "godot",
  "sr2_types",
 ]

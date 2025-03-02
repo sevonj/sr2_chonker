@@ -14,7 +14,7 @@
 //! - align(16)
 //! - [GpuMeshUnkA] * num_gpu_meshes
 //! - align(16)
-//! - [ObjectModel] * num_obj_model
+//! - [MeshInstance] * num_mesh_insts
 //! - align(16)
 //! - [ModelUnknownA] * num_model_unknown_a
 //! - align(16)
@@ -60,7 +60,7 @@ impl TryFrom<u16> for MeshBufferType {
 #[repr(C)]
 pub struct ModelHeader {
     pub num_meshes: u32,
-    pub num_obj_models: u32,
+    pub num_mesh_insts: u32,
     pub num_mesh_buffers: u32,
     pub num_obj_unknown_a: u32,
     pub num_obj_unknown_b: u32,
@@ -82,7 +82,7 @@ pub struct GpuMeshUnkA {
 /// Every object has one of these, but usually a few are left over.
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 #[repr(C)]
-pub struct ObjectModel {
+pub struct MeshInstance {
     pub origin: Vector,
     pub xform: Transform,
 
@@ -475,6 +475,18 @@ impl Surface {
 
         Ok(buffer.indices[start..end].to_vec())
     }
+
+    pub fn num_vertices(&self, buffer: &MeshBuffer) -> usize {
+        let start = self.start_index as usize;
+        let end = start + self.num_indices as usize;
+
+        let mut max = 0;
+        for i in start..end {
+            max = max.max(buffer.indices[i] + 1);
+        }
+
+        max as usize
+    }
 }
 
 #[cfg(test)]
@@ -493,8 +505,8 @@ mod tests {
     }
 
     #[test]
-    fn test_object_model_size() {
-        assert_eq!(size_of::<ObjectModel>(), 0x60);
+    fn test_mesh_instance_size() {
+        assert_eq!(size_of::<MeshInstance>(), 0x60);
     }
 
     #[test]

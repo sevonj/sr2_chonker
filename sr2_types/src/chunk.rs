@@ -11,6 +11,7 @@ use std::{
     cmp::Ordering,
     fs::File,
     io::{BufRead, BufReader, Read, Seek},
+    path::Path,
 };
 use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
@@ -23,13 +24,17 @@ use crate::{
 };
 
 use super::{
-    GpuMeshUnkA, ModelHeader, ModelUnknownA, ModelUnknownB, ObjectModel, Sr2TypeError, Vector,
+    GpuMeshUnkA, MeshInstance, ModelHeader, ModelUnknownA, ModelUnknownB, Sr2TypeError, Vector,
 };
 
 /// An instance of SR2 CPU chunk (.chunk_pc) file.
 #[derive(Debug, Clone)]
 pub struct Chunk {
-    /// Not part of chunk format. Used to track progress of format reversing.
+    /// GPU chunk file status
+    pub gpu_loaded: bool,
+    /// Peg file status
+    pub peg_loaded: bool,
+    /// Used to track progress of format reversing.
     pub bytes_mapped: usize,
 
     pub header: ChunkHeader,
@@ -38,7 +43,7 @@ pub struct Chunk {
 
     // Objects, object models
     pub mesh_unk_as: Vec<GpuMeshUnkA>,
-    pub obj_models: Vec<ObjectModel>,
+    pub mesh_insts: Vec<MeshInstance>,
     pub obj_unknown_as: Vec<ModelUnknownA>,
     pub obj_unknown_bs: Vec<ModelUnknownB>,
 
@@ -89,7 +94,7 @@ pub struct Chunk {
 
     /// Only present in these 4 chunks:
     /// sr2_intaicutjyucar, sr2_intarcutlimo, sr2_intdkmissunkdk, sr2_skybox
-    pub cutscn_skybox_smthn: Vec<u16>,
+    pub cutscn_skybox_things: Vec<u16>,
 
     pub movers: Vec<MeshMover>,
     pub mover_unknown27: Vec<Unknown27>,
@@ -101,6 +106,7 @@ pub struct Chunk {
     pub mover_unknown32: Vec<Unknown32>,
 
     pub remaining_data: Vec<u8>,
+    pub gpu_data_unknown: Vec<u8>,
 }
 
 impl Chunk {
@@ -108,7 +114,7 @@ impl Chunk {
     pub const VERSION: u32 = 121;
 
     /// Open a .chunk_pc file
-    pub fn open(path: &str) -> Result<Self, Sr2TypeError> {
+    pub fn open<P: AsRef<Path>>(path: P) -> Result<Self, Sr2TypeError> {
         let mut reader = BufReader::new(File::open(path)?);
         Self::read(&mut reader)
     }
@@ -150,7 +156,7 @@ impl Chunk {
         };
 
         let mut mesh_unk_as = vec![];
-        let mut obj_models = vec![];
+        let mut mesh_insts = vec![];
         let mut obj_unknown_as = vec![];
         let mut obj_unknown_bs = vec![];
 
@@ -164,10 +170,10 @@ impl Chunk {
 
         seek_align(reader, 16)?;
 
-        for _ in 0..model_header.num_obj_models {
-            let mut buf = vec![0_u8; size_of::<ObjectModel>()];
+        for _ in 0..model_header.num_mesh_insts {
+            let mut buf = vec![0_u8; size_of::<MeshInstance>()];
             reader.read_exact(&mut buf)?;
-            obj_models.push(ObjectModel::read_from_bytes(&buf).unwrap());
+            mesh_insts.push(MeshInstance::read_from_bytes(&buf).unwrap());
         }
 
         seek_align(reader, 16)?;
@@ -262,8 +268,8 @@ impl Chunk {
                 reader.read_exact(&mut vbuf.data)?;
             }
             seek_align(reader, 16)?;
-            for indy in &mut mesh_buffer.indices {
-                *indy = reader.read_u16::<LittleEndian>()?;
+            for index in &mut mesh_buffer.indices {
+                *index = reader.read_u16::<LittleEndian>()?;
             }
         }
 
@@ -427,33 +433,33 @@ impl Chunk {
         seek_align(reader, 16)?;
 
         let mut movers = vec![];
-        let mut unknown27 = vec![];
-        let mut unknown28 = vec![];
-        let mut unknown29 = vec![];
+        let mut mover_unknown27 = vec![];
+        let mut mover_unknown28 = vec![];
+        let mut mover_unknown29 = vec![];
         let mut mover_positions = vec![];
-        let mut unknown31 = vec![];
-        let mut unknown32 = vec![];
+        let mut mover_unknown31 = vec![];
+        let mut mover_unknown32 = vec![];
         for _ in 0..chunk_header.num_mesh_movers {
             movers.push(MeshMover::read(reader)?);
         }
         for _ in 0..chunk_header.num_unknown27 {
-            unknown27.push(Unknown27::read(reader)?);
+            mover_unknown27.push(Unknown27::read(reader)?);
         }
         for _ in 0..chunk_header.num_unknown28 {
-            unknown28.push(Unknown28::read(reader)?);
+            mover_unknown28.push(Unknown28::read(reader)?);
         }
         for _ in 0..chunk_header.num_unknown29 {
-            unknown29.push(reader.read_u32::<LittleEndian>()?);
+            mover_unknown29.push(reader.read_u32::<LittleEndian>()?);
         }
         for _ in 0..chunk_header.num_unknown30 {
             let value = Vector::read(reader)?;
             mover_positions.push(value);
         }
         for _ in 0..chunk_header.num_unknown31 {
-            unknown31.push(Unknown31::read(reader)?);
+            mover_unknown31.push(Unknown31::read(reader)?);
         }
         for _ in 0..chunk_header.num_unknown32 {
-            unknown32.push(Unknown32::read(reader)?);
+            mover_unknown32.push(Unknown32::read(reader)?);
         }
         for mover in &mut movers {
             let mut buf = vec![];
@@ -474,11 +480,13 @@ impl Chunk {
         reader.read_to_end(&mut remaining_data)?;
 
         Ok(Self {
+            gpu_loaded: false,
+            peg_loaded: false,
             bytes_mapped,
             header: chunk_header,
             textures,
             mesh_unk_as,
-            obj_models,
+            mesh_insts,
             obj_unknown_as,
             obj_unknown_bs,
             world_collision_vbuf,
@@ -505,14 +513,15 @@ impl Chunk {
             unknown22,
             unknown23,
             unknown24,
-            cutscn_skybox_smthn: cutscn_skybox_things,
+            cutscn_skybox_things,
             movers,
-            mover_unknown27: unknown27,
-            mover_unknown28: unknown28,
-            mover_unknown29: unknown29,
+            mover_unknown27,
+            mover_unknown28,
+            mover_unknown29,
             mover_positions,
-            mover_unknown31: unknown31,
-            mover_unknown32: unknown32,
+            mover_unknown31,
+            mover_unknown32,
+            gpu_data_unknown: vec![],
         })
     }
 
@@ -549,7 +558,7 @@ impl Chunk {
         buf.extend_from_slice(
             (ModelHeader {
                 num_meshes: self.meshes.len() as u32,
-                num_obj_models: self.obj_models.len() as u32,
+                num_mesh_insts: self.mesh_insts.len() as u32,
                 num_mesh_buffers: self.mesh_buffers.len() as u32,
                 num_obj_unknown_a: self.obj_unknown_as.len() as u32,
                 num_obj_unknown_b: self.obj_unknown_bs.len() as u32,
@@ -567,8 +576,8 @@ impl Chunk {
         while buf.len() % 16 != 0 {
             buf.push(0);
         }
-        for obj_model in &self.obj_models {
-            buf.extend_from_slice(obj_model.as_bytes());
+        for value in &self.mesh_insts {
+            buf.extend_from_slice(value.as_bytes());
         }
 
         while buf.len() % 16 != 0 {
@@ -800,7 +809,7 @@ impl Chunk {
             buf.push(0);
         }
 
-        for value in &self.cutscn_skybox_smthn {
+        for value in &self.cutscn_skybox_things {
             buf.extend_from_slice(value.as_bytes());
         }
 
@@ -843,6 +852,48 @@ impl Chunk {
         buf.extend_from_slice(&self.remaining_data);
 
         buf
+    }
+
+    /// Open a .g_chunk_pc file and load the contents
+    pub fn open_gpu<P: AsRef<Path>>(&mut self, path: P) -> Result<(), Sr2TypeError> {
+        let mut reader = BufReader::new(File::open(path)?);
+        self.read_gpu(&mut reader)
+    }
+
+    /// Read GPU data from stream
+    pub fn read_gpu<R: Read + Seek>(
+        &mut self,
+        reader: &mut BufReader<R>,
+    ) -> Result<(), Sr2TypeError> {
+        for meshbuf in &mut self.mesh_buffers {
+            match meshbuf.buffer_type {
+                MeshBufferType::Cpu => continue,
+                MeshBufferType::Gpu => {
+                    for vbuf in &mut meshbuf.vertex_buffers {
+                        seek_align(reader, 16)?;
+                        reader.read_exact(&mut vbuf.data)?;
+                    }
+                    seek_align(reader, 16)?;
+                    for index in &mut meshbuf.indices {
+                        *index = reader.read_u16::<LittleEndian>()?;
+                    }
+                }
+            }
+        }
+
+        self.gpu_loaded = true;
+
+        Ok(())
+    }
+
+    pub fn gpu_mesh_buffer(&self) -> Option<&MeshBuffer> {
+        for meshbuf in &self.mesh_buffers {
+            if meshbuf.buffer_type == MeshBufferType::Gpu {
+                return Some(meshbuf);
+            }
+        }
+
+        None
     }
 }
 

@@ -11,3 +11,4 @@ crate-type = ["cdylib"]
 [dependencies]
 sr2 = { package = "sr2_types", path = "../sr2_types/" }
 godot = "0.2.3"
+byteorder = "1.5.0"

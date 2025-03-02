@@ -6,20 +6,19 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use godot::classes::control::MouseFilter;
 use godot::prelude::*;
 
-use godot::classes::{Control, IControl};
+use godot::classes::{control::MouseFilter, Control, HBoxContainer, IHBoxContainer};
 
 /// Renders a grid at scene floor
 #[derive(Debug, GodotClass)]
-#[class(base=Control)]
+#[class(base=HBoxContainer)]
 pub struct ViewportUiRoot {
-    base: Base<Control>,
+    base: Base<HBoxContainer>,
 }
 
 #[godot_api]
-impl IControl for ViewportUiRoot {
+impl IHBoxContainer for ViewportUiRoot {
     fn init(base: Base<Self::Base>) -> Self {
         Self { base }
     }

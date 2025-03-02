@@ -53,7 +53,7 @@ fn main() {
 
 fn do_things(chunk: &mut Chunk) {
     // Move every object model 1m to the left
-    //for model in &mut chunk.obj_models {
+    //for model in &mut chunk.mesh_insts {
     //    model.origin.x += 1.0;
     //}
 

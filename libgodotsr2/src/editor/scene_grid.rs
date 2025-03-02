@@ -10,6 +10,8 @@ use godot::prelude::*;
 
 use godot::classes::{IMeshInstance3D, Material, MeshInstance3D, PlaneMesh};
 
+use super::RenderLayer;
+
 /// Renders a grid at scene floor
 #[derive(Debug, GodotClass)]
 #[class(base=MeshInstance3D)]
@@ -30,6 +32,7 @@ impl IMeshInstance3D for SceneGrid {
     }
 
     fn ready(&mut self) {
+        self.base_mut().set_layer_mask(RenderLayer::Gizmos.mask());
         self.setup_mesh();
     }
 

@@ -30,7 +30,7 @@ pub struct CameraRigOrbit {
     pub min_v_angle: f32,
 
     pivot: Gd<Node3D>,
-    camera: Gd<Camera3D>,
+    pub camera: Gd<Camera3D>,
     cursor_gizmo: Gd<CameraCursorGizmo>,
 
     distance: f32,

@@ -12,14 +12,14 @@ use godot::classes::{mesh::PrimitiveType, ArrayMesh, SurfaceTool};
 
 pub fn sr2_aabb_to_godot(min: &sr2::Vector, max: &sr2::Vector) -> (Vector3, Vector3) {
     let aabb_min = Vector3 {
-        x: -max.x / 2.0,
-        y: min.y / 2.0,
-        z: min.z / 2.0,
+        x: -max.x,
+        y: min.y,
+        z: min.z,
     };
     let aabb_max = Vector3 {
-        x: -min.x / 2.0,
-        y: max.y / 2.0,
-        z: max.z / 2.0,
+        x: -min.x,
+        y: max.y,
+        z: max.z,
     };
 
     (aabb_min, aabb_max)
@@ -27,14 +27,14 @@ pub fn sr2_aabb_to_godot(min: &sr2::Vector, max: &sr2::Vector) -> (Vector3, Vect
 
 pub fn godot_aabb_to_sr2(min: &sr2::Vector, max: &sr2::Vector) -> (sr2::Vector, sr2::Vector) {
     let aabb_min = sr2::Vector {
-        x: -max.x * 2.0,
-        y: min.y * 2.0,
-        z: min.z * 2.0,
+        x: -max.x,
+        y: min.y,
+        z: min.z,
     };
     let aabb_max = sr2::Vector {
-        x: -min.x * 2.0,
-        y: max.y * 2.0,
-        z: max.z * 2.0,
+        x: -min.x,
+        y: max.y,
+        z: max.z,
     };
 
     (aabb_min, aabb_max)
