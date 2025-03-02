@@ -13,7 +13,8 @@ pub enum RenderLayer {
     Gizmos = 2,
     Collisions = 3,
     BBox = 4,
-    UnknownMisc = 5,
+    Unknown = 5,
+    Markers = 6,
 }
 
 impl RenderLayer {

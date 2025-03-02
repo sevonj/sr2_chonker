@@ -12,7 +12,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use zerocopy::{FromBytes, IntoBytes};
 use zerocopy_derive::{FromBytes, Immutable, IntoBytes};
 
-use crate::Sr2TypeError;
+use crate::{Sr2TypeError, Vector};
 
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 pub struct Unknown19 {
@@ -71,9 +71,7 @@ impl Unknown21 {
 
 #[derive(Debug, FromBytes, IntoBytes, Immutable, Clone)]
 pub struct Unknown23 {
-    pub unknown_0x00: f32,
-    pub unknown_0x04: f32,
-    pub unknown_0x08: f32,
+    pub origin: Vector,
 
     pub unknown_0x0c: f32,
     pub unknown_0x10: f32,

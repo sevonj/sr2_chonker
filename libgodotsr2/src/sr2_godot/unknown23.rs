@@ -16,38 +16,37 @@ use super::sr2_vec_to_godot;
 
 #[derive(Debug, GodotClass)]
 #[class(no_init, base=Node3D)]
-pub struct MeshMoverPosition {
-    cull_bbox: Gd<MeshInstance3D>,
-    cull_bbox_mat: Gd<Material>,
+pub struct Unknown23 {
+    marker: Gd<MeshInstance3D>,
+    marker_mat: Gd<Material>,
 
     base: Base<Node3D>,
 }
 
 #[godot_api]
-impl INode3D for MeshMoverPosition {
+impl INode3D for Unknown23 {
     fn ready(&mut self) {
         self.setup_node();
     }
 }
 
-impl MeshMoverPosition {
-    pub fn from_sr2(position: &sr2::Vector) -> Gd<Self> {
-        let mut this = Gd::from_init_fn(|base| MeshMoverPosition {
-            cull_bbox: MeshInstance3D::new_alloc(),
-            cull_bbox_mat: load("res://assets/ui/gizmos/mat_gizmo_keyframe.tres"),
-            //cull_bbox_mat_selected: load("res://assets/materials/mat_gizmo_bbox.tres"),
+impl Unknown23 {
+    pub fn from_sr2(data: &sr2::Unknown23) -> Gd<Self> {
+        let mut this = Gd::from_init_fn(|base| Unknown23 {
+            marker: MeshInstance3D::new_alloc(),
+            marker_mat: load("res://assets/ui/gizmos/mat_gizmo_unk23.tres"),
             base,
         });
-        this.set_position(sr2_vec_to_godot(position));
+        this.set_position(sr2_vec_to_godot(&data.origin));
         this
     }
 
     fn setup_node(&mut self) {
         let mesh = QuadMesh::new_gd();
 
-        let mut cull_bbox = self.cull_bbox.clone();
+        let mut cull_bbox = self.marker.clone();
         cull_bbox.set_mesh(&mesh);
-        cull_bbox.set_material_override(&self.cull_bbox_mat);
+        cull_bbox.set_material_override(&self.marker_mat);
         cull_bbox.set_layer_mask(RenderLayer::Markers.mask());
         cull_bbox.set_name("gizmo");
 

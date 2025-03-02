@@ -16,6 +16,7 @@ mod mesh;
 mod mesh_mover;
 mod object;
 mod transform;
+mod unknown23;
 mod vector;
 mod world_collision;
 
@@ -25,5 +26,6 @@ pub use mesh::*;
 pub use mesh_mover::*;
 pub use object::*;
 pub use transform::*;
+pub use unknown23::*;
 pub use vector::*;
 pub use world_collision::*;

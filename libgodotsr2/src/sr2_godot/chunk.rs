@@ -15,7 +15,7 @@ use crate::editor::RenderLayer;
 
 use super::{
     aabb::build_bbox_mesh, sr2_vec_to_godot, MeshMoverPosition, Sr2Mesh, Sr2MeshInstance,
-    Sr2Object, WorldCollision,
+    Sr2Object, Unknown23, WorldCollision,
 };
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
@@ -35,6 +35,8 @@ pub struct Chunk {
 
     pub meshes: Vec<Sr2Mesh>,
     pub objects: Vec<Gd<Sr2Object>>,
+
+    pub unk23: Vec<Gd<Unknown23>>,
 
     pub mover_positions: Vec<Gd<MeshMoverPosition>>,
 
@@ -57,6 +59,9 @@ impl INode for Chunk {
                 continue;
             }
             self.base_mut().add_child(&obj);
+        }
+        for unk23 in self.unk23.clone() {
+            self.base_mut().add_child(&unk23);
         }
         for mover in self.mover_positions.clone() {
             self.base_mut().add_child(&mover);
@@ -102,6 +107,14 @@ impl Chunk {
             .map(|o| Sr2Object::from_sr2(o.clone(), &mesh_insts))
             .collect();
 
+        let mover_positions = chunk
+            .mover_positions
+            .iter()
+            .map(MeshMoverPosition::from_sr2)
+            .collect();
+
+        let unk23 = chunk.unknown23.iter().map(Unknown23::from_sr2).collect();
+
         let this = Gd::from_init_fn(|base| Self {
             chunk_bbox,
 
@@ -115,11 +128,9 @@ impl Chunk {
             meshes,
             objects,
 
-            mover_positions: chunk
-                .mover_positions
-                .iter()
-                .map(MeshMoverPosition::from_sr2)
-                .collect(),
+            unk23,
+
+            mover_positions,
 
             base,
         });

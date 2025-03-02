@@ -12,6 +12,8 @@ use godot::classes::{
     mesh::PrimitiveType, ArrayMesh, IMeshInstance3D, Material, MeshInstance3D, SurfaceTool,
 };
 
+use crate::editor::RenderLayer;
+
 use super::sr2_vec_to_godot;
 
 #[derive(Debug, GodotClass)]
@@ -21,7 +23,11 @@ pub struct WorldCollision {
 }
 
 #[godot_api]
-impl IMeshInstance3D for WorldCollision {}
+impl IMeshInstance3D for WorldCollision {
+    fn ready(&mut self) {
+        self.base_mut().set_layer_mask(RenderLayer::Collisions.mask());
+    }
+}
 
 impl WorldCollision {
     pub fn from_sr2(vertex_buffer: &[sr2::Vector]) -> Gd<Self> {

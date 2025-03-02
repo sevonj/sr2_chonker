@@ -26,6 +26,7 @@ pub struct ViewportVisibilityPanel {
     check_collision: Gd<CheckBox>,
     check_bbox: Gd<CheckBox>,
     check_unk_misc: Gd<CheckBox>,
+    check_markers: Gd<CheckBox>,
 
     base: Base<PanelContainer>,
 }
@@ -47,7 +48,9 @@ impl IPanelContainer for ViewportVisibilityPanel {
         self.check_bbox
             .set_pressed_no_signal(cam.get_cull_mask_value(RenderLayer::BBox as i32));
         self.check_unk_misc
-            .set_pressed_no_signal(cam.get_cull_mask_value(RenderLayer::UnknownMisc as i32));
+            .set_pressed_no_signal(cam.get_cull_mask_value(RenderLayer::Unknown as i32));
+        self.check_markers
+            .set_pressed_no_signal(cam.get_cull_mask_value(RenderLayer::Markers as i32));
     }
 }
 
@@ -71,6 +74,7 @@ impl ViewportVisibilityPanel {
             check_collision: CheckBox::new_alloc(),
             check_bbox: CheckBox::new_alloc(),
             check_unk_misc: CheckBox::new_alloc(),
+            check_markers: CheckBox::new_alloc(),
             base,
         })
     }
@@ -130,7 +134,18 @@ impl ViewportVisibilityPanel {
         check_unk_misc.connect(
             "toggled",
             &Callable::from_object_method(&self.to_gd(), "set_layer")
-                .bind(&[Variant::from(RenderLayer::UnknownMisc as u32)]),
+                .bind(&[Variant::from(RenderLayer::Unknown as u32)]),
+        );
+
+        let mut check_markers = self.check_markers.clone();
+        check_markers.set_text("Markers");
+        check_markers.set_tooltip_text("Mostly unknown positions");
+        check_markers.add_theme_font_size_override("font_size", 14);
+        check_markers.add_theme_font_override("font", &font_monospace);
+        check_markers.connect(
+            "toggled",
+            &Callable::from_object_method(&self.to_gd(), "set_layer")
+                .bind(&[Variant::from(RenderLayer::Markers as u32)]),
         );
 
         let mut vbox = VBoxContainer::new_alloc();
@@ -140,6 +155,7 @@ impl ViewportVisibilityPanel {
         vbox.add_child(&check_collision);
         vbox.add_child(&check_bbox);
         vbox.add_child(&check_unk_misc);
+        vbox.add_child(&check_markers);
         vbox.set_name("vbox");
 
         let stylebox: Gd<StyleBox> = load("res://assets/ui/theme/stylebox_viewport_panel.tres");

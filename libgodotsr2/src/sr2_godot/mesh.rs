@@ -46,7 +46,7 @@ impl Sr2MeshInstance {
             let mut inst = MeshInstance3D::new_alloc();
             inst.set_mesh(sub);
             if mesh.submesh_b.is_some() {
-                inst.set_layer_mask(RenderLayer::UnknownMisc.mask());
+                inst.set_layer_mask(RenderLayer::Unknown.mask());
             } else {
                 inst.set_layer_mask(RenderLayer::Common.mask());
             }
@@ -56,7 +56,7 @@ impl Sr2MeshInstance {
         let submeshinst_b = mesh.submesh_b.as_ref().map(|sub| {
             let mut inst = MeshInstance3D::new_alloc();
             inst.set_mesh(sub);
-            inst.set_layer_mask(RenderLayer::UnknownMisc.mask());
+            inst.set_layer_mask(RenderLayer::Unknown.mask());
             inst
         });
 
