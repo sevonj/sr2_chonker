@@ -2,7 +2,7 @@
 Saints Row 2 city map editor  
 Restarted from scratch
 
-![image](https://github.com/user-attachments/assets/bc83e840-1b5a-4381-819d-d545ef938a54)
+![image](https://github.com/user-attachments/assets/fd5d3db6-71ce-471d-a597-8d7654ac050b)
 
 
 ## Repository Contents
