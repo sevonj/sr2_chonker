@@ -3,7 +3,9 @@
 [ext_resource type="Texture2D" uid="uid://0gnjkgoypil7" path="res://assets/ui/gizmos/tex_gizmo_keyframe.png" id="1_6xq81"]
 
 [resource]
-transparency = 1
+transparency = 2
+alpha_scissor_threshold = 0.1
+alpha_antialiasing_mode = 0
 shading_mode = 0
 albedo_color = Color(1, 0, 1, 1)
 albedo_texture = ExtResource("1_6xq81")
