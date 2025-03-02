@@ -1,6 +1,8 @@
 # SR2 Chonker
 Saints Row 2 city map editor  
-Restart from scratch
+Restarted from scratch
+
+![image](https://github.com/user-attachments/assets/bc83e840-1b5a-4381-819d-d545ef938a54)
 
 
 ## Repository Contents
