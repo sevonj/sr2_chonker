@@ -136,6 +136,7 @@ impl ViewportVisibilityPanel {
         let mut vbox = VBoxContainer::new_alloc();
         vbox.add_child(&title);
         vbox.add_child(&check_grid);
+        vbox.add_child(&check_common);
         vbox.add_child(&check_collision);
         vbox.add_child(&check_bbox);
         vbox.add_child(&check_unk_misc);
