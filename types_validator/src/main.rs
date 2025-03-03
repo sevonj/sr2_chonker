@@ -140,10 +140,17 @@ fn get_files(path: &str) -> Vec<String> {
 }
 
 fn validate(path: &str, intense: bool) -> Result<Chunk, (String, Option<Vec<u8>>)> {
-    let chunk = match sr2::Chunk::open(path) {
+    let mut chunk = match sr2::Chunk::open(path) {
         Ok(chunk) => chunk,
         Err(e) => return Err((e.to_string(), None)),
     };
+
+    let gpu_path = PathBuf::from(path).with_extension("g_chunk_pc");
+    if gpu_path.exists() {
+        if let Err(e) = chunk.open_gpu(gpu_path) {
+            return Err((e.to_string(), None));
+        }
+    }
 
     if !intense {
         return Ok(chunk);
