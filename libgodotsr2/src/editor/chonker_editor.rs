@@ -10,11 +10,13 @@ use godot::prelude::*;
 
 use godot::classes::{
     control::{LayoutPreset, MouseFilter, SizeFlags},
-    HBoxContainer, MarginContainer, SubViewport, SubViewportContainer,
+    Control, HBoxContainer, MarginContainer, SubViewport, SubViewportContainer,
 };
 
+use super::materials::{MaterialBrowser, MaterialInspector};
+use super::ui::{UiBrowser, UiInspector};
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
-use super::{RenderLayer, SceneAxisLines, UiBrowserPanel, ViewportVisibilityPanel};
+use super::{RenderLayer, SceneAxisLines, ViewportVisibilityPanel};
 use crate::sr2_godot::Chunk;
 
 /// The root [Node] of an
@@ -28,7 +30,10 @@ pub struct ChonkerEditor {
     scn_axis: Gd<SceneAxisLines>,
 
     ui_hbox: Gd<HBoxContainer>,
-    ui_browser: Gd<UiBrowserPanel>,
+    ui_browser: Gd<UiBrowser>,
+    ui_browser_content: Option<Gd<Control>>,
+    ui_inspector: Gd<UiInspector>,
+    ui_inspector_content: Option<Gd<Control>>,
 
     viewport_margin: Gd<MarginContainer>,
     viewport_cont: Gd<SubViewportContainer>,
@@ -49,7 +54,10 @@ impl INode for ChonkerEditor {
             scn_axis: SceneAxisLines::new_alloc(),
 
             ui_hbox: HBoxContainer::new_alloc(),
-            ui_browser: UiBrowserPanel::new_alloc(),
+            ui_browser: UiBrowser::new_alloc(),
+            ui_browser_content: None,
+            ui_inspector: UiInspector::new_alloc(),
+            ui_inspector_content: None,
 
             viewport_margin: MarginContainer::new_alloc(),
             viewport_cont: SubViewportContainer::new_alloc(),
@@ -87,6 +95,17 @@ impl ChonkerEditor {
             godot_error!("{e}");
         }
     }
+
+    #[func]
+    fn inspect_material(&mut self, index: u32) {
+        self.ui_inspector.bind_mut().clear_ui();
+        let Some(chunk) = self.edited_chunk.clone() else {
+            return;
+        };
+        self.ui_inspector
+            .bind_mut()
+            .set_ui(MaterialInspector::new(chunk, index as usize));
+    }
 }
 
 impl ChonkerEditor {
@@ -116,6 +135,9 @@ impl ChonkerEditor {
         let mut ui_browser = self.ui_browser.clone();
         ui_browser.set_name("ui_browser");
 
+        let mut ui_inspector = self.ui_inspector.clone();
+        ui_inspector.set_name("ui_inspector");
+
         let mut viewport_cont = self.viewport_cont.clone();
         viewport_cont.add_child(&self.viewport);
         viewport_cont.set_stretch(true);
@@ -133,6 +155,7 @@ impl ChonkerEditor {
         let mut ui_hbox = self.ui_hbox.clone();
         ui_hbox.add_child(&ui_browser);
         ui_hbox.add_child(&viewport_margin);
+        ui_hbox.add_child(&ui_inspector);
         ui_hbox.add_theme_constant_override("separation", 0);
         ui_hbox.set_mouse_filter(MouseFilter::IGNORE);
         ui_hbox.set_anchors_preset(LayoutPreset::FULL_RECT);
@@ -163,7 +186,10 @@ impl ChonkerEditor {
             self.edited_chunk = None;
         }
 
-        self.ui_browser.bind_mut().clear_chunk();
+        if let Some(ui_browser_content) = &mut self.ui_browser_content {
+            ui_browser_content.queue_free();
+            self.ui_browser_content = None;
+        }
     }
 
     fn load_chunk(&mut self, filepath: String) -> Result<(), sr2::Sr2TypeError> {
@@ -173,7 +199,12 @@ impl ChonkerEditor {
 
         self.viewport.add_child(&chunk);
 
-        self.ui_browser.bind_mut().set_chunk(chunk.clone());
+        let mut mat_browser = MaterialBrowser::new(chunk.clone());
+        mat_browser.connect(
+            "selected",
+            &Callable::from_object_method(&self.to_gd(), "inspect_material"),
+        );
+        self.ui_browser.bind_mut().set_ui(mat_browser);
         self.edited_chunk = Some(chunk);
 
         Ok(())

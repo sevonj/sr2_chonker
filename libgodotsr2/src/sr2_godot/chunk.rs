@@ -14,17 +14,17 @@ use godot::classes::{Material, MeshInstance3D};
 use crate::editor::RenderLayer;
 
 use super::{
-    aabb::build_bbox_mesh, sr2_vec_to_godot, MeshMoverPosition, Sr2Mesh, Sr2MeshInstance,
-    Sr2Object, Unknown23, WorldCollision,
+    aabb::build_bbox_mesh, sr2_vec_to_godot, world_collision, MeshMoverPosition, Sr2Mesh,
+    Sr2MeshInstance, Sr2Object, Unknown23, WorldCollision,
 };
 
 /// This [Node] is the Godot-representation of the entire SR2 Chunk, including CPU/GPU chunkfiles and the peg file.
 #[derive(Debug, GodotClass)]
 #[class(no_init, base=Node)]
 pub struct Chunk {
-    pub chunk_bbox: Gd<MeshInstance3D>,
+    pub data: sr2::Chunk,
 
-    pub textures: Vec<String>,
+    pub chunk_bbox: Gd<MeshInstance3D>,
 
     /// Found next to collision mopp
     pub unk_bb_min: Vector3,
@@ -89,6 +89,11 @@ impl Chunk {
 
         let gpu_mesh_buf = chunk.gpu_mesh_buffer().unwrap();
 
+        let unk_bb_min = sr2_vec_to_godot(&chunk.unk_bb_min);
+        let unk_bb_max = sr2_vec_to_godot(&chunk.unk_bb_max);
+
+        let world_collision = WorldCollision::from_sr2(&chunk.world_collision_vbuf);
+
         let meshes: Vec<_> = chunk
             .meshes
             .iter()
@@ -116,14 +121,14 @@ impl Chunk {
         let unk23 = chunk.unknown23.iter().map(Unknown23::from_sr2).collect();
 
         let this = Gd::from_init_fn(|base| Self {
+            data: chunk,
+
             chunk_bbox,
 
-            textures: chunk.textures,
+            unk_bb_min,
+            unk_bb_max,
 
-            unk_bb_min: sr2_vec_to_godot(&chunk.unk_bb_min),
-            unk_bb_max: sr2_vec_to_godot(&chunk.unk_bb_max),
-
-            world_collision: WorldCollision::from_sr2(&chunk.world_collision_vbuf),
+            world_collision,
 
             meshes,
             objects,
