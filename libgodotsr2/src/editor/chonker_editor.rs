@@ -14,7 +14,7 @@ use godot::classes::{
 };
 
 use super::{viewport_ui_root::ViewportUiRoot, CameraRigOrbit, SceneGrid, ViewportCameraPanel};
-use super::{SceneAxisLines, UiBrowserPanel, ViewportVisibilityPanel};
+use super::{RenderLayer, SceneAxisLines, UiBrowserPanel, ViewportVisibilityPanel};
 use crate::sr2_godot::Chunk;
 
 /// The root [Node] of an
@@ -92,6 +92,10 @@ impl ChonkerEditor {
 impl ChonkerEditor {
     fn setup_scene(&mut self) {
         let mut scn_camera = self.scn_camera.clone();
+        scn_camera
+            .bind_mut()
+            .camera
+            .set_cull_mask(RenderLayer::DEFAULT_MASK);
         scn_camera.set_name("scn_camera");
 
         let mut scn_grid = self.scn_grid.clone();

@@ -18,7 +18,14 @@ pub enum RenderLayer {
 }
 
 impl RenderLayer {
-    pub fn mask(&self) -> u32 {
+    pub const DEFAULT_MASK: u32 = Self::Common as u32
+        | Self::Gizmos.mask() as u32
+        | Self::Collisions.mask() as u32
+        | Self::BBox.mask() as u32
+        // | Self::Unknown.mask() as u32
+        | Self::Markers.mask() as u32;
+
+    pub const fn mask(&self) -> u32 {
         let shift = *self as usize - 1;
         1 << shift
     }
